@@ -186,12 +186,28 @@
         display: block;
         border: 4px solid white;
       }
-
       /* Layout Tombol Uang */
       #moneyButtons {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(
+          4,
+          minmax(120px, 1fr)
+        ); /* 4 kolom, minimum lebar 120px */
+        gap: 12px;
+      }
+
+      .money-btn img {
+        width: 100%; /* gambar mengikuti lebar tombol */
+        height: auto;
+      }
+
+      @media (max-width: 768px) {
+        #moneyButtons {
+          grid-template-columns: repeat(
+            2,
+            minmax(150px, 1fr)
+          ); /* 2 kolom, lebih besar */
+        }
       }
 
       /* Tombol Aksi */
@@ -405,71 +421,79 @@
       const GENERATE_TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
 
       // Data Denominasi, Pahlawan, Warna, dan Bentuk (Visual Uang Nyata)
+      // Data Uang: koin dan uang kertas
       const heroData = {
-        // Koin (Warna Metalik)
         100: {
           name: "Koin 100 Rupiah",
-          color: "BDBDBD",
-          text: "100",
           shape: "coin",
-        }, // Silver
+          img: "img/rp100.png",
+          color: "FFD700",
+          text: "100",
+        },
         200: {
           name: "Koin 200 Rupiah",
-          color: "A1887F",
-          text: "200",
           shape: "coin",
-        }, // Bronze
+          img: "img/rp200.png",
+          color: "FFD700",
+          text: "200",
+        },
         500: {
           name: "Koin 500 Rupiah",
+          shape: "coin",
+          img: "img/rp500.png",
           color: "FFD700",
           text: "500",
-          shape: "coin",
-        }, // Gold
-        // Uang Kertas (Warna Khas Rupiah)
+        },
         1000: {
           name: "1 Ribu Rupiah",
-          color: "388E3C",
-          text: "1.000",
           shape: "note",
-        }, // Hijau Muda
+          img: "img/rp1000.png",
+          color: "388E3C",
+          text: "1000",
+        },
         2000: {
           name: "2 Ribu Rupiah",
-          color: "8D6E63",
-          text: "2.000",
           shape: "note",
-        }, // Abu-abu
+          img: "img/rp2000.png",
+          color: "8D6E63",
+          text: "2000",
+        },
         5000: {
           name: "5 Ribu Rupiah",
-          color: "FFC107",
-          text: "5.000",
           shape: "note",
-        }, // Kuning/Coklat
+          img: "img/rp5000.png",
+          color: "FFC107",
+          text: "5000",
+        },
         10000: {
           name: "10 Ribu Rupiah",
-          color: "1976D2",
-          text: "10.000",
           shape: "note",
-        }, // Biru
+          img: "img/rp10000.png",
+          color: "1976D2",
+          text: "10000",
+        },
         20000: {
           name: "20 Ribu Rupiah",
-          color: "2E7D32",
-          text: "20.000",
           shape: "note",
-        }, // Hijau Tua
+          img: "img/rp20000.png",
+          color: "2E7D32",
+          text: "20000",
+        },
         50000: {
           name: "50 Ribu Rupiah",
-          color: "512DA8",
-          text: "50.000",
           shape: "note",
-        }, // Biru/Ungu
+          img: "img/rp50000.png",
+          color: "512DA8",
+          text: "50000",
+        },
         100000: {
           name: "100 Ribu Rupiah",
-          color: "C2185B",
-          text: "100.000",
           shape: "note",
-        }, // Merah/Pink
+          img: "img/rp100000.png",
+          color: "C2185B",
+          text: "100000",
+        },
       };
-
       const denominations = Object.keys(heroData).map(Number); // Mengambil array nilai [100, 200, ...]
 
       // Elemen DOM
@@ -715,82 +739,53 @@
       // Inisialisasi Tombol Uang (Generasi Visual Uang Nyata)
       denominations.forEach((value) => {
         const button = document.createElement("button");
-
         const data = heroData[value];
         const isCoin = data.shape === "coin";
 
-        // Atur dimensi placeholder: Uang kertas 2.5:1 (250x100), koin 1:1 (150x150)
-        const width = isCoin ? "150" : "250";
-        const height = isCoin ? "150" : "100";
+        // Ukuran gambar
+        const imgWidth = isCoin ? 100 : 120;
+        const imgHeight = isCoin ? 100 : 60;
 
-        const imgClass = isCoin ? "coin-img" : "note-img";
-
-        // Tentukan teks yang sangat resmi untuk placeholder
-        const formattedValue = formatRupiah(value).replace("IDR", "").trim();
-        let placeholderText;
-        if (isCoin) {
-          // Koin: Hanya nilai yang besar
-          placeholderText = `RP ${data.text}`;
-        } else {
-          // Uang Kertas: Nilai besar dan tulisan bank
-          placeholderText = `BANK INDONESIA | RP ${formattedValue}`;
-        }
-
-        // Tentukan warna teks (putih jika latar belakang gelap)
-        const bgColor = data.color;
-        const luminance =
-          (0.299 * parseInt(bgColor.substring(0, 2), 16) +
-            0.587 * parseInt(bgColor.substring(2, 4), 16) +
-            0.114 * parseInt(bgColor.substring(4, 6), 16)) /
-          255;
-        const textColor = luminance > 0.4 ? "000000" : "ffffff";
-
-        // URL Placeholder (Simulasi Uang Kertas/Koin Resmi)
-        const imageUrl = `https://placehold.co/${width}x${height}/${bgColor}/${textColor}?text=${encodeURIComponent(
-          placeholderText
-        )}&font=Inter&fontsize=${isCoin ? 40 : 25}`;
-
+        // HTML gambar
         let imageHtml;
         if (isCoin) {
-          // Untuk koin, gunakan div wrapper untuk mempertahankan bentuk bulat dan efek logam
+          // Cukup gambar koin, bundar
           imageHtml = `
-                <div class="coin-wrapper" style="background: radial-gradient(circle at 50% 50%, #${bgColor} 60%, #${bgColor}AA 100%);">
-                    <img src="${imageUrl}" 
-                        alt="Koin ${formatRupiah(value)}" 
-                        class="${imgClass}">
-                </div>
-            `;
+      <img src="${data.img}" 
+           alt="Koin ${formatRupiah(value)}" 
+           style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: cover;">
+    `;
         } else {
-          // Untuk uang kertas, gunakan gambar persegi panjang
+          // Uang kertas persegi panjang
           imageHtml = `
-                <img src="${imageUrl}" 
-                     alt="Uang ${formatRupiah(value)}" 
-                     class="${imgClass} rounded-md">
-            `;
+      <img src="${data.img}" 
+           alt="Uang ${formatRupiah(value)}" 
+           style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: cover;">
+    `;
         }
 
+        // Isi tombol
         button.innerHTML = `
-            ${imageHtml}
-            <span class="text-xs font-semibold block mt-1 text-gray-700">${data.name}</span>
-        `;
+    ${imageHtml}
+    <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">${data.name}</span>
+  `;
 
-        button.classList.add(
-          "money-btn",
-          "p-1",
-          "rounded-xl",
-          "font-semibold",
-          "text-center",
-          "flex",
-          "flex-col",
-          "items-center",
-          "justify-start",
-          "bg-white"
-        );
+        // Style tombol
+        button.classList.add("money-btn");
+        button.style.display = "flex";
+        button.style.flexDirection = "column";
+        button.style.alignItems = "center";
+        button.style.justifyContent = "center";
+        button.style.margin = "5px";
+        button.style.padding = "5px";
+        button.style.backgroundColor = "#fff";
+        button.style.borderRadius = "10px";
 
         button.setAttribute("data-value", value);
+
+        // Event klik
         button.addEventListener("click", () => {
           if (itemPrice === 0) {
-            // Mengubah pesan instruksi
             messageBox.className =
               "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
             messageBox.textContent =
@@ -801,8 +796,21 @@
           totalPaid += value;
           updateDisplay();
         });
+
         moneyButtonsContainer.appendChild(button);
       });
+
+      // Container tombol rapi
+      moneyButtonsContainer.style.display = "flex";
+      moneyButtonsContainer.style.flexWrap = "wrap";
+      moneyButtonsContainer.style.justifyContent = "center";
+      moneyButtonsContainer.style.gap = "10px";
+
+      // Tambahkan CSS container agar tombol rapi
+      moneyButtonsContainer.style.display = "flex";
+      moneyButtonsContainer.style.flexWrap = "wrap";
+      moneyButtonsContainer.style.justifyContent = "center";
+      moneyButtonsContainer.style.gap = "10px";
 
       // Tombol Minus (Kurang/Reset Pembayaran)
       btnMinus.addEventListener("click", () => {
