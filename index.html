@@ -167,7 +167,7 @@
       /* RESPONSIVE: HP → 2 kolom */
       @media (max-width: 768px) {
         #moneyButtons {
-          grid-template-columns: repeat(3, 1fr); /* HP = 2 kolom */
+          grid-template-columns: repeat(2, 1fr); /* HP = 2 kolom */
         }
 
         .money-btn {
@@ -737,7 +737,7 @@
           imageHtml = `
     <img src="${data.img}"
          alt="Koin ${formatRupiah(value)}"
-         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: cover;">
+         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
   `;
         } else {
           // Gambar uang kertas, TANPA CROP
