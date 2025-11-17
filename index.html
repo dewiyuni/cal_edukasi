@@ -32,6 +32,7 @@
         min-height: 100vh;
         padding: 20px;
       }
+      /* --- KOTAK KASIR --- */
       .kasir-container {
         background-color: #ffffff;
         border-radius: 20px;
@@ -44,7 +45,20 @@
         grid-template-rows: auto 1fr;
       }
 
-      /* --- ANIMASI BACKGROUND SCENE --- */
+      /* --- HEADER SCENE --- */
+      .header-scene {
+        background-color: #f97316;
+        color: white;
+        padding: 20px;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+      }
+
+      /* --- ANIMASI BACKGROUND (opsional) --- */
       @keyframes moveBackground {
         0% {
           background-position: 0 0;
@@ -53,16 +67,7 @@
           background-position: -600px 0;
         }
       }
-      .header-scene {
-        background-color: var(--header-bg);
-        color: white;
-        padding: 20px;
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
+
       .header-scene::before {
         content: "";
         position: absolute;
@@ -70,32 +75,71 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: linear-gradient(
-            rgba(234, 88, 12, 0.85),
-            rgba(234, 88, 12, 0.85)
-          ),
-          url("https://placehold.co/200x150/8D6E63/ffffff?text=CILOK"),
-          url("https://placehold.co/200x150/4CAF50/ffffff?text=ES+TEH"),
-          url("https://placehold.co/200x150/FFC107/000000?text=GORENGAN");
         background-repeat: repeat-x;
-        background-size: 100% 100%, 200px 100%, 200px 100%, 200px 100%;
+        background-size: 200px 100%;
         background-position: 0 0;
         animation: moveBackground 25s linear infinite;
-        opacity: 1;
-        z-index: 1;
+        opacity: 0.3; /* biar tidak terlalu menutupi kasir */
+        z-index: 0;
       }
+
+      /* --- KONTEN DI DEPAN --- */
       .scene-content {
         position: relative;
         z-index: 2;
+        text-align: center;
       }
+
       .cashier-img {
-        background-image: url("https://placehold.co/80x80/ffafbd/ffffff?text=Kasir");
-        background-size: cover;
-        border-radius: 50%;
-        border: 4px solid white;
         width: 80px;
         height: 80px;
+        border-radius: 50%;
+        background-image: url("img/kasir3.jpg");
+        background-size: cover;
         margin: 0 auto 10px;
+      }
+
+      /* --- ITEM BERGERAK SEAMLESS --- */
+      .moving-items {
+        position: absolute;
+        top: 60%; /* sesuaikan posisi */
+        left: 0;
+        display: flex;
+        gap: 20px;
+        transform: translateY(-50%);
+        z-index: 1; /* di bawah kasir */
+        animation: moveItems 20s linear infinite;
+      }
+
+      .moving-item {
+        width: 120px;
+        height: auto;
+        border-radius: 10px;
+      }
+
+      /* --- ANIMASI LOOP MULUS --- */
+      @keyframes moveItems {
+        0% {
+          transform: translateX(0) translateY(-50%);
+        }
+        100% {
+          transform: translateX(-50%) translateY(-50%);
+        }
+      }
+
+      /* --- ITEM ROW (opsional, statis di bawah kasir) --- */
+      .item-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+        z-index: 2;
+      }
+
+      .item-img {
+        width: 150px;
+        height: auto;
+        border-radius: 10px;
       }
 
       /* Tombol Denominasi */
@@ -207,9 +251,25 @@
       <!-- Header: Warung Jajanan Anime & Kasir -->
       <header class="header-scene">
         <div class="scene-content">
-          <div class="cashier-img"></div>
           <h1 class="text-2xl font-extrabold mb-1">Kasir Jajanan</h1>
           <p class="text-sm">Ayo Bayar Belanjaanmu! (Latihan Uang)</p>
+        </div>
+
+        <div class="moving-items">
+          <img src="img/cilok.png" alt="Cilok" class="moving-item" />
+          <img src="img/es_jeruk.png" alt="Es Jeruk" class="moving-item" />
+          <img src="img/mie.png" alt="Mie" class="moving-item" />
+          <img src="img/roti.png" alt="Roti" class="moving-item" />
+          <img src="img/es_teh.png" alt="Es Teh" class="moving-item" />
+          <img
+            src="img/pisang_goreng.png"
+            alt="Pisang Goreng"
+            class="moving-item"
+          />
+          <img src="img/cilok.png" alt="Cilok" class="moving-item" />
+          <img src="img/es_jeruk.png" alt="Es Jeruk" class="moving-item" />
+          <img src="img/mie.png" alt="Mie" class="moving-item" />
+          <img src="img/roti.png" alt="Roti" class="moving-item" />
         </div>
       </header>
 
@@ -217,9 +277,9 @@
       <main class="p-6">
         <button
           id="btnPlus"
-          class="action-btn btn-plus w-1/3 p-4 rounded-xl flex items-center justify-center"
+          class="action-btn btn-plus w-full p-4 mb-3 rounded-xl flex items-center justify-center"
         >
-          <span id="plusText">Tambah ✨</span>
+          <span id="plusText">Pilih 1 jajan ✨</span>
           <div id="plusLoading" class="loading-spinner hidden ml-2"></div>
         </button>
         <!-- Display Nama Barang & Harga & Quantity -->
@@ -233,7 +293,7 @@
             id="itemNameDisplay"
             class="text-xl font-bold text-gray-800 p-2 rounded-lg text-center bg-yellow-100 mb-4"
           >
-            Tekan "Tambah"
+            Tekan "Pilih Jajan"
           </div>
 
           <p class="text-lg font-semibold text-gray-700 mt-2">
@@ -547,12 +607,12 @@
         try {
           // Generate item secara acak
           const sampleItems = [
-            "Cilok Pedas Pelangi",
-            "Es Teh Boba Super",
-            "Roti Bakar Coklat Keju",
-            "Bakso Aci Pedas Manis",
-            "Kue Cubit Green Tea",
-            "Pisang Goreng Keju Melt",
+            "Cilok",
+            "Es Teh",
+            "Roti Bakar",
+            "Es Jeruk",
+            "Mie Ayam",
+            "Pisang Goreng",
           ];
           const randomName =
             sampleItems[Math.floor(Math.random() * sampleItems.length)];
@@ -589,7 +649,7 @@
             basePrice
           )}/item.`;
         } finally {
-          plusText.textContent = "Tambah ✨";
+          plusText.textContent = "Pilih Jajan ✨";
           plusLoading.classList.add("hidden");
           btnPlus.disabled = false;
         }
@@ -734,7 +794,7 @@
             messageBox.className =
               "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
             messageBox.textContent =
-              'Tekan "Tambah" dulu untuk memulai transaksi!';
+              'Tekan "Pilih Jajan" dulu untuk memulai transaksi!';
             messageBox.classList.remove("hidden");
             return;
           }
@@ -767,7 +827,8 @@
 
         if (itemPrice === 0) {
           // Mengubah pesan instruksi
-          feedbackMessage = 'Hai! Tekan "Tambah" dulu untuk memulai transaksi.';
+          feedbackMessage =
+            'Hai! Tekan "Pilih Jajan" dulu untuk memulai transaksi.';
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
         } else if (totalPaid === 0) {
@@ -798,7 +859,7 @@
           // Update UI elements directly for zero state
           itemPriceDisplay.textContent = formatRupiah(0);
           paymentDisplay.textContent = formatRupiah(0);
-          itemNameDisplay.textContent = "Tekan 'Tambah'";
+          itemNameDisplay.textContent = "Tekan 'Pilih Jajan'";
 
           updateDisplay(); // Panggil updateDisplay untuk sinkronisasi kuantitas dan tombol.
         }
