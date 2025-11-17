@@ -90,15 +90,6 @@
         text-align: center;
       }
 
-      .cashier-img {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background-image: url("img/kasir3.jpg");
-        background-size: cover;
-        margin: 0 auto 10px;
-      }
-
       /* --- ITEM BERGERAK SEAMLESS --- */
       .moving-items {
         position: absolute;
@@ -142,72 +133,59 @@
         border-radius: 10px;
       }
 
+      /* Layout Tombol Uang */
+      #moneyButtons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* DESKTOP = 4 kolom */
+        gap: 15px;
+      }
+
       /* Tombol Denominasi */
       .money-btn {
         font-weight: 700;
         transition: transform 0.1s, box-shadow 0.1s;
         box-shadow: 0 4px rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        padding: 4px;
-        height: 120px;
+        border-radius: 12px;
+        padding: 10px;
+        height: 150px;
       }
       .money-btn:active {
         transform: translateY(2px);
         box-shadow: 0 2px rgba(0, 0, 0, 0.2);
       }
 
-      /* Visual Uang Kertas */
+      /* Gambar Uang */
+      .money-btn img,
       .note-img {
         width: 100%;
-        height: 70px;
+        height: 100px;
         object-fit: cover;
-        margin: 0 auto;
-        border: 2px solid rgba(0, 0, 0, 0.1);
-        overflow: hidden;
+        border-radius: 8px;
         display: block;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       }
 
-      /* Visual Koin */
-      .coin-wrapper {
-        width: 70px;
-        height: 70px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      }
-      .coin-img {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: block;
-        border: 4px solid white;
-      }
-      /* Layout Tombol Uang */
-      #moneyButtons {
-        display: grid;
-        grid-template-columns: repeat(
-          4,
-          minmax(120px, 1fr)
-        ); /* 4 kolom, minimum lebar 120px */
-        gap: 12px;
-      }
-
-      .money-btn img {
-        width: 100%; /* gambar mengikuti lebar tombol */
-        height: auto;
-      }
-
+      /* RESPONSIVE: HP → 2 kolom */
       @media (max-width: 768px) {
         #moneyButtons {
-          grid-template-columns: repeat(
-            2,
-            minmax(150px, 1fr)
-          ); /* 2 kolom, lebih besar */
+          grid-template-columns: repeat(3, 1fr); /* HP = 2 kolom */
         }
+
+        .money-btn {
+          height: 170px;
+        }
+
+        .money-btn img,
+        .note-img {
+          height: 120px;
+        }
+      }
+      /* Efek pop */
+      #btnPlus {
+        transition: transform 0.15s ease;
+      }
+
+      #btnPlus.clicked {
+        transform: scale(0.92);
       }
 
       /* Tombol Aksi */
@@ -223,8 +201,8 @@
         box-shadow: 0 2px rgba(0, 0, 0, 0.3);
       }
       .btn-plus {
-        background-color: var(--accent-green);
-        box-shadow: 0 4px #2f855a;
+        background-color: #f97316;
+        box-shadow: 0 4px #929292;
       }
       .btn-plus:active {
         box-shadow: 0 2px #2f855a;
@@ -237,11 +215,11 @@
         box-shadow: 0 2px #c53030;
       }
       .btn-equals {
-        background-color: var(--display-blue);
-        box-shadow: 0 4px #2b6cb0;
+        background-color: var(--accent-green);
+        box-shadow: 0 4px #2f855a;
       }
       .btn-equals:active {
-        box-shadow: 0 2px #2b6cb0;
+        box-shadow: 0 2px #2f855a;
       }
       /* Loading Spinner */
       .loading-spinner {
@@ -307,14 +285,10 @@
           </p>
           <div
             id="itemNameDisplay"
-            class="text-xl font-bold text-gray-800 p-2 rounded-lg text-center bg-yellow-100 mb-4"
+            class="text-2xl font-bold text-gray-800 p-2 rounded-lg text-center bg-white mb-4"
           >
             Tekan "Pilih Jajan"
           </div>
-
-          <p class="text-lg font-semibold text-gray-700 mt-2">
-            Total Harga Belanjaan:
-          </p>
 
           <!-- Quantity Control Baru -->
           <div class="flex items-center justify-between mt-2 mb-4">
@@ -342,10 +316,14 @@
             </div>
           </div>
 
+          <p class="text-lg font-semibold text-gray-700 mt-2">
+            Total Harga Belanjaan:
+          </p>
+
           <!-- Total Price Display -->
           <div
             id="itemPriceDisplay"
-            class="text-4xl font-extrabold text-white bg-accent-green p-3 rounded-xl shadow-lg mt-1 text-center"
+            class="text-4xl font-extrabold text-orange-600 bg-white p-3 rounded-xl shadow-lg mt-1 text-center"
           >
             Rp 0
           </div>
@@ -376,18 +354,18 @@
         <div class="flex space-x-3">
           <button
             id="btnMinus"
-            class="action-btn btn-minus w-1/3 p-4 rounded-xl"
+            class="action-btn btn-minus w-1/2 p-4 rounded-xl"
           >
-            <span class="block text-2xl mb-1">Kurang</span>
+            <span class="block text-2xl mb-1">Ulangi</span>
             <span class="text-sm font-normal">(Reset Pembayaran)</span>
           </button>
 
           <button
             id="btnEquals"
-            class="action-btn btn-equals w-1/3 p-4 rounded-xl flex flex-col items-center justify-center"
+            class="action-btn btn-equals w-1/2 p-4 rounded-xl flex flex-col items-center justify-center"
           >
-            <span class="block text-2xl mb-1">=</span>
-            <span class="text-sm font-normal">(Hitung Kembalian)</span>
+            <span class="block text-2xl mb-1">Hitung Kembalian</span>
+            <span class="text-sm font-normal"></span>
           </button>
         </div>
 
@@ -402,7 +380,7 @@
           <div class="mt-2 text-center">
             <button
               id="btnPlayAudio"
-              class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-full hidden items-center"
+              class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full hidden items-center"
               disabled
             >
               <i class="fas fa-volume-up mr-2"></i>
@@ -676,6 +654,12 @@
           plusText.textContent = "Pilih Jajan ✨";
           plusLoading.classList.add("hidden");
           btnPlus.disabled = false;
+
+          // ➤ Tambahkan animasi tombol pop
+          btnPlus.classList.add("clicked");
+          setTimeout(() => {
+            btnPlus.classList.remove("clicked");
+          }, 150);
         }
       }
       // --- TTS FEEDBACK (pakai browser speechSynthesis) ---
@@ -741,34 +725,36 @@
         const button = document.createElement("button");
         const data = heroData[value];
         const isCoin = data.shape === "coin";
-
         // Ukuran gambar
-        const imgWidth = isCoin ? 100 : 120;
-        const imgHeight = isCoin ? 100 : 60;
+        const imgWidth = isCoin ? 120 : 200;
+        const imgHeight = isCoin ? 120 : 110;
 
         // HTML gambar
         let imageHtml;
+
         if (isCoin) {
-          // Cukup gambar koin, bundar
+          // Gambar koin, bulat
           imageHtml = `
-      <img src="${data.img}" 
-           alt="Koin ${formatRupiah(value)}" 
-           style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: cover;">
-    `;
+    <img src="${data.img}"
+         alt="Koin ${formatRupiah(value)}"
+         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: cover;">
+  `;
         } else {
-          // Uang kertas persegi panjang
+          // Gambar uang kertas, TANPA CROP
           imageHtml = `
-      <img src="${data.img}" 
-           alt="Uang ${formatRupiah(value)}" 
-           style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: cover;">
-    `;
+    <img src="${data.img}"
+         alt="Uang ${formatRupiah(value)}"
+         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
+  `;
         }
 
         // Isi tombol
         button.innerHTML = `
-    ${imageHtml}
-    <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">${data.name}</span>
-  `;
+  ${imageHtml}
+  <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
+    ${data.name}
+  </span>
+`;
 
         // Style tombol
         button.classList.add("money-btn");
@@ -780,6 +766,7 @@
         button.style.padding = "5px";
         button.style.backgroundColor = "#fff";
         button.style.borderRadius = "10px";
+        button.style.height = "160px";
 
         button.setAttribute("data-value", value);
 
@@ -799,18 +786,6 @@
 
         moneyButtonsContainer.appendChild(button);
       });
-
-      // Container tombol rapi
-      moneyButtonsContainer.style.display = "flex";
-      moneyButtonsContainer.style.flexWrap = "wrap";
-      moneyButtonsContainer.style.justifyContent = "center";
-      moneyButtonsContainer.style.gap = "10px";
-
-      // Tambahkan CSS container agar tombol rapi
-      moneyButtonsContainer.style.display = "flex";
-      moneyButtonsContainer.style.flexWrap = "wrap";
-      moneyButtonsContainer.style.justifyContent = "center";
-      moneyButtonsContainer.style.gap = "10px";
 
       // Tombol Minus (Kurang/Reset Pembayaran)
       btnMinus.addEventListener("click", () => {
@@ -856,7 +831,7 @@
             change
           )}. Kamu Hebat dalam menghitung!`;
           messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-2xl bg-accent-green text-white shadow-xl";
+            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
 
           // Siapkan untuk transaksi berikutnya
           itemPrice = 0;
