@@ -292,7 +292,7 @@
 
           <!-- Quantity Control Baru -->
           <div class="flex items-center justify-between mt-2 mb-4">
-            <div class="text-xl font-semibold text-gray-700">Jumlah Item:</div>
+            <div class="text-lg font-semibold text-gray-700">Jumlah Item:</div>
             <div class="flex items-center space-x-3">
               <button
                 id="btnQuantityMinus"
@@ -404,70 +404,70 @@
         100: {
           name: "Koin 100 Rupiah",
           shape: "coin",
-          img: "img/rp100.png",
+          img: "img/100.png",
           color: "FFD700",
           text: "100",
         },
         200: {
           name: "Koin 200 Rupiah",
           shape: "coin",
-          img: "img/rp200.png",
+          img: "img/200.png",
           color: "FFD700",
           text: "200",
         },
         500: {
           name: "Koin 500 Rupiah",
           shape: "coin",
-          img: "img/rp500.png",
+          img: "img/500.png",
           color: "FFD700",
           text: "500",
         },
         1000: {
           name: "1 Ribu Rupiah",
           shape: "note",
-          img: "img/rp1000.png",
+          img: "img/1000.png",
           color: "388E3C",
           text: "1000",
         },
         2000: {
           name: "2 Ribu Rupiah",
           shape: "note",
-          img: "img/rp2000.png",
+          img: "img/2000.png",
           color: "8D6E63",
           text: "2000",
         },
         5000: {
           name: "5 Ribu Rupiah",
           shape: "note",
-          img: "img/rp5000.png",
+          img: "img/5000.png",
           color: "FFC107",
           text: "5000",
         },
         10000: {
           name: "10 Ribu Rupiah",
           shape: "note",
-          img: "img/rp10000.png",
+          img: "img/10000.png",
           color: "1976D2",
           text: "10000",
         },
         20000: {
           name: "20 Ribu Rupiah",
           shape: "note",
-          img: "img/rp20000.png",
+          img: "img/20000.png",
           color: "2E7D32",
           text: "20000",
         },
         50000: {
           name: "50 Ribu Rupiah",
           shape: "note",
-          img: "img/rp50000.png",
+          img: "img/50000.png",
           color: "512DA8",
           text: "50000",
         },
         100000: {
           name: "100 Ribu Rupiah",
           shape: "note",
-          img: "img/rp100000.png",
+          img: "img/100000.png",
           color: "C2185B",
           text: "100000",
         },
@@ -809,50 +809,101 @@
         let feedbackMessage = "";
 
         if (itemPrice === 0) {
-          // Mengubah pesan instruksi
           feedbackMessage =
             'Hai! Tekan "Pilih Jajan" dulu untuk memulai transaksi.';
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
+          messageBox.innerHTML = feedbackMessage;
         } else if (totalPaid === 0) {
           feedbackMessage =
             "Ups, Kamu belum membayar! Coba masukkan uang yang tepat. Semangat!";
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
+          messageBox.innerHTML = feedbackMessage;
         } else if (change < 0) {
+          // Uang kurang
           feedbackMessage = `Uangmu kurang ${formatRupiah(
             Math.abs(change)
           )}! Coba hitung lagi, uang mana yang perlu kamu tambahkan?`;
+
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
+
+          // Hitung pecahan yang dibutuhkan
+          const uangPecahan = [
+            100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
+          ];
+
+          let sisa = Math.abs(change);
+
+          let gambarHTML = "<div class='flex flex-wrap justify-center mt-3'>";
+
+          uangPecahan.forEach((nominal) => {
+            let jumlah = Math.floor(sisa / nominal);
+            sisa %= nominal;
+
+            for (let i = 0; i < jumlah; i++) {
+              gambarHTML += `
+          <img src="img/${nominal}.png" class="w-26 h-24 m-1 rounded-sm shadow-md" />
+        `;
+            }
+          });
+
+          gambarHTML += "</div>";
+
+          // Tampilkan pesan + gambar
+          messageBox.innerHTML = feedbackMessage + gambarHTML;
         } else {
-          // Transaksi Selesai dan Sukses
+          // Transaksi berhasil
           feedbackMessage = `Yey! Transaksi berhasil! Total kembalianmu adalah ${formatRupiah(
             change
-          )}. Kamu Hebat dalam menghitung!`;
+          )}.<br>Kamu hebat dalam menghitung!`;
+
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
 
-          // Siapkan untuk transaksi berikutnya
+          // Hitung pecahan kembalian
+          const uangPecahan = [
+            100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
+          ];
+
+          let sisa = change;
+
+          let gambarHTML = "<div class='flex flex-wrap justify-center mt-3'>";
+
+          uangPecahan.forEach((nominal) => {
+            let jumlah = Math.floor(sisa / nominal);
+            sisa %= nominal;
+
+            for (let i = 0; i < jumlah; i++) {
+              gambarHTML += `
+          <img src="img/${nominal}.png" class="w-26 h-24 m-1 rounded-sm shadow-md" />
+        `;
+            }
+          });
+
+          gambarHTML += "</div>";
+
+          messageBox.innerHTML = feedbackMessage + gambarHTML;
+
+          // Reset transaksi
           itemPrice = 0;
           basePrice = 0;
           itemQuantity = 0;
           totalPaid = 0;
 
-          // Update UI elements directly for zero state
           itemPriceDisplay.textContent = formatRupiah(0);
           paymentDisplay.textContent = formatRupiah(0);
           itemNameDisplay.textContent = "Tekan 'Pilih Jajan'";
-
-          updateDisplay(); // Panggil updateDisplay untuk sinkronisasi kuantitas dan tombol.
+          updateDisplay();
         }
 
-        messageBox.textContent = feedbackMessage;
+        // Tampilkan message box
         messageBox.classList.remove("hidden");
 
-        // Panggil TTS untuk memberikan feedback verbal
+        // TTS
         btnPlayAudio.classList.remove("hidden");
-        playVerbalFeedback(feedbackMessage, "Puck");
+        playVerbalFeedback(messageBox.textContent, "Puck");
       });
 
       // Tombol Play Audio terpisah
