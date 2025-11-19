@@ -30,23 +30,24 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        padding: 20px;
+        padding: 20px 100px;
       }
-      main {
-        margin-top: 180px; /* lebih tinggi dari header */
-        position: relative;
-        z-index: 2; /* biar di atas background header */
-      }
-      .moving-items {
-        position: absolute;
-        top: 40%;
-        left: 0;
-        width: 200vw;
-        height: auto;
-        display: flex;
-        gap: 0px;
-        z-index: 1;
-      }
+    body {
+  font-family: var(--font-inter);
+  background-color: var(--primary-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px; /* default untuk layar kecil */
+}
+
+@media (min-width: 1200px) {
+  body {
+    padding-left: 220px;
+    padding-right: 220px;
+  }
+}
 
       /* --- container --- */
       .container {
@@ -85,19 +86,22 @@
       }
 
       .header-scene::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-repeat: repeat-x;
-        background-size: auto 100%; /* <<< fix gambar membesar */
-        background-position: 0 0;
-        animation: moveBackground 25s linear infinite;
-        opacity: 0.5;
-        z-index: 0;
-      }
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('img/header.jpg'); /* tambahkan bg image */
+  background-repeat: repeat-x;
+  background-size: cover; /* bisa juga auto 100% sesuai kebutuhan */
+  background-position: center;
+  animation: moveBackground 25s linear infinite;
+  opacity: 0.5; /* atur kecerahan: 0 = gelap, 1 = terang */
+  z-index: 0;
+  filter: brightness(0.5); /* bisa diganti 0.3-1.2 sesuai kecerahan */
+}
+
 
       /* --- KONTEN DI DEPAN --- */
       .scene-content {
