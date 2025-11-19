@@ -3,37 +3,149 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Menjodohkan Uang</title>
+    <title>Menjodohkan Uang - Belajar Uang</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome untuk ikon loading -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <style>
       :root {
-        --primary-bg: #fef3c7;
-        --header-bg: #ea580c;
-        --accent-green: #38a169;
-        --accent-yellow: #f6ad55;
-        --display-blue: #3182ce;
+        --primary-bg: #fef3c7; /* Kuning Muda - Latar Belakang Tubuh */
+        --header-bg: #ea580c; /* Oranye Terang - Warna Header Overlay */
+        --accent-green: #38a169; /* Hijau - Untuk Harga/Sukses */
+        --accent-yellow: #f6ad55; /* Kuning - Untuk Tombol Uang */
+        --display-blue: #3182ce; /* Biru - Untuk Display Total */
         --font-inter: "Inter", sans-serif;
       }
-
       body {
         font-family: var(--font-inter);
         background-color: var(--primary-bg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
       }
-      .money-btn {
-        background: #f6ad55;
-        padding: 12px;
-        border-radius: 12px;
-        font-weight: bold;
+      main {
+        margin-top: 180px; /* lebih tinggi dari header */
+        position: relative;
+        z-index: 2; /* biar di atas background header */
+      }
+      .moving-items {
+        position: absolute;
+        top: 40%;
+        left: 0;
+        width: 200vw;
+        height: auto;
+        display: flex;
+        gap: 0px;
+        z-index: 1;
+      }
+
+      /* --- KOTAK KASIR --- */
+      .container {
+        background-color: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        width: 100%;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      /* --- HEADER SCENE --- */
+      .header-scene {
+        background-color: #fabb58;
         color: white;
-        border: none;
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
-        transition: 0.2s;
+        padding: 20px;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        height: 160px;
       }
-      .money-btn:hover {
-        background: #f97316;
-        transform: scale(1.05);
-      } /* back  */
+
+      /* --- ANIMASI BACKGROUND (opsional) --- */
+      @keyframes moveBackground {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -600px 0;
+        }
+      }
+
+      .header-scene::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-repeat: repeat-x;
+        background-size: auto 100%; /* <<< fix gambar membesar */
+        background-position: 0 0;
+        animation: moveBackground 25s linear infinite;
+        opacity: 0.5;
+        z-index: 0;
+      }
+
+      /* --- KONTEN DI DEPAN --- */
+      .scene-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+      }
+      .cashier-img {
+        background-image: url("https://placehold.co/80x80/ffffff/000000?text=J O D O H K A N%0AU A N G&font-size=20");
+        background-size: cover;
+        border-radius: 50%;
+        border: 4px solid rgb(255, 255, 255);
+        width: 110px;
+        height: 110px;
+        margin: 0 auto 10px;
+      }
+      /* Kontainer bergerak */
+      .moving-items {
+        position: absolute;
+        top: 40%;
+        left: 0;
+        width: 200vw; /* WAJIB biar mulus! */
+        height: auto;
+        display: flex;
+        gap: 0px;
+        z-index: 1;
+
+        /* Remove translateY dari sini */
+        animation: moveItems 20s linear infinite;
+      }
+
+      /* Gambar */
+      .moving-item {
+        width: 100vw;
+        height: auto;
+        border-radius: 0;
+        object-fit: cover;
+        transform: translateY(-50%);
+      }
+      @keyframes moveItems {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-100vw);
+        }
+      }
+      /* back  */
       .back-btn {
         position: absolute;
         top: 10px;
@@ -57,103 +169,338 @@
         transform: scale(1.05);
       }
 
+      /* --- GAME CONTAINER --- */
+      .game-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        gap: 40px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      /* --- PANEL UANG & BARANG --- */
+      .left-panel,
+      .right-panel {
+        flex: 1;
+        min-width: 250px;
+      }
+
+      /* --- MONEY BOX --- */
+      .money-box {
+        position: relative;
+        margin: 15px auto;
+      }
+
+      .money-box img.money {
+        width: 140px; /* lebar gambar uang */
+        height: 100px; /* tinggi gambar */
+        object-fit: contain;
+        cursor: grab; /* icon saat draggable */
+        border-radius: 12px;
+        transition: transform 0.1s;
+      }
+
+      .money-box img.money:active {
+        cursor: grabbing;
+        transform: scale(0.95);
+      }
+
+      /* --- ITEM --- */
+      .item {
+        position: relative;
+        margin: 20px auto;
+      }
+
+      .item-img {
+        width: 120px; /* ukuran gambar barang */
+        height: 120px;
+        object-fit: contain;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      /* --- ANCHOR POSISI --- */
+      .money-anchor,
+      .item-anchor {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        transform: translate(-50%, -50%);
+      }
+
+      /* --- HIGHLIGHT CORRECT / WRONG --- */
+      .item.correct {
+        outline: 3px solid #38a169; /* hijau */
+        border-radius: 12px;
+        animation: correctFlash 0.5s ease;
+      }
+
+      .item.wrong {
+        outline: 3px solid #e53e3e; /* merah */
+        border-radius: 12px;
+        animation: wrongFlash 0.5s ease;
+      }
+
+      @keyframes correctFlash {
+        0% {
+          box-shadow: 0 0 0 #38a169;
+        }
+        50% {
+          box-shadow: 0 0 15px #38a169;
+        }
+        100% {
+          box-shadow: 0 0 0 #38a169;
+        }
+      }
+
+      @keyframes wrongFlash {
+        0% {
+          box-shadow: 0 0 0 #e53e3e;
+        }
+        50% {
+          box-shadow: 0 0 15px #e53e3e;
+        }
+        100% {
+          box-shadow: 0 0 0 #e53e3e;
+        }
+      }
+
+      /* --- RESPONSIVE --- */
+      @media (max-width: 768px) {
+        .money-box img.money {
+          width: 100px;
+          height: 80px;
+        }
+        .item-img {
+          width: 90px;
+          height: 90px;
+        }
+        .game-container {
+          gap: 20px;
+        }
+      }
+
+      #lineCanvas {
+        position: fixed; /* biar tetap di viewport */
+        top: 0;
+        left: 0;
+        pointer-events: none; /* supaya drag & drop tetap jalan */
+        z-index: 5; /* di atas konten tapi di bawah tombol atau popup jika perlu */
+      }
     </style>
   </head>
-
   <body>
-        <div class="kasir-container">
-<!-- button back -->
+    <div class="container">
+      <!-- button back -->
       <button id="btnBack" class="back-btn">
         <i class="fas fa-arrow-left"></i>
       </button>
-    <div class="max-w-3xl mx-auto mt-6 bg-white p-5 rounded-2xl shadow-lg">
-  <h1 class="text-3xl font-bold text-center text-blue-700">
-    UANG RUPIAH
-  </h1>
-  <p class="text-center text-gray-700 mb-6">
-    Pasangkan uang dengan barang yang sesuai!
-  </p>
-
-  <div class="grid grid-cols-3 gap-4">
-    <!-- Kolom Uang -->
-    <div class="space-y-6">
-      <img src="img/5000.png" class="w-28 mx-auto" />
-      <img src="img/10000.png" class="w-28 mx-auto" />
-      <img src="img/20000.png" class="w-28 mx-auto" />
-      <img src="img/50000.png" class="w-28 mx-auto" />
-      <img src="img/100000.png" class="w-28 mx-auto" />
-    </div>
-
-    <!-- Kolom Titik -->
-    <div class="space-y-12 flex flex-col justify-between items-center">
-      <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-    </div>
-
-    <!-- Kolom Barang -->
-    <div class="space-y-6">
-      <div class="flex flex-col items-center">
-        <img src="img/gelang.png" class="w-20" />
-        <span class="mt-1 font-semibold text-yellow-600">Rp 20.000</span>
-      </div>
-
-      <div class="flex flex-col items-center">
-        <img src="img/pulpen.png" class="w-16" />
-        <span class="mt-1 font-semibold text-yellow-600">Rp 5.000</span>
-      </div>
-
-      <div class="flex flex-col items-center">
-        <img src="img/coklat.png" class="w-20" />
-        <span class="mt-1 font-semibold text-yellow-600">Rp 10.000</span>
-      </div>
-
-      <div class="flex flex-col items-center">
-        <img src="img/tas.png" class="w-20" />
-        <span class="mt-1 font-semibold text-yellow-600">Rp 100.000</span>
-      </div>
-
-      <div class="flex flex-col items-center">
-        <img src="img/boneka.png" class="w-20" />
-        <span class="mt-1 font-semibold text-yellow-600">Rp 50.000</span>
-      </div>
-</div>          <!-- Tombol COCOKKAN -->
-          <button
-            onclick="checkAnswer()"
-            class="w-full p-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xl"
-          >
-            Cocokkan
-          </button>
-
-          <!-- Tombol RESET -->
-          <button
-            onclick="startGame()"
-            class="w-full p-3 bg-gray-200 text-gray-700 rounded-xl text-sm"
-          >
-            Reset Game
-          </button>
+      <!-- Header: Warung Jajanan Anime & Kasir -->
+      <header class="header-scene">
+        <div class="scene-content">
+          <div class="cashier-img"></div>
         </div>
-      
-</div>
 
+        <div class="moving-items">
+          <img src="img/header.jpg" alt="header" class="moving-item" />
+          <img src="img/header.jpg" alt="header" class="moving-item" />
+        </div>
+      </header>
 
-      <!-- FONT AWESOME -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    </body>
+      <!-- Konten Utama: Display Harga & Tombol Uang -->
+      <main class="p-6">
+        <div
+          class="bg-white-100 p-4 rounded-lg mb-4 border-2 border-dashed border-gray-400"
+        >
+          <h1 class="text-3xl font-bold text-center text-orange-700">
+            Pasangkan uang dengan barang yang sesuai!
+          </h1>
+          <div class="game-container">
+            <!-- Panel Uang -->
+            <div class="left-panel text-center">
+              <h3 class="font-bold mb-2">Uang</h3>
 
-    <script type="module">
-      // --- KONSTANTA & SETUP API GEMINI ---
-      const API_KEY = ""; // Kunci API akan disediakan oleh runtime
-      const GENERATE_CONTENT_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
-      const GENERATE_TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+              <div class="money-box">
+                <img
+                  src="img/1000.png"
+                  class="money"
+                  draggable="true"
+                  data-value="1000"
+                  alt="Uang 1000"
+                />
+                <div class="anchor money-anchor"></div>
+              </div>
 
-      // button back
+              <div class="money-box">
+                <img
+                  src="img/2000.png"
+                  class="money"
+                  draggable="true"
+                  data-value="2000"
+                  alt="Uang 2000"
+                />
+                <div class="anchor money-anchor"></div>
+              </div>
+
+              <div class="money-box">
+                <img
+                  src="img/5000.png"
+                  class="money"
+                  draggable="true"
+                  data-value="5000"
+                  alt="Uang 5000"
+                />
+                <div class="anchor money-anchor"></div>
+              </div>
+
+              <div class="money-box">
+                <img
+                  src="img/10000.png"
+                  class="money"
+                  draggable="true"
+                  data-value="10000"
+                  alt="Uang 10000"
+                />
+                <div class="anchor money-anchor"></div>
+              </div>
+            </div>
+
+            <!-- Panel Barang -->
+            <div class="right-panel text-center">
+              <h3 class="font-bold mb-2">Barang</h3>
+
+              <!-- Gelang -->
+              <div class="item" data-price="5000">
+                <img src="img/gelang.png" class="item-img" alt="Gelang" />
+                <p>Rp 5.000</p>
+                <div class="anchor item-anchor"></div>
+              </div>
+
+              <!-- Pulpen -->
+              <div class="item" data-price="2000">
+                <img src="img/pulpen.png" class="item-img" alt="Pulpen" />
+                <p>Rp 2.000</p>
+                <div class="anchor item-anchor"></div>
+              </div>
+
+              <!-- Tas -->
+              <div class="item" data-price="10000">
+                <img src="img/tas.png" class="item-img" alt="Tas" />
+                <p>Rp 10.000</p>
+                <div class="anchor item-anchor"></div>
+              </div>
+
+              <!-- Coklat -->
+              <div class="item" data-price="1000">
+                <img src="img/coklat.png" class="item-img" alt="Coklat" />
+                <p>Rp 1.000</p>
+                <div class="anchor item-anchor"></div>
+              </div>
+
+              <!-- Boneka -->
+              <div class="item" data-price="50000">
+                <img src="img/boneka.png" class="item-img" alt="Boneka" />
+                <p>Rp 50.000</p>
+                <div class="anchor item-anchor"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- CANVAS UNTUK GARIS -->
+      <canvas id="lineCanvas"></canvas>
+    </div>
+    <!-- FONT AWESOME -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+    <!-- SCRIPT GAME -->
+    <script>
       document.getElementById("btnBack").addEventListener("click", () => {
         history.back();
-        window.location.href = "index.html";
       });
+
+      let draggedElement = null;
+
+      const canvas = document.getElementById("lineCanvas");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      // DRAG UANG
+      document.querySelectorAll(".money").forEach((m) => {
+        m.addEventListener("dragstart", () => {
+          draggedElement = m;
+          m.style.opacity = "0.5";
+        });
+
+        m.addEventListener("dragend", () => {
+          m.style.opacity = "1";
+        });
+      });
+
+      // DROP KE ITEM
+      document.querySelectorAll(".item").forEach((item) => {
+        item.addEventListener("dragover", (e) => e.preventDefault());
+
+        item.addEventListener("drop", () => {
+          const moneyValue = draggedElement.dataset.value;
+          const price = item.dataset.price;
+
+          item.classList.remove("wrong");
+
+          if (moneyValue === price) {
+            item.classList.add("correct");
+
+            drawLine(draggedElement, item);
+
+            draggedElement.setAttribute("draggable", false);
+            draggedElement.style.opacity = "0.4";
+          } else {
+            item.classList.add("wrong");
+            setTimeout(() => item.classList.remove("wrong"), 700);
+          }
+
+          draggedElement = null;
+        });
+      });
+
+      // FUNGSI GAMBAR GARIS
+      function getAnchorPosition(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+      }
+
+      function drawLine(uang, item) {
+        const anchorUang = uang.parentElement.querySelector(".money-anchor");
+        const anchorItem = item.querySelector(".item-anchor");
+
+        const pos1 = getAnchorPosition(anchorUang);
+        const pos2 = getAnchorPosition(anchorItem);
+
+        ctx.beginPath();
+        ctx.moveTo(pos1.x, pos1.y);
+        ctx.lineTo(pos2.x, pos2.y);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#4caf50";
+        ctx.stroke();
+      }
     </script>
   </body>
 </html>
