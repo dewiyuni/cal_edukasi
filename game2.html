@@ -1,165 +1,261 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cocok Gambar</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jodohkan Gambar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-      :root {
-        --primary-bg: #fef3c7; /* Kuning Muda - Latar Belakang Tubuh */
-        --header-bg: #ea580c; /* Oranye Terang - Warna Header Overlay */
-        --accent-green: #38a169; /* Hijau - Untuk Harga/Sukses */
-        --accent-yellow: #f6ad55; /* Kuning - Untuk Tombol Uang */
-        --display-blue: #3182ce; /* Biru - Untuk Display Total */
-        --font-inter: "Inter", sans-serif;
-      }
-      body {
-        font-family: "Poppins", sans-serif;
-        background: #fff7ed;
-        margin: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .container {
-        width: 100%;
-        max-width: 1100px;
-        margin: 0 auto;
-        text-align: center;
-        padding: 10px 20px;
-        box-sizing: border-box;
-      }
+  <style>
+    :root {
+      --primary-bg: #fef3c7;
+      --header-bg: #ea580c;
+      --accent-green: #38a169;
+      --accent-yellow: #f6ad55;
+      --display-blue: #3182ce;
+      --font-inter: "Inter", sans-serif;
+    }
 
-      /* --- HEADER SCENE --- */
-      .header-scene {
-        position: relative;
-        overflow: hidden;
-        height: 120px;
-        max-width: 900px;
-        margin: 0 auto;
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
-        text-align: center;
-        color: white;
-        padding: 20px;
-      }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #fff7ed;
+      margin: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
 
-      /* Background bergerak */
-      .moving-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("img/bg header.png");
-        background-repeat: repeat-x;
-        background-size: 100%; /* default untuk layar kecil */
-        background-position: 0 0;
-        animation: moveBackground 25s linear infinite;
-        z-index: 0;
-      }
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 10px 20px;
+      box-sizing: border-box;
+    }
 
-      @keyframes moveBackground {
-        0% {
-          background-position: 0 0;
-        }
-        100% {
-          background-position: -1000px 0;
-        } /* sesuaikan lebar bg */
-      }
+    .header-scene {
+      position: relative;
+      overflow: hidden;
+      height: 120px;
+      max-width: 900px;
+      margin: 0 auto;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      text-align: center;
+      color: white;
+      padding: 20px;
+    }
 
-      /* Layar besar → perkecil bg */
-      @media (min-width: 1200px) {
-        .moving-bg {
-          background-size: 50%; /* bg lebih kecil di layar besar */
-        }
-      }
+    .moving-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("img/bg header.png");
+      background-repeat: repeat-x;
+      background-size: 100%;
+      background-position: 0 0;
+      animation: moveBackground 25s linear infinite;
+      z-index: 0;
+    }
 
-      main {
-        background: white;
-        padding: 20px;
-        border-radius: 0 0 20px 20px;
-        box-shadow: 1px 1px #fabb58;
-        width: 100%;
-        max-width: 940px;
-        margin: 0 auto;
+    @keyframes moveBackground {
+      0% { background-position: 0 0; }
+      100% { background-position: -1000px 0; }
+    }
 
-        box-sizing: border-box; /* pastikan padding tidak melebihi max-width */
-      }
+    main {
+      background: white;
+      padding: 20px;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 1px 1px #fabb58;
+      width: 100%;
+      max-width: 940px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      position: relative;
+    }
 
-      /* --- KONTEN DI DEPAN --- */
-      .scene-content {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-      }
+    .cashier-img {
+      position: relative;
+      z-index: 1;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      background-color: #ff7b00;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 4px solid #ff7b00;
+    }
 
-      /* Cashier bulat di atas background */
-      .cashier-img {
-        position: relative;
-        z-index: 1;
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-        background-color: #ff7b00;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 4px solid #ff7b00;
-      }
+    .cashier-text {
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+    }
 
-      .cashier-text {
-        color: white;
-        font-size: 18px; /* ini bisa diperbesar bebas */
-        font-weight: bold;
-        text-align: center;
-        line-height: 1.2;
-      }
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ff7b00;
+      margin-bottom: 10px;
+    }
 
-      /* Kontainer bergerak */
-      .moving-items {
-        position: absolute;
-        top: 40%;
-        left: 0;
-        width: 200vw; /* WAJIB biar mulus! */
+    /* --- INFO BOX AWAL --- */
+    .info-box {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: white;
+      border: 3px solid #ffae42;
+      border-radius: 15px;
+      margin: 0 auto 20px;
+      width: 85%;
+      font-size: 18px;
+      box-shadow: 4px 4px 0 #ffa726;
+    }
+
+    /* --- FLOATING INFO --- */
+    #floatingInfo {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.8);
+      padding: 8px 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      font-size: 14px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #floatingInfo.visible {
+      opacity: 1;
+    }
+
+    .start-container button {
+      padding: 12px 18px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 15px;
+      border: 3px solid #ff9800;
+      background: #fff3cd;
+      box-shadow: 4px 4px 0 #ffa726;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .start-container button:hover {
+      background: #ffe28a;
+      transform: scale(1.05);
+      transition: 0.2s;
+    }
+
+    #gameArea {
+      display: none;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .choice {
+      background: white;
+      border: 3px solid #ffa726;
+      border-radius: 15px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 #ffb74d;
+      transition: 0.15s;
+    }
+
+    .choice:hover { transform: scale(1.07); }
+
+    .choice img {
+      width: 100%;
+      height: 140px;
+      object-fit: contain;
+      margin: 20px auto 0 auto;
+    }
+ #targetImage img {
+        width: 40%;
+        max-width: 300px;
         height: auto;
-        display: flex;
-        gap: 0px;
-        z-index: 1;
+        object-fit: contain;
+        display: block;
+        margin: 12px auto;
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+      }
+    .correct {
+      border-color: #4ade80 !important;
+      box-shadow: 4px 4px 0 #22c55e !important;
+    }
 
-        /* Remove translateY dari sini */
-        animation: moveItems 20s linear infinite;
-      }
+    .wrong {
+      animation: shake 0.3s;
+      border-color: #ef4444 !important;
+      box-shadow: 4px 4px 0 #dc2626 !important;
+    }
 
-      /* Gambar */
-      .moving-item {
-        width: 100vw;
-        height: auto;
-        border-radius: 0;
-        object-fit: cover;
-        transform: translateY(-50%);
-      }
-      @keyframes moveItems {
-        0% {
-          transform: translateX(0);
-        }
-        100% {
-          transform: translateX(-100vw);
-        }
-      }
-      /* back  */
-      .back-btn {
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    #feedback {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 15px;
+      min-height: 40px;
+      line-height: 40px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    #feedback.correct {
+      color: #22c55e;
+      background: #d1fae5;
+      border: 2px solid #22c55e;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    #feedback.wrong {
+      color: #ef4444;
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      opacity: 1;
+      transform: scale(1);
+      animation: shake 0.3s;
+    } .back-btn {
         position: fixed;
         top: 10px;
         left: 10px;
         background: rgba(255, 255, 255, 0.85);
-        color: #ea580c; /* oranye biar cocok sama header */
+        color: #ea580c;
         font-weight: bold;
         padding: 8px 14px;
         border-radius: 10px;
@@ -169,334 +265,205 @@
         z-index: 9999;
         transition: 0.2s;
       }
-
       .back-btn:hover {
         background: white;
         transform: scale(1.05);
       }
-
-      .title {
-        font-size: 28px;
-        font-weight: 800;
-        color: #ff7b00;
-        margin-bottom: 10px;
-      }
-
-      .info-box {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 15px;
-        background: white;
-        border: 3px solid #ffae42;
-        border-radius: 15px;
-        margin: 0 auto 20px;
-        width: 85%;
-        font-size: 18px;
-        box-shadow: 4px 4px 0 #ffa726;
-      }
-      .start-container {
-        text-align: center;
-      }
-
-      /* ----------- START BUTTON ----------- */
-
-      #startBtn {
-        padding: 12px 18px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 15px;
-        border: 3px solid #ff9800;
-        background: #fff3cd;
-        box-shadow: 4px 4px 0 #ffa726;
-        cursor: pointer;
-        margin-bottom: 20px;
-      }
-
-      #startBtn:hover {
-        background: #ffe28a;
-        transform: scale(1.05);
-        transition: 0.2s;
-      }
-
-      /* Game area disembunyikan di awal */
-      #gameArea {
-        display: none;
-        width: 100%;
-      }
-
-      /* ----------- TARGET IMAGE ----------- */
-      #targetImage img {
-        width: 170px;
-        height: 170px;
-        object-fit: contain;
-        display: block;
-        margin: 12px auto;
-      }
-
-      /* -------- GRID -------- */
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 15px;
-        margin-top: 20px;
-        width: 100%;
-      }
-
-      .choice {
-        background: white;
-        border: 3px solid #ffa726;
-        border-radius: 15px;
-        padding: 10px;
-        cursor: pointer;
-        box-shadow: 4px 4px 0 #ffb74d;
-        transition: 0.15s;
-      }
-
-      .choice:hover {
-        transform: scale(1.07);
-      }
-
-      .choice img {
-        width: 100%;
-        height: 140px;
-        object-fit: contain;
-        justify-content: center; /* <-- membuat grid rata tengah */
-        margin: 20px auto 0 auto;
-      }
-
-      .correct {
-        border-color: #4ade80 !important;
-        box-shadow: 4px 4px 0 #22c55e !important;
-      }
-
-      .wrong {
-        animation: shake 0.3s;
-        border-color: #ef4444 !important;
-        box-shadow: 4px 4px 0 #dc2626 !important;
-      }
-
-      @keyframes shake {
-        0% {
-          transform: translateX(0);
-        }
-        25% {
-          transform: translateX(-5px);
-        }
-        50% {
-          transform: translateX(5px);
-        }
-        75% {
-          transform: translateX(-5px);
-        }
-        100% {
-          transform: translateX(0);
-        }
-      }
-      #feedback {
-        font-size: 22px;
-        font-weight: bold;
-        margin-top: 10px;
-        height: 30px; /* supaya ruang selalu ada */
-        transition: all 0.3s ease;
-      }
-
-      #feedback.correct {
-        color: #22c55e; /* hijau */
-      }
-
-      #feedback.wrong {
-        color: #ef4444; /* merah */
-        animation: shake 0.3s;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <!-- button back -->
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- button back -->
+<div class="container">
       <button id="btnBack" class="back-btn">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <!-- Header: Warung Jajanan Anime & Kasir -->
-      <header class="header-scene">
-        <!-- Background bergerak -->
-        <div class="moving-bg"></div>
-        <div class="moving-bg"></div>
+    <!-- Header -->
+    <header class="header-scene">
+      <div class="moving-bg"></div>
+      <div class="moving-bg"></div>
+      <div class="cashier-img">
+        <span class="cashier-text">Uang<br>Match</span>
+      </div>
+    </header>
 
-        <!-- Cashier bulat dengan teks -->
-        <div class="cashier-img">
-          <span class="cashier-text">Cocokkan<br />Gambar</span>
-        </div>
-      </header>
+    <main>
+      <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
 
-      <main class="p-6">
-        <h1 class="title">Cocokkan Gambar 🍱✨</h1>
+      <!-- INFO BOX AWAL -->
+      <div class="info-box">
+        <p>Skor: <span id="score">0</span></p>
+        <p>Waktu: <span id="timer">200</span>s</p>
+        <p>Level: <span id="level">1</span></p>
+      </div>
 
-        <div class="info-box">
-          <p>Skor: <span id="score">0</span></p>
-          <p>Waktu: <span id="timer">100</span>s</p>
-          <p>Level: <span id="level">1</span></p>
-        </div>
+      <!-- FLOATING INFO -->
+      <div id="floatingInfo">
+        <p>Skor: <span id="scoreFloat">0</span></p>
+        <p>Waktu: <span id="timerFloat">200</span>s</p>
+        <p>Level: <span id="levelFloat">1</span></p>
+      </div>
 
-        <!-- Start Button -->
-        <div class="start-container">
-          <button id="startBtn">Mulai Permainan</button>
-        </div>
+      <div class="start-container">
+        <button id="startBtn">Mulai Permainan</button>
+      </div>
 
-        <!-- GAME AREA -->
-        <div id="gameArea">
-          <h2 id="instruction">Cari gambar yang sama</h2>
+      <div id="gameArea">
+        <h2 id="instruction">Cari gambar yang sama</h2>
+        <div id="targetImage"></div>
+        <div id="gridContainer" class="grid"></div>
+      </div>
 
-          <div id="targetImage"></div>
+      <div id="feedback"></div>
+    </main>
+  </div>
 
-          <div id="gridContainer" class="grid"></div>
-        </div>
-        <div id="feedback"></div>
-      </main>
-    </div>
+  <script>
+    const moneyImages = {
+      1000: "img/1000.png",
+      2000: "img/2000.png",
+      5000: "img/5000.png",
+      10000: "img/10000.png",
+      20000: "img/20000.png",
+      50000: "img/50000.png",
+      100000: "img/100000.png",
+    };
 
-    <script>
-      const itemImages = {
-        100: "img/100.png",
-        500: "img/500.png",
-        1000: "img/1000.png",
-        2000: "img/2000.png",
-        5000: "img/5000.png",
-        10000: "img/10000.png",
-        20000: "img/20000.png",
-        50000: "img/50000.png",
-      };
+    const itemImages = {
+      1000: { src: "img/permen.jpg", label: "Rp 1.000" },
+      2000: { src: "img/pulpen.png", label: "Rp 2.000" },
+      5000: { src: "img/gelang.png", label: "Rp 5.000" },
+      10000: { src: "img/coklat.png", label: "Rp 10.000" },
+      20000: { src: "img/topi.jpg", label: "Rp 20.000" },
+      50000: { src: "img/boneka.png", label: "Rp 50.000" },
+      100000: { src: "img/tas.png", label: "Rp 100.000" },
+    };
 
-      const keys = Object.keys(itemImages);
+    let score = 0, level = 1, maxLevel = 3, timeLeft = 200, timerInterval, gameRunning = false;
+    const levelThreshold = 20;
 
-      let score = 0;
-      let level = 1;
-      let maxLevel = 3;
-      let timeLeft = 200;
-      let timerInterval;
-      let gameRunning = false;
+    const scoreDisplay = document.getElementById("score");
+    const timerDisplay = document.getElementById("timer");
+    const levelDisplay = document.getElementById("level");
+    const startBtn = document.getElementById("startBtn");
+    const targetImage = document.getElementById("targetImage");
+    const gridContainer = document.getElementById("gridContainer");
+    const gameArea = document.getElementById("gameArea");
+    const feedbackDisplay = document.getElementById("feedback");
+    const floatingInfo = document.getElementById("floatingInfo");
+    const infoBox = document.querySelector(".info-box");
+    const mainContent = document.querySelector("main");
 
-      // skor threshold tiap level
-      const levelThreshold = 20; // naik level setiap 50 poin
+    startBtn.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      gameArea.style.display = "block";
+      startGame();
+    });
 
-      const scoreDisplay = document.getElementById("score");
-      const timerDisplay = document.getElementById("timer");
-      const levelDisplay = document.getElementById("level");
-      const startBtn = document.getElementById("startBtn");
-      const targetImage = document.getElementById("targetImage");
-      const gridContainer = document.getElementById("gridContainer");
-      const gameArea = document.getElementById("gameArea");
-      const feedbackDisplay = document.getElementById("feedback");
+    function startGame() {
+      score = 0; level = 1; timeLeft = 200; gameRunning = true;
+      updateDisplay();
+      startTimer();
+      loadRound();
+    }
 
-      startBtn.addEventListener("click", () => {
-        startBtn.style.display = "none";
-        gameArea.style.display = "block";
-        startGame();
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!gameRunning) return;
+        timeLeft--;
+        updateDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          gameRunning = false;
+          alert("Waktu habis! Skor kamu: " + score);
+          location.reload();
+        }
+      }, 1000);
+    }
+
+    function updateDisplay() {
+      scoreDisplay.textContent = score;
+      timerDisplay.textContent = timeLeft;
+      levelDisplay.textContent = level;
+      updateFloatingInfo(score, timeLeft, level);
+    }
+
+    function updateFloatingInfo(score, timeLeft, level) {
+      document.getElementById("scoreFloat").textContent = score;
+      document.getElementById("timerFloat").textContent = timeLeft;
+      document.getElementById("levelFloat").textContent = level;
+    }
+
+    function loadRound() {
+      if (!gameRunning) return;
+      gridContainer.innerHTML = "";
+      const keys = Object.keys(moneyImages);
+      const correctKey = keys[Math.floor(Math.random() * keys.length)];
+      targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" />`;
+
+      const otherKeys = keys.filter(k => k !== correctKey);
+      const numChoices = Math.min(2, otherKeys.length);
+      const choicesKeys = otherKeys.sort(() => Math.random() - 0.5).slice(0, numChoices);
+      choicesKeys.push(correctKey);
+      choicesKeys.sort(() => Math.random() - 0.5);
+
+      choicesKeys.forEach(key => {
+        const div = document.createElement("div");
+        div.classList.add("choice");
+        div.innerHTML = `<img src="${itemImages[key].src}"><p>${itemImages[key].label}</p>`;
+        div.addEventListener("click", () => handleChoice(div, key, correctKey));
+        gridContainer.appendChild(div);
       });
+    }
 
-      function startGame() {
-        score = 0;
-        level = 1;
-        timeLeft = 100;
-        gameRunning = true;
+    function handleChoice(div, selected, correct) {
+      if (!gameRunning) return;
+      if (selected === correct) {
+        div.classList.add("correct");
+        feedbackDisplay.textContent = "Benar ✅";
+        feedbackDisplay.classList.remove("wrong");
+        feedbackDisplay.classList.add("correct");
+        score += 10;
 
-        scoreDisplay.textContent = score;
-        timerDisplay.textContent = timeLeft;
-        levelDisplay.textContent = level;
+        if (score >= levelThreshold * level && level < maxLevel) {
+          level++;
+          timeLeft += 10;
+        }
 
-        startTimer();
-        loadRound();
-      }
+        updateDisplay();
 
-      function startTimer() {
-        clearInterval(timerInterval);
+        setTimeout(() => {
+          feedbackDisplay.classList.remove("correct");
+          feedbackDisplay.textContent = "";
+          loadRound();
+        }, 1000);
+      } else {
+        div.classList.add("wrong");
+        feedbackDisplay.textContent = "Coba lagi ❌";
+        feedbackDisplay.classList.remove("correct");
+        feedbackDisplay.classList.add("wrong");
 
-        timerInterval = setInterval(() => {
-          timeLeft--;
-          timerDisplay.textContent = timeLeft;
-
-          if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            gameRunning = false;
-            alert("Waktu habis! Skor kamu: " + score);
-            location.reload();
-          }
+        setTimeout(() => {
+          feedbackDisplay.classList.remove("wrong");
+          feedbackDisplay.textContent = "";
         }, 1000);
       }
+    }
 
-      function loadRound() {
-        if (!gameRunning) return;
-
-        gridContainer.innerHTML = "";
-
-        // pilih target
-        const correctKey = keys[Math.floor(Math.random() * keys.length)];
-        targetImage.innerHTML = `<img src="${itemImages[correctKey]}" />`;
-
-        // ambil keys selain target
-        const otherKeys = keys.filter((key) => key !== correctKey);
-
-        // jumlah pilihan (3 + level) minus target
-        const numChoices = Math.min(2, otherKeys.length);
-
-        // ambil acak dari otherKeys
-        const choices = otherKeys
-          .sort(() => Math.random() - 0.5)
-          .slice(0, numChoices);
-
-        // tambahkan target
-        choices.push(correctKey);
-
-        // acak lagi supaya posisi target random
-        choices.sort(() => Math.random() - 0.5);
-
-        // render pilihan
-        choices.forEach((name) => {
-          const div = document.createElement("div");
-          div.classList.add("choice");
-          div.innerHTML = `<img src="${itemImages[name]}">`;
-          div.addEventListener("click", () =>
-            handleChoice(div, name, correctKey)
-          );
-          gridContainer.appendChild(div);
-        });
+    window.addEventListener("scroll", () => {
+      const rect = infoBox.getBoundingClientRect();
+      if (rect.bottom < 0) {
+        floatingInfo.classList.add("visible");
+      } else {
+        floatingInfo.classList.remove("visible");
       }
+    });
 
-      function handleChoice(div, selected, correct) {
-        if (!gameRunning) return;
-
-        if (selected === correct) {
-          div.classList.add("correct");
-          feedbackDisplay.textContent = "Benar ✅";
-          feedbackDisplay.classList.remove("wrong");
-          feedbackDisplay.classList.add("correct");
-
-          score += 10;
-          scoreDisplay.textContent = score;
-
-          // cek naik level
-          if (score >= levelThreshold * level && level < maxLevel) {
-            level++;
-            levelDisplay.textContent = level;
-            alert("Selamat! Kamu naik ke level " + level);
-            timeLeft += 10;
-            timerDisplay.textContent = timeLeft;
-          }
-
-          setTimeout(() => loadRound(), 500);
-        } else {
-          div.classList.add("wrong");
-          feedbackDisplay.textContent = "Coba lagi ❌";
-          feedbackDisplay.classList.remove("correct");
-          feedbackDisplay.classList.add("wrong");
-        }
-      }
-
-      // button back
-      document.getElementById("btnBack").addEventListener("click", () => {
-        history.back();
+    document.getElementById("btnBack").addEventListener("click", () => {
         window.location.href = "index.html";
       });
-    </script>
-  </body>
+  </script>
+</body>
 </html>
+
