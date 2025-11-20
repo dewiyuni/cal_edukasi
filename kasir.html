@@ -131,20 +131,18 @@
       }
       /* back  */
       .back-btn {
-        position: absolute;
+        position: fixed;
         top: 10px;
         left: 10px;
-
         background: rgba(255, 255, 255, 0.85);
         color: #ea580c; /* oranye biar cocok sama header */
         font-weight: bold;
         padding: 8px 14px;
         border-radius: 10px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-
         border: none;
         cursor: pointer;
-        z-index: 10;
+        z-index: 9999;
         transition: 0.2s;
       }
 
@@ -272,6 +270,31 @@
         100% {
           transform: rotate(360deg);
         }
+      } /* Tombol Scroll to Top */
+      #scrollTopBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        background: #ea580c; /* warna oranye */
+        color: white;
+        border: none;
+        border-radius: 50%; /* bulat */
+        font-size: 22px;
+        font-weight: bold;
+        cursor: pointer;
+        display: none; /* disembunyikan dulu */
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        z-index: 9999;
+        transition: 0.3s ease;
+      }
+
+      /* Hover */
+      #scrollTopBtn:hover {
+        background: #c2410c;
       }
     </style>
   </head>
@@ -306,9 +329,11 @@
         <div
           class="bg-gray-100 p-4 rounded-lg mb-4 border-2 border-dashed border-gray-400"
         >
-          <p class="text-lg font-semibold text-gray-700">
-            Nama Item Jajanan ✨:
-          </p>
+          <div
+            id="itemGambarDisplay"
+            class="block mx-auto w-40 h-32 md:w-72 md:h-56 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center overflow-hidden shadow"
+          ></div>
+          <p class="text-lg font-semibold text-gray-700">Nama Item Jajanan:</p>
           <div
             id="itemNameDisplay"
             class="text-2xl font-bold text-gray-800 p-2 rounded-lg text-center bg-white mb-4"
@@ -634,46 +659,103 @@
 
         try {
           const priceList = {
+            "Ayam Goreng": 12000,
+            Bakso: 10000,
+            Batagor: 8000,
+            "Bubur Ayam": 10000,
             Cilok: 5000,
-            "Es Teh": 4000,
-            "Bakso Tusuk": 5000,
-            "Mie Ayam": 15000,
-            "Sosis Bakar": 8000,
-            "Pentol Bakar": 7000,
-            Seblak: 8000,
-            "Tahu Crispy": 7000,
-            Cireng: 5000,
-            "Roti Bakar": 10000,
-            "Martabak Mini": 10000,
-            Cilor: 5000,
-            "Telur Gulung": 3000,
-            "Kentang Goreng": 8000,
-            "Es Cappucino": 5000,
-            "Jus Jambu": 7000,
+            Cimol: 5000,
+            Dimsum: 10000,
             Donat: 5000,
-            "Churros Mini": 8000,
+            "Es Buah": 8000,
+            "Es Jeruk": 5000,
+            "Es Krim": 6000,
+            "Es Teh": 4000,
+            "Es Teler": 10000,
+            Jus: 7000,
+            Kwetiau: 15000,
+            Maklor: 5000,
+            "Martabak Manis": 12000,
+            "Martabak Telur": 15000,
+            "Mie Ayam": 15000,
+            Mineral: 3000,
+            Nasgor: 15000,
+            "Pecel Lele": 15000,
+            "Risol Mayo": 6000,
+            "Roti Bakar": 10000,
+            Seblak: 8000,
+            Somay: 8000,
+            Soto: 12000,
+            Takoyaki: 10000,
+            "Telur Gulung": 3000,
+            "Telur Puyuh": 4000,
+          };
+          const itemImages = {
+            "Ayam Goreng": "img/menu/ayam_goreng.jpg",
+            Bakso: "img/menu/bakso.jpeg",
+            Batagor: "img/menu/batagor.jpg",
+            "Bubur Ayam": "img/menu/bubur_ayam.jpeg",
+            Cilok: "img/menu/cilok.jpeg",
+            Cimol: "img/menu/cimol.jpeg",
+            Dimsum: "img/menu/dimsum.jpeg",
+            Donat: "img/menu/donat.jpeg",
+            "Es Buah": "img/menu/es_buah.jpg",
+            "Es Jeruk": "img/menu/es_jeruk.jpeg",
+            "Es Krim": "img/menu/es_krim.jpeg",
+            "Es Teh": "img/menu/es_teh.jpeg",
+            "Es Teler": "img/menu/es_teler.jpeg",
+            Jus: "img/menu/jus.jpeg",
+            Kwetiau: "img/menu/kwetiau.jpeg",
+            Maklor: "img/menu/maklor.jpeg",
+            "Martabak Manis": "img/menu/martabak_manis.jpeg",
+            "Martabak Telur": "img/menu/martabak_telur.jpeg",
+            "Mie Ayam": "img/menu/mie_ayam.jpeg",
+            Mineral: "img/menu/mineral.jpg",
+            Nasgor: "img/menu/nasgor.jpeg",
+            "Pecel Lele": "img/menu/pecel_lele.jpeg",
+            "Risol Mayo": "img/menu/risol_mayo.jpeg",
+            "Roti Bakar": "img/menu/roti_bakar.jpeg",
+            Seblak: "img/menu/seblak.jpeg",
+            Somay: "img/menu/somay.jpeg",
+            Soto: "img/menu/soto.jpeg",
+            Takoyaki: "img/menu/takoyaki.jpeg",
+            "Telur Gulung": "img/menu/telur_gulung.jpeg",
+            "Telur Puyuh": "img/menu/telur_puyuh.jpg",
           };
           // Generate item secara acak
           const sampleItems = [
+            "Ayam Goreng",
+            "Bakso",
+            "Batagor",
+            "Bubur Ayam",
             "Cilok",
-            "Es Teh",
-            "Bakso Tusuk",
-            "Mie Ayam",
-            "Sosis Bakar",
-            "Pentol Bakar",
-            "Seblak",
-            "Tahu Crispy",
-            "Cireng",
-            "Roti Bakar",
-            "Martabak Mini",
-            "Cilor",
-            "Telur Gulung",
-            "Kentang Goreng",
-            "Es Cappucino",
-            "Jus Jambu",
+            "Cimol",
+            "Dimsum",
             "Donat",
-            "Churros Mini",
+            "Es Buah",
+            "Es Jeruk",
+            "Es Krim",
+            "Es Teh",
+            "Es Teler",
+            "Jus",
+            "Kwetiau",
+            "Maklor",
+            "Martabak Manis",
+            "Martabak Telur",
+            "Mie Ayam",
+            "Mineral",
+            "Nasgor",
+            "Pecel Lele",
+            "Risol Mayo",
+            "Roti Bakar",
+            "Seblak",
+            "Somay",
+            "Soto",
+            "Takoyaki",
+            "Telur Gulung",
+            "Telur Puyuh",
           ];
+
           const randomName =
             sampleItems[Math.floor(Math.random() * sampleItems.length)];
 
@@ -691,6 +773,8 @@
 
           // Update UI
           itemNameDisplay.textContent = generatedItem.itemName;
+          // Update gambar di display
+          itemGambarDisplay.innerHTML = `  <img src="${itemImages[randomName]}" class="w-full h-full object-contain p-1" />`;
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
           messageBox.textContent = `Harga Baru: ${
@@ -973,6 +1057,25 @@
       });
       // Inisialisasi awal saat halaman dimuat
       window.onload = startNewTransaction;
+      const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+      // Munculkan tombol kalau sudah scroll 200px
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 200) {
+          scrollTopBtn.style.display = "flex";
+        } else {
+          scrollTopBtn.style.display = "none";
+        }
+      });
+
+      // Aksi saat tombol diklik
+      scrollTopBtn.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
     </script>
+    <button id="scrollTopBtn">↑</button>
   </body>
 </html>

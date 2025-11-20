@@ -85,22 +85,22 @@
         }
       }
 
-      .header-scene::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('img/header.jpg'); /* tambahkan bg image */
-  background-repeat: repeat-x;
-  background-size: cover; /* bisa juga auto 100% sesuai kebutuhan */
-  background-position: center;
-  animation: moveBackground 25s linear infinite;
-  opacity: 0.5; /* atur kecerahan: 0 = gelap, 1 = terang */
-  z-index: 0;
-  filter: brightness(0.5); /* bisa diganti 0.3-1.2 sesuai kecerahan */
-}
+            .header-scene::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('img/header.jpg'); /* tambahkan bg image */
+        background-repeat: repeat-x;
+        background-size: cover; /* bisa juga auto 100% sesuai kebutuhan */
+        background-position: center;
+        animation: moveBackground 25s linear infinite;
+        opacity: 0.5; /* atur kecerahan: 0 = gelap, 1 = terang */
+        z-index: 0;
+        filter: brightness(0.5); /* bisa diganti 0.3-1.2 sesuai kecerahan */
+      }
 
 
       /* --- KONTEN DI DEPAN --- */
@@ -151,7 +151,7 @@
       }
       /* back  */
       .back-btn {
-        position: absolute;
+        position: fixed;
         top: 10px;
         left: 10px;
 
@@ -164,7 +164,7 @@
 
         border: none;
         cursor: pointer;
-        z-index: 10;
+        z-index: 9999;
         transition: 0.2s;
       }
 
@@ -303,6 +303,33 @@
         pointer-events: none; /* biar drag & drop tetap jalan */
         z-index: 5;
       }
+      /* Tombol Scroll to Top */
+#scrollTopBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  background: #ea580c; /* warna oranye */
+  color: white;
+  border: none;
+  border-radius: 50%; /* bulat */
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none; /* disembunyikan dulu */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  z-index: 9999;
+  transition: 0.3s ease;
+}
+
+/* Hover */
+#scrollTopBtn:hover {
+  background: #c2410c;
+}
+
     </style>
   </head>
   <body>
@@ -521,6 +548,27 @@
 
       // Redraw garis saat scroll
       window.addEventListener("scroll", redrawLines);
+      const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+      // Munculkan tombol kalau sudah scroll 200px
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 200) {
+          scrollTopBtn.style.display = "flex";
+        } else {
+          scrollTopBtn.style.display = "none";
+        }
+      });
+
+      // Aksi saat tombol diklik
+      scrollTopBtn.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      });
+
     </script>
+    <button id="scrollTopBtn">↑</button>
+
   </body>
 </html>
