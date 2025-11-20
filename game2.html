@@ -37,43 +37,49 @@
 
       /* --- HEADER SCENE --- */
       .header-scene {
-        background-color: #fabb58;
-        color: white;
-        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        height: 120px;
+        max-width: 900px;
+        margin: 0 auto;
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
         text-align: center;
-        position: relative;
-        overflow: hidden;
-        height: 130px;
-        max-width: 900px;
-        margin: 0 auto;
+        color: white;
+        padding: 20px;
       }
 
-      /* --- ANIMASI BACKGROUND (opsional) --- */
+      /* Background bergerak */
+      .moving-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("img/bg header.png");
+        background-repeat: repeat-x;
+        background-size: 100%; /* default untuk layar kecil */
+        background-position: 0 0;
+        animation: moveBackground 25s linear infinite;
+        z-index: 0;
+      }
+
       @keyframes moveBackground {
         0% {
           background-position: 0 0;
         }
         100% {
-          background-position: -600px 0;
+          background-position: -1000px 0;
+        } /* sesuaikan lebar bg */
+      }
+
+      /* Layar besar → perkecil bg */
+      @media (min-width: 1200px) {
+        .moving-bg {
+          background-size: 50%; /* bg lebih kecil di layar besar */
         }
       }
 
-      .header-scene::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-repeat: repeat-x;
-        background-size: auto 100%; /* <<< fix gambar membesar */
-        background-position: 0 0;
-        animation: moveBackground 25s linear infinite;
-        opacity: 0.5;
-        z-index: 0;
-      }
       main {
         background: white;
         padding: 20px;
@@ -92,15 +98,30 @@
         z-index: 2;
         text-align: center;
       }
+
+      /* Cashier bulat di atas background */
       .cashier-img {
-        background-image: url("https://placehold.co/80x80/ff7b00/ffffff?text=C o c o k k a n%0AG a m b a r&font-size=80");
-        background-size: cover;
+        position: relative;
+        z-index: 1;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        background-color: #ff7b00;
         border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         border: 4px solid #ff7b00;
-        width: 110px;
-        height: 110px;
-        margin: 0 auto 10px;
       }
+
+      .cashier-text {
+        color: white;
+        font-size: 18px; /* ini bisa diperbesar bebas */
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+      }
+
       /* Kontainer bergerak */
       .moving-items {
         position: absolute;
@@ -282,13 +303,13 @@
       </button>
       <!-- Header: Warung Jajanan Anime & Kasir -->
       <header class="header-scene">
-        <div class="scene-content">
-          <div class="cashier-img"></div>
-        </div>
+        <!-- Background bergerak -->
+        <div class="moving-bg"></div>
+        <div class="moving-bg"></div>
 
-        <div class="moving-items">
-          <img src="img/bg header.png" alt="header" class="moving-item" />
-          <img src="img/bg header.png" alt="header" class="moving-item" />
+        <!-- Cashier bulat dengan teks -->
+        <div class="cashier-img">
+          <span class="cashier-text">Cocokkan<br />Gambar</span>
         </div>
       </header>
 
