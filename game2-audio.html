@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jodohkan Gambar - Aksesibel</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-bg: #fef3c7;
+        --header-bg: #ea580c;
+        --accent-green: #38a169;
+        --accent-yellow: #f6ad55;
+        --display-blue: #3182ce;
+        --font-inter: "Inter", sans-serif;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #fff7ed;
+        margin: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .container {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 10px 20px;
+        box-sizing: border-box;
+      }
+      .header-scene {
+        position: relative;
+        overflow: hidden;
+        height: 120px;
+        max-width: 900px;
+        margin: 0 auto;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        text-align: center;
+        color: white;
+        padding: 20px;
+      }
+      .moving-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("img/bg header.png");
+        background-repeat: repeat-x;
+        background-size: 100%;
+        background-position: 0 0;
+        animation: moveBackground 25s linear infinite;
+        z-index: 0;
+      }
+      @keyframes moveBackground {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -1000px 0;
+        }
+      }
+      main {
+        background: white;
+        padding: 20px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 1px 1px #fabb58;
+        width: 100%;
+        max-width: 940px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        position: relative;
+      }
+      .cashier-img {
+        position: relative;
+        z-index: 1;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        background-color: #ff7b00;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 4px solid #ff7b00;
+      }
+      .cashier-text {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+      }
+      .title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ff7b00;
+        margin-bottom: 10px;
+      }
+      .info-box {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 15px;
+        background: white;
+        border: 3px solid #ffae42;
+        border-radius: 15px;
+        margin: 0 auto 20px;
+        width: 85%;
+        font-size: 18px;
+        box-shadow: 4px 4px 0 #ffa726;
+      }
+      #floatingInfo {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        padding: 8px 12px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        font-size: 14px;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      #floatingInfo.visible {
+        opacity: 1;
+      }
+      .start-container button {
+        padding: 12px 18px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 15px;
+        border: 3px solid #ff9800;
+        background: #fff3cd;
+        box-shadow: 4px 4px 0 #ffa726;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+      .start-container button:hover {
+        background: #ffe28a;
+        transform: scale(1.05);
+        transition: 0.2s;
+      }
+      #gameArea {
+        display: none;
+        width: 100%;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+        width: 100%;
+      }
+      .choice {
+        background: white;
+        border: 3px solid #ffa726;
+        border-radius: 15px;
+        padding: 10px;
+        cursor: pointer;
+        box-shadow: 4px 4px 0 #ffb74d;
+        transition: 0.15s;
+      }
+      .choice:hover {
+        transform: scale(1.07);
+      }
+      .choice img {
+        width: 100%;
+        height: 140px;
+        object-fit: contain;
+        margin: 20px auto 0 auto;
+      }
+      .choice:focus {
+        outline: 4px solid blue;
+      }
+      #targetImage img {
+        width: 40%;
+        max-width: 300px;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        margin: 12px auto;
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+      }
+      .correct {
+        border-color: #4ade80 !important;
+        box-shadow: 4px 4px 0 #22c55e !important;
+      }
+      .wrong {
+        animation: shake 0.3s;
+        border-color: #ef4444 !important;
+        box-shadow: 4px 4px 0 #dc2626 !important;
+      }
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+        75% {
+          transform: translateX(-5px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      #feedback {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 15px;
+        min-height: 40px;
+        line-height: 40px;
+        padding: 5px 10px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      #feedback.correct {
+        color: #22c55e;
+        background: #d1fae5;
+        border: 2px solid #22c55e;
+        opacity: 1;
+        transform: scale(1);
+      }
+      #feedback.wrong {
+        color: #ef4444;
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        opacity: 1;
+        transform: scale(1);
+        animation: shake 0.3s;
+      }
+      .back-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.85);
+        color: #ea580c;
+        font-weight: bold;
+        padding: 8px 14px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        border: none;
+        cursor: pointer;
+        z-index: 9999;
+        transition: 0.2s;
+      }
+      .back-btn:hover {
+        background: white;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button id="btnBack" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+
+      <header class="header-scene">
+        <div class="moving-bg"></div>
+        <div class="moving-bg"></div>
+        <div class="cashier-img">
+          <span class="cashier-text">Uang<br />Match</span>
+        </div>
+      </header>
+
+      <main>
+        <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
+
+        <div class="info-box">
+          <p>Skor: <span id="score">0</span></p>
+          <p>Nyawa: <span id="lives">❤️❤️❤️</span></p>
+          <p>Level: <span id="level">1</span></p>
+        </div>
+
+        <div id="floatingInfo">
+          <p>Skor: <span id="scoreFloat">0</span></p>
+          <p>Nyawa: <span id="livesFloat">❤️❤️❤️</span></p>
+          <p>Level: <span id="levelFloat">1</span></p>
+        </div>
+
+        <div class="start-container">
+          <button id="startBtn" tabindex="0" aria-label="Mulai Permainan">
+            Mulai Permainan
+          </button>
+        </div>
+
+        <div id="gameArea">
+          <h2 id="instruction">Cari gambar yang sama</h2>
+          <div id="targetImage"></div>
+          <div id="gridContainer" class="grid"></div>
+        </div>
+
+        <div id="feedback"></div>
+      </main>
+    </div>
+
+    <script>
+      let allowVoice = true;
+      let finishedGame = false;
+      let totalCorrect = 0;
+      let lastQuestion = null;
+      let gameRunning = false;
+
+      function isAudioMode() {
+        return true;
+      } // mode audio selalu aktif
+      function stopSpeak() {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      }
+      function speak(text, onEnd = null) {
+        if (!("speechSynthesis" in window)) return;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "id-ID";
+        msg.rate = 0.9;
+        msg.pitch = 1;
+        if (onEnd) msg.onend = onEnd;
+        window.speechSynthesis.speak(msg);
+      }
+
+      // DATA
+      const moneyImages = {
+        1000: "img/1000.png",
+        2000: "img/2000.png",
+        5000: "img/5000.png",
+        10000: "img/10000.png",
+        20000: "img/20000.png",
+        50000: "img/50000.png",
+        100000: "img/100000.png",
+      };
+      const itemImages = {
+        1000: { src: "img/permen.jpg", label: "Permen" },
+        2000: { src: "img/pulpen.png", label: "Pulpen" },
+        5000: { src: "img/gelang.png", label: "Gelang" },
+        10000: { src: "img/coklat.png", label: "Coklat" },
+        20000: { src: "img/topi.jpg", label: "Topi" },
+        50000: { src: "img/boneka.png", label: "Boneka" },
+        100000: { src: "img/tas.png", label: "Tas" },
+      };
+
+      // STATE
+      let score = 0,
+        level = 1,
+        lives = 3,
+        maxLevel = 3;
+
+      let scoreDisplay = document.getElementById("score");
+      let livesDisplay = document.getElementById("lives");
+      let levelDisplay = document.getElementById("level");
+      let scoreFloatDisplay = document.getElementById("scoreFloat");
+      let livesFloatDisplay = document.getElementById("livesFloat");
+      let levelFloatDisplay = document.getElementById("levelFloat");
+      let startBtn = document.getElementById("startBtn");
+      let targetImage = document.getElementById("targetImage");
+      let gridContainer = document.getElementById("gridContainer");
+      let gameArea = document.getElementById("gameArea");
+      let feedbackDisplay = document.getElementById("feedback");
+
+      let currentChoices = [],
+        currentAnswer = "";
+
+      // START
+      startBtn.addEventListener("focus", () => {
+        speak("Tombol mulai permainan. Tekan enter untuk memulai");
+      });
+      startBtn.addEventListener("click", () => {
+        startBtn.style.display = "none";
+        gameArea.style.display = "block";
+        startGame();
+        speak(
+          "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
+        );
+      });
+
+      function startGame() {
+        score = 0;
+        level = 1;
+        lives = 3;
+        gameRunning = true;
+        totalCorrect = 0;
+        finishedGame = false;
+        lastQuestion = null;
+        updateDisplay();
+        loadRound(false);
+      }
+
+      function updateDisplay() {
+        scoreDisplay.textContent = score;
+        levelDisplay.textContent = level;
+        scoreFloatDisplay.textContent = score;
+        levelFloatDisplay.textContent = level;
+        livesDisplay.textContent = "❤️".repeat(lives);
+        livesFloatDisplay.textContent = "❤️".repeat(lives);
+      }
+
+      // ROUND
+      function loadRound(repeat = false) {
+        if (!gameRunning || finishedGame) return;
+        stopSpeak();
+        allowVoice = true;
+
+        if (!repeat) {
+          const keys = Object.keys(moneyImages);
+          const correctKey = keys[Math.floor(Math.random() * keys.length)];
+          currentAnswer = correctKey;
+
+          const otherKeys = keys.filter((k) => k !== correctKey);
+          const choicesKeys = otherKeys
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 2);
+          choicesKeys.push(correctKey);
+          choicesKeys.sort(() => Math.random() - 0.5);
+          lastQuestion = { correctKey, choicesKeys };
+        }
+
+        const { correctKey, choicesKeys } = lastQuestion;
+
+        targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey} rupiah">`;
+        gridContainer.innerHTML = "";
+
+        let allChoicesVoice = ""; // untuk menyimpan suara semua pilihan
+
+        choicesKeys.forEach((key, index) => {
+          const div = document.createElement("div");
+          div.className = "choice";
+          div.setAttribute("tabindex", "0");
+          div.setAttribute(
+            "aria-label",
+            `Pilihan ${index + 1}: ${
+              itemImages[key].label
+            }, harga ${key} rupiah`
+          );
+          div.innerHTML = `
+                      <img src="${itemImages[key].src}" alt="${
+            itemImages[key].label
+          }">
+                      <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+                        Rp ${Number(key).toLocaleString()}
+                      </p>
+                    `;
+
+          div.addEventListener("click", () =>
+            handleChoice(div, key, correctKey)
+          );
+          div.addEventListener("focus", () => {
+            if (isAudioMode() && allowVoice)
+              speak(
+                `Pilihan ${index + 1}: ${
+                  itemImages[key].label
+                }, harga ${key} rupiah`
+              );
+          });
+
+          gridContainer.appendChild(div);
+
+          // tambahkan ke string suara semua pilihan
+          allChoicesVoice += `Pilihan ${index + 1}: ${
+            itemImages[key].label
+          }, harga ${key} rupiah. `;
+        });
+
+        // instruksi soal + semua pilihan
+        if (isAudioMode() && allowVoice && !finishedGame) {
+          speak(
+            `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice}Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
+          );
+        }
+      }
+
+      // CHOICE HANDLER
+      function handleChoice(div, selected, correct) {
+        if (!gameRunning) return;
+        allowVoice = false;
+        stopSpeak();
+
+        if (selected == correct) {
+          div.classList.add("correct");
+          feedbackDisplay.textContent = "✅ Benar!";
+          feedbackDisplay.className = "correct";
+          speak("Benar");
+
+          score++;
+          totalCorrect++;
+          checkLevelUp();
+
+          setTimeout(() => {
+            feedbackDisplay.textContent = "";
+            feedbackDisplay.className = "";
+            if (!finishedGame) loadRound(false);
+          }, 1200);
+        } else {
+          div.classList.add("wrong");
+          feedbackDisplay.textContent = "❌ Salah, coba lagi";
+          feedbackDisplay.className = "wrong";
+          speak("Salah");
+
+          // ✅ Kurangi nyawa jika salah
+          lives--;
+          updateDisplay();
+
+          // ❌ Kalau nyawa habis → game over
+          if (lives <= 0) {
+            finishedGame = true;
+            gameRunning = false;
+            feedbackDisplay.textContent = "💀 Permainan berakhir!";
+            showFinishScreen(false); // <- ini penting
+            return;
+          }
+
+          setTimeout(() => {
+            feedbackDisplay.textContent = "";
+            feedbackDisplay.className = "";
+            loadRound(true);
+          }, 1200);
+        }
+        updateDisplay(); // update nyawa di info-box
+      }
+
+      function checkLevelUp() {
+        if (finishedGame) return; // jangan jalan kalau game sudah selesai
+
+        let previousLevel = level;
+
+        if (level === 1 && totalCorrect >= 3) {
+          level = 2;
+          speak(`Selamat! Anda naik ke level ${level}`);
+          showLevelNotif(level);
+        } else if (level === 2 && totalCorrect >= 5) {
+          level = 3;
+          speak(`Selamat! Anda naik ke level ${level}`);
+          showLevelNotif(level);
+        } else if (level === 3 && totalCorrect >= 10) {
+          // Level 3 selesai → trigger finish screen
+          level = 3; // pastikan level tetap 3
+          finishedGame = true;
+          gameRunning = false;
+          speak("Selamat! Anda telah menyelesaikan level tertinggi.", () => {
+            showFinishScreen();
+          });
+          showLevelNotif(level);
+          updateDisplay();
+          return;
+        }
+
+        updateDisplay();
+      }
+
+      // fungsi untuk menampilkan notif level sementara
+      function showLevelNotif(levelNum) {
+        // buat elemen notifikasi
+        const notif = document.createElement("div");
+        notif.textContent = `🎉 Level ${levelNum}! 🎉`;
+        notif.style.position = "fixed";
+        notif.style.top = "50%";
+        notif.style.left = "50%";
+        notif.style.transform = "translate(-50%, -50%)";
+        notif.style.background = "#38a169"; // hijau
+        notif.style.color = "white";
+        notif.style.padding = "15px 25px";
+        notif.style.fontSize = "24px";
+        notif.style.borderRadius = "15px";
+        notif.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+        notif.style.zIndex = 9999;
+        notif.style.opacity = 0;
+        notif.style.transition = "opacity 0.3s ease";
+
+        document.body.appendChild(notif);
+
+        // munculkan notif
+        requestAnimationFrame(() => {
+          notif.style.opacity = 1;
+        });
+
+        // hilangkan setelah 2 detik
+        setTimeout(() => {
+          notif.style.opacity = 0;
+          setTimeout(() => {
+            notif.remove();
+          }, 300);
+        }, 2000);
+      }
+
+      function showFinishScreen(win = true) {
+        gameRunning = false;
+
+        // Buat HTML
+        gameArea.innerHTML = `
+    <div style="text-align:center; padding:20px;">
+      <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
+      <p>${
+        win
+          ? "Anda telah menyelesaikan level tertinggi"
+          : "Nyawa habis, coba lagi ya!"
+      }</p>
+      <button id="restartBtnFinish" tabindex="0">Restart Game</button>
+    </div>
+  `;
+
+        const restartBtnFinish = document.getElementById("restartBtnFinish");
+
+        // Speak sesuai kondisi
+        if (isAudioMode()) {
+          speak(
+            win
+              ? "Selamat. Permainan selesai. Tombol restart tersedia. Tekan Tab untuk fokus dan Enter untuk memulai lagi."
+              : "Permainan berakhir. Nyawa habis.  Tekan Tab lalu Enter untuk mencoba lagi."
+          );
+        }
+
+        // Fokus tombol → suara
+        restartBtnFinish.addEventListener("focus", () => {
+          speak("Tombol restart. Tekan enter untuk memulai permainan lagi.");
+        });
+
+        // Klik mouse & keyboard
+        restartBtnFinish.addEventListener("click", restartGame);
+        restartBtnFinish.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            restartGame();
+          }
+        });
+
+        function restartGame() {
+          // Restore main gameArea HTML
+          gameArea.innerHTML = `
+      <h2 id="instruction">Cari gambar yang sama</h2>
+      <div id="targetImage"></div>
+      <div id="gridContainer" class="grid"></div>
+      <div id="feedback"></div>
+    `;
+
+          // update referensi elemen yang baru
+          targetImage = document.getElementById("targetImage");
+          gridContainer = document.getElementById("gridContainer");
+          feedbackDisplay = document.getElementById("feedback");
+
+          // reset state
+          score = 0;
+          lives = 3;
+          level = 1;
+          totalCorrect = 0;
+          finishedGame = false;
+          gameRunning = true;
+
+          updateDisplay();
+          startGame();
+        }
+      }
+
+      // BACK BUTTON
+      document.getElementById("btnBack").addEventListener("click", () => {
+        // Ambil mode dari localStorage
+        const mode = localStorage.getItem("gameMode") || "audio";
+        window.location.href = `menu.html?mode=${mode}`;
+      });
+      // KEYBOARD NUMBERS
+      document.addEventListener("keydown", (e) => {
+        if (!gameRunning) return;
+        const choices = document.querySelectorAll(".choice");
+        const { choicesKeys } = lastQuestion;
+        if (e.key >= "1" && e.key <= String(choicesKeys.length)) {
+          const index = parseInt(e.key) - 1;
+          if (choices[index]) choices[index].click();
+          else speak("Pilihan tidak tersedia");
+        }
+      });
+      // audio refresh
+      window.addEventListener("beforeunload", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
+    </script>
+  </body>
+</html>

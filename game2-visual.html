@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jodohkan Gambar</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-bg: #fef3c7;
+        --header-bg: #ea580c;
+        --accent-green: #38a169;
+        --accent-yellow: #f6ad55;
+        --display-blue: #3182ce;
+        --font-inter: "Inter", sans-serif;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #fff7ed;
+        margin: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 10px 20px;
+        box-sizing: border-box;
+      }
+
+      .header-scene {
+        position: relative;
+        overflow: hidden;
+        height: 120px;
+        max-width: 900px;
+        margin: 0 auto;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        text-align: center;
+        color: white;
+        padding: 20px;
+      }
+
+      .moving-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("img/bg header.png");
+        background-repeat: repeat-x;
+        background-size: 100%;
+        background-position: 0 0;
+        animation: moveBackground 25s linear infinite;
+        z-index: 0;
+      }
+
+      @keyframes moveBackground {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -1000px 0;
+        }
+      }
+
+      main {
+        background: white;
+        padding: 20px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 1px 1px #fabb58;
+        width: 100%;
+        max-width: 940px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .cashier-img {
+        position: relative;
+        z-index: 1;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        background-color: #ff7b00;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 4px solid #ff7b00;
+      }
+
+      .cashier-text {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ff7b00;
+        margin-bottom: 10px;
+      }
+
+      /* --- INFO BOX AWAL --- */
+      .info-box {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 15px;
+        background: white;
+        border: 3px solid #ffae42;
+        border-radius: 15px;
+        margin: 0 auto 20px;
+        width: 85%;
+        font-size: 18px;
+        box-shadow: 4px 4px 0 #ffa726;
+      }
+
+      /* --- FLOATING INFO --- */
+      #floatingInfo {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        padding: 8px 12px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        font-size: 14px;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      #floatingInfo.visible {
+        opacity: 1;
+      }
+
+      .start-container button {
+        padding: 12px 18px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 15px;
+        border: 3px solid #ff9800;
+        background: #fff3cd;
+        box-shadow: 4px 4px 0 #ffa726;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+
+      .start-container button:hover {
+        background: #ffe28a;
+        transform: scale(1.05);
+        transition: 0.2s;
+      }
+
+      #gameArea {
+        display: none;
+        width: 100%;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .choice {
+        background: white;
+        border: 3px solid #ffa726;
+        border-radius: 15px;
+        padding: 10px;
+        cursor: pointer;
+        box-shadow: 4px 4px 0 #ffb74d;
+        transition: 0.15s;
+      }
+
+      .choice:hover {
+        transform: scale(1.07);
+      }
+
+      .choice img {
+        width: 100%;
+        height: 140px;
+        object-fit: contain;
+        margin: 20px auto 0 auto;
+      }
+      .choice:focus {
+        outline: 4px solid blue;
+      }
+
+      #targetImage img {
+        width: 40%;
+        max-width: 300px;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        margin: 12px auto;
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+      }
+      .correct {
+        border-color: #4ade80 !important;
+        box-shadow: 4px 4px 0 #22c55e !important;
+      }
+
+      .wrong {
+        animation: shake 0.3s;
+        border-color: #ef4444 !important;
+        box-shadow: 4px 4px 0 #dc2626 !important;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+        75% {
+          transform: translateX(-5px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      #feedback {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 15px;
+        min-height: 40px;
+        line-height: 40px;
+        padding: 5px 10px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      #feedback.correct {
+        color: #22c55e;
+        background: #d1fae5;
+        border: 2px solid #22c55e;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      #feedback.wrong {
+        color: #ef4444;
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        opacity: 1;
+        transform: scale(1);
+        animation: shake 0.3s;
+      }
+      .back-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.85);
+        color: #ea580c;
+        font-weight: bold;
+        padding: 8px 14px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        border: none;
+        cursor: pointer;
+        z-index: 9999;
+        transition: 0.2s;
+      }
+      .back-btn:hover {
+        background: white;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- button back -->
+      <button id="btnBack" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+
+      <!-- Header -->
+      <header class="header-scene">
+        <div class="moving-bg"></div>
+        <div class="moving-bg"></div>
+        <div class="cashier-img">
+          <span class="cashier-text">Uang<br />Match</span>
+        </div>
+      </header>
+
+      <main>
+        <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
+
+        <!-- INFO BOX AWAL -->
+        <div class="info-box">
+          <p>Skor: <span id="score">0</span></p>
+          <p>Nyawa: <span id="lives">❤️❤️❤️</span></p>
+          <p>Level: <span id="level">1</span></p>
+        </div>
+
+        <!-- FLOATING INFO -->
+        <div id="floatingInfo">
+          <p>Skor: <span id="scoreFloat">0</span></p>
+          <p>Nyawa: <span id="livesFloat">❤️❤️❤️</span></p>
+          <p>Level: <span id="levelFloat">1</span></p>
+        </div>
+
+        <div class="start-container">
+          <button id="startBtn" tabindex="0" aria-label="Mulai Permainan">
+            Mulai Permainan
+          </button>
+        </div>
+
+        <div id="gameArea">
+          <h2 id="instruction">Cari gambar yang sama</h2>
+          <div id="targetImage"></div>
+          <div id="gridContainer" class="grid"></div>
+        </div>
+
+        <div id="feedback"></div>
+        <button
+          id="restartBtn"
+          style="
+            display: none;
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 12px;
+            background: #fb923c;
+            color: white;
+            border: none;
+            cursor: pointer;
+          "
+        >
+          🔄 Restart Game
+        </button>
+
+        <p id="sr-only" style="position: absolute; left: -9999px"></p>
+      </main>
+    </div>
+
+    <script>
+      let allowVoice = true;
+      let finishedGame = false;
+      let totalCorrect = 0;
+      let lastQuestion = null;
+
+      // ================== MODE & SPEECH ==================
+
+      function isVisualMode() {
+        return localStorage.getItem("gameMode") === "visual";
+      }
+
+      function stopSpeak() {
+        if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      function speak(text, onEnd = null) {
+        if (!("speechSynthesis" in window)) return;
+
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "id-ID";
+        msg.rate = 0.9;
+        msg.pitch = 1;
+
+        if (onEnd) {
+          msg.onend = onEnd;
+        }
+
+        window.speechSynthesis.speak(msg);
+      }
+
+      // ================== KEYBOARD ==================
+
+      document.addEventListener("keydown", (e) => {
+        if (!isVisualMode() || !gameRunning) return;
+
+        const choices = document.querySelectorAll(".choice");
+
+        if (e.key >= "1" && e.key <= String(currentChoices.length)) {
+          const index = parseInt(e.key) - 1;
+          if (choices[index]) {
+            choices[index].click();
+          } else {
+            speak("Pilihan tidak tersedia");
+          }
+        }
+      });
+
+      // ================== DATA ==================
+
+      const moneyImages = {
+        1000: "img/1000.png",
+        2000: "img/2000.png",
+        5000: "img/5000.png",
+        10000: "img/10000.png",
+        20000: "img/20000.png",
+        50000: "img/50000.png",
+        100000: "img/100000.png",
+      };
+
+      const itemImages = {
+        1000: { src: "img/permen.jpg", label: "Permen" },
+        2000: { src: "img/pulpen.png", label: "Pulpen" },
+        5000: { src: "img/gelang.png", label: "Gelang" },
+        10000: { src: "img/coklat.png", label: "Coklat" },
+        20000: { src: "img/topi.jpg", label: "Topi" },
+        50000: { src: "img/boneka.png", label: "Boneka" },
+        100000: { src: "img/tas.png", label: "Tas" },
+      };
+
+      // ================== GAME STATE ==================
+
+      let score = 0,
+        correctCount = 0,
+        level = 1,
+        maxLevel = 3,
+        lives = 3,
+        gameRunning = false,
+        gameCompleted = false;
+
+      const scoreDisplay = document.getElementById("score");
+      const livesDisplay = document.getElementById("lives");
+      const livesFloatDisplay = document.getElementById("livesFloat");
+      const scoreFloatDisplay = document.getElementById("scoreFloat");
+      const levelFloatDisplay = document.getElementById("levelFloat");
+      const levelDisplay = document.getElementById("level");
+      const startBtn = document.getElementById("startBtn");
+      const targetImage = document.getElementById("targetImage");
+      const gridContainer = document.getElementById("gridContainer");
+      const gameArea = document.getElementById("gameArea");
+      const feedbackDisplay = document.getElementById("feedback");
+      const restartBtn = document.getElementById("restartBtn");
+
+      // ================== START ==================
+
+      startBtn.addEventListener("focus", () => {
+        if (isVisualMode()) {
+          speak("Tombol mulai permainan. Tekan enter untuk memulai");
+        }
+      });
+
+      startBtn.addEventListener("click", () => {
+        startBtn.style.display = "none";
+        gameArea.style.display = "block";
+        startGame();
+
+        if (isVisualMode()) {
+          setTimeout(() => {
+            speak(
+              "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
+            );
+          }, 500);
+        }
+      });
+
+      function startGame() {
+        score = 0;
+        level = 1;
+        gameRunning = true;
+        totalCorrect = 0;
+        allowVoice = true;
+        finishedGame = false;
+        lastQuestion = null;
+
+        updateDisplay();
+        loadRound(false);
+      }
+
+      function updateDisplay() {
+        scoreDisplay.textContent = score;
+        levelDisplay.textContent = level;
+
+        scoreFloatDisplay.textContent = score;
+        levelFloatDisplay.textContent = level;
+
+        livesDisplay.textContent = "❤️".repeat(lives);
+        livesFloatDisplay.textContent = "❤️".repeat(lives);
+      }
+
+      // ================== GAME ROUND ==================
+
+      let currentChoices = [];
+      let currentAnswer = "";
+
+      function loadRound(repeat = false) {
+        if (!gameRunning || finishedGame) return;
+
+        stopSpeak();
+        allowVoice = true;
+
+        if (!repeat) {
+          const keys = Object.keys(moneyImages);
+          const correctKey = keys[Math.floor(Math.random() * keys.length)];
+          currentAnswer = correctKey;
+
+          const otherKeys = keys.filter((k) => k !== correctKey);
+          const choicesKeys = otherKeys
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 2);
+
+          choicesKeys.push(correctKey);
+          choicesKeys.sort(() => Math.random() - 0.5);
+
+          lastQuestion = { correctKey, choicesKeys };
+        }
+
+        const { correctKey, choicesKeys } = lastQuestion;
+
+        targetImage.innerHTML = `
+    <img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />
+  `;
+
+        gridContainer.innerHTML = "";
+
+        choicesKeys.forEach((key) => {
+          const div = document.createElement("div");
+          div.className = "choice";
+          div.innerHTML = `
+            <img src="${itemImages[key].src}" alt="${itemImages[key].label}">
+            <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+              Rp ${Number(key).toLocaleString()}
+            </p>
+          `;
+          div.addEventListener("click", () =>
+            handleChoice(div, key, correctKey)
+          );
+
+          gridContainer.appendChild(div);
+        });
+
+        // Voice soal (hanya kalau bukan mode selesai)
+        if (isVisualMode() && allowVoice && !finishedGame) {
+          speak(`Cari barang dengan harga ${correctKey} rupiah`);
+        }
+      }
+
+      // ================== HANDLE CHOICE ==================
+      function handleChoice(div, selected, correct) {
+        if (!gameRunning) return;
+
+        // STOP semua suara saat klik
+        allowVoice = false;
+        stopSpeak();
+
+        if (selected === correct) {
+          div.classList.add("correct");
+          feedbackDisplay.textContent = "✅ Benar!";
+          feedbackDisplay.className = "correct";
+
+          if (isVisualMode()) {
+            speak("Benar");
+          }
+
+          score += 1;
+          totalCorrect++;
+
+          checkLevelUp();
+
+          // Kalau game belum selesai → soal baru
+          if (!finishedGame) {
+            setTimeout(() => {
+              feedbackDisplay.textContent = "";
+              feedbackDisplay.className = "";
+              loadRound(false); // soal baru
+            }, 1200);
+          }
+        } else {
+          div.classList.add("wrong");
+          feedbackDisplay.textContent = "❌ Salah, coba lagi";
+          feedbackDisplay.className = "wrong";
+
+          if (isVisualMode()) {
+            speak("Salah");
+          }
+          // ✅ Kurangi nyawa jika salah
+          lives--;
+          updateDisplay();
+
+          // ❌ Kalau nyawa habis → game over
+          if (lives <= 0) {
+            finishedGame = true;
+            gameRunning = false;
+            feedbackDisplay.textContent = "💀 Permainan berakhir!";
+            showFinishScreen(false); // <- ini penting
+            return;
+          }
+
+          // ❌ SALAH → ULANG SOAL YANG SAMA
+          setTimeout(() => {
+            feedbackDisplay.textContent = "";
+            feedbackDisplay.className = "";
+            loadRound(true); // ulang soal
+          }, 1200);
+        }
+      }
+      function checkLevelUp() {
+        if (level === 1 && totalCorrect >= 3) {
+          level = 2;
+        } else if (level === 2 && totalCorrect >= 5) {
+          level = 3;
+        } else if (level === 3 && totalCorrect >= 7) {
+          finishedGame = true;
+          gameRunning = false;
+          stopSpeak();
+          showFinishScreen();
+        }
+        updateDisplay();
+      }
+      function showFinishScreen(win = true) {
+        if (win) {
+          gameArea.innerHTML = `
+      <div style="text-align:center; padding:20px;">
+        <h2>🎉 Selamat!</h2>
+        <p>Anda telah menyelesaikan level tertinggi</p>
+        <button id="restartBtn" style="
+          margin-top:15px;
+          padding:12px 24px;
+          font-size:18px;
+          border-radius:12px;
+          background:#ea580c;
+          color:white;
+          border:none;
+        ">Restart Game</button>
+      </div>
+    `;
+          if (isVisualMode()) {
+            speak(
+              "Selamat. Kamu telah menyelesaikan permainan. Tekan tombol restart untuk main lagi."
+            );
+          }
+        } else {
+          gameArea.innerHTML = `
+      <div style="text-align:center; padding:20px;">
+        <h2>💀 Game Over</h2>
+        <p>Nyawa habis, coba lagi ya!</p>
+        <button id="restartBtn" style="
+          margin-top:15px;
+          padding:12px 24px;
+          font-size:18px;
+          border-radius:12px;
+          background:#ea580c;
+          color:white;
+          border:none;
+        ">Restart Game</button>
+      </div>
+    `;
+          if (isVisualMode()) {
+            speak(
+              "Permainan berakhir. Tekan tombol restart untuk mencoba lagi."
+            );
+          }
+        }
+
+        document.getElementById("restartBtn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+
+      // ================== BACK BUTTON ==================
+      document.getElementById("btnBack").addEventListener("click", () => {
+        // Ambil mode dari localStorage
+        const mode = localStorage.getItem("gameMode") || "visual";
+        window.location.href = `menu.html?mode=${mode}`;
+      });
+
+      restartBtn.addEventListener("click", () => {
+        score = 0;
+        correctCount = 0;
+        level = 1;
+        lives = 3;
+        gameRunning = true;
+        gameCompleted = false; // ✅ reset status
+
+        feedbackDisplay.textContent = "";
+        feedbackDisplay.className = "";
+
+        restartBtn.style.display = "none";
+        document.getElementById("gameArea").style.display = "block";
+        startBtn.style.display = "none";
+
+        updateDisplay();
+        loadRound();
+      });
+
+      // restart game
+      document.addEventListener("keydown", (e) => {
+        if (!gameCompleted) return;
+
+        // Tekan R untuk restart
+        if (e.key.toLowerCase() === "r") {
+          restartBtn.click();
+        }
+      });
+      // audio refresh
+      window.addEventListener("beforeunload", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
+    </script>
+  </body>
+</html>

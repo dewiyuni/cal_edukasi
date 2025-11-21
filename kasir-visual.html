@@ -1052,9 +1052,11 @@
       });
       // button back
       document.getElementById("btnBack").addEventListener("click", () => {
-        history.back();
-        window.location.href = "index.html";
+        // Ambil mode dari localStorage
+        const mode = localStorage.getItem("gameMode") || "visual";
+        window.location.href = `menu.html?mode=${mode}`;
       });
+
       // Inisialisasi awal saat halaman dimuat
       window.onload = startNewTransaction;
       const scrollTopBtn = document.getElementById("scrollTopBtn");
