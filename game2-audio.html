@@ -483,7 +483,37 @@
           );
         }
       }
+      // DETEKSI TAP TANDEM (HP / touchscreen)
+      let tapCount = 0;
+      let tapTimer = null;
 
+      // Hanya berlaku untuk gridContainer
+      gridContainer.addEventListener("touchstart", (e) => {
+        e.preventDefault(); // hindari scroll
+        tapCount++;
+
+        if (tapTimer) clearTimeout(tapTimer);
+
+        // tunggu 300ms untuk menentukan berapa tap
+        tapTimer = setTimeout(() => {
+          const choices = document.querySelectorAll(".choice");
+          if (tapCount >= 1 && tapCount <= choices.length) {
+            const choiceDiv = choices[tapCount - 1];
+            choiceDiv.click();
+
+            // Speak sesuai pilihan
+            if (isAudioMode()) {
+              const key = lastQuestion.choicesKeys[tapCount - 1];
+              speak(
+                `Pilihan ${tapCount}: ${itemImages[key].label}, harga ${key} rupiah`
+              );
+            }
+          } else {
+            speak("Pilihan tidak tersedia");
+          }
+          tapCount = 0;
+        }, 300); // bisa diubah 300ms kalau mau lebih cepat/lambat
+      });
       // CHOICE HANDLER
       function handleChoice(div, selected, correct) {
         if (!gameRunning) return;
