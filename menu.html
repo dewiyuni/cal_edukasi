@@ -94,7 +94,7 @@
       const btnUang = document.getElementById("btnUang");
       const backBtn = document.getElementById("btnBack");
 
-      // tampilkan mode
+      // ========== SET MODE ==========
       if (mode === "audio") {
         modeText.textContent = "Mode Aktif: 🔊 Audio (Tunanetra)";
         btnKasir.href = "kasir-audio.html";
@@ -105,10 +105,115 @@
         btnUang.href = "game2-visual.html";
       }
 
-      // back ke index.html (pilih mode)
-      backBtn.addEventListener("click", () => {
-        window.location.href = "index.html?step=mode";
+      // ========== SPEAK FUNCTION ==========
+      function speak(text) {
+        if (!window.speechSynthesis) return;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "id-ID";
+        speechSynthesis.cancel();
+        speechSynthesis.speak(msg);
+      }
+      // ========== HENTIKAN SUARA SAAT PINDAH HALAMAN / TAB ==========
+
+      window.addEventListener("beforeunload", () => {
+        if (window.speechSynthesis) {
+          speechSynthesis.cancel();
+        }
       });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && window.speechSynthesis) {
+          speechSynthesis.cancel();
+        }
+      });
+
+      // ========== KHUSUS MODE AUDIO ==========
+      if (mode === "audio") {
+        const focusable = [btnKasir, btnUang, backBtn];
+
+        // Auto focus ke tombol pertama
+        setTimeout(() => {
+          btnKasir.focus();
+        }, 300);
+
+        // Suara otomatis saat halaman muncul
+        setTimeout(() => {
+          speak(
+            "Menu game. Anda berada di Tombol mulai game kasir. Tekan tab untuk ke game uang match."
+          );
+        }, 500);
+
+        // Suara saat fokus
+        btnKasir.addEventListener("focus", () => {
+          speak(
+            "Anda berada di Tombol mulai game kasir. Tekan enter untuk memulai. Tekan tab untuk ke game uang match."
+          );
+        });
+
+        btnUang.addEventListener("focus", () => {
+          speak(
+            "Anda berada di Tombol mulai game uang match. Tekan enter untuk memulai. Tekan tab untuk tombol kembali."
+          );
+        });
+
+        // ENTER agar bisa jalan dari keyboard
+        btnKasir.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            window.location.href = btnKasir.href;
+          }
+        });
+
+        btnUang.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            window.location.href = btnUang.href;
+          }
+        });
+
+        // TAB muter hanya di 2 tombol
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Tab") return;
+
+          e.preventDefault();
+
+          const active = document.activeElement;
+          let index = focusable.indexOf(active);
+
+          if (e.shiftKey) {
+            index--;
+            if (index < 0) index = focusable.length - 1;
+          } else {
+            index++;
+            if (index >= focusable.length) index = 0;
+          }
+
+          focusable[index].focus();
+        });
+      }
+
+      // Klik mouse
+      backBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+
+      // Tekan keyboard (Enter / Space)
+      backBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          window.location.href = "index.html";
+        }
+      });
+
+      // Mode audio → suara fokus
+      if (mode === "audio") {
+        backBtn.tabIndex = 0;
+        backBtn.addEventListener("focus", () => {
+          speak(
+            "Tombol kembali. Tekan enter untuk kembali ke menu. Tekan tab untuk tombol mulai game kasir."
+          );
+        });
+      }
     </script>
   </body>
 </html>

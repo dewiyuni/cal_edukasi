@@ -269,7 +269,7 @@
   </head>
   <body>
     <div class="container">
-      <button id="btnBack" class="back-btn">
+      <button id="btnBack" class="back-btn" tabindex="0">
         <i class="fas fa-arrow-left"></i>
       </button>
       <header class="header-scene">
@@ -306,12 +306,29 @@
     </div>
 
     <script>
-      // === SPEECH UTILITY ===
-      function speak(text, onEnd = null) {
+      // SINGLE SPEAK UTILITY
+      function speak(text, onEnd = null, skipCancel = false) {
         if (!("speechSynthesis" in window)) return;
+        if (!skipCancel) window.speechSynthesis.cancel(); // hanya cancel kalau bukan welcome
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = "id-ID";
-        msg.rate = 0.9;
+        msg.rate = 0.95;
+        msg.pitch = 1;
+        if (onEnd) msg.onend = onEnd;
+        window.speechSynthesis.speak(msg);
+      }
+
+      function stopSpeak() {
+        if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+      function speak(text, onEnd = null) {
+        if (!("speechSynthesis" in window)) return;
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "id-ID";
+        msg.rate = 0.95;
         msg.pitch = 1;
         if (onEnd) msg.onend = onEnd;
         window.speechSynthesis.speak(msg);
@@ -319,8 +336,7 @@
       function stopSpeak() {
         if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       }
-
-      // === DATA ===
+      // === DATA (tetap di luar) ===
       const moneyImages = {
         1000: "img/1000.png",
         2000: "img/2000.png",
@@ -340,7 +356,7 @@
         100000: { src: "img/tas.png", label: "Tas" },
       };
 
-      // === STATE ===
+      // === STATE DEFAULTS ===
       let score = 0,
         level = 1,
         lives = 3,
@@ -348,285 +364,453 @@
         finishedGame = false,
         lastQuestion = null,
         gameRunning = false;
-      let scoreDisplay = document.getElementById("score"),
-        livesDisplay = document.getElementById("lives"),
-        levelDisplay = document.getElementById("level");
-      let scoreFloatDisplay = document.getElementById("scoreFloat"),
-        livesFloatDisplay = document.getElementById("livesFloat"),
-        levelFloatDisplay = document.getElementById("levelFloat");
-      let startBtn = document.getElementById("startBtn"),
-        targetImage = document.getElementById("targetImage"),
-        gridContainer = document.getElementById("gridContainer"),
-        gameArea = document.getElementById("gameArea"),
-        feedbackDisplay = document.getElementById("feedback");
-      let currentChoices = [],
-        currentAnswer = "";
 
-      // === START BUTTON ===
-      startBtn.addEventListener("focus", () =>
-        speak("Tombol mulai permainan. Tekan enter untuk memulai")
-      );
-      startBtn.addEventListener("click", () => {
-        startBtn.style.display = "none";
-        gameArea.style.display = "block";
-        startGame();
-        speak(
-          "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
-        );
-      });
+      // DOM setup after DOM ready
+      document.addEventListener("DOMContentLoaded", () => {
+        // grab elements
+        const scoreDisplay = document.getElementById("score");
+        const livesDisplay = document.getElementById("lives");
+        const levelDisplay = document.getElementById("level");
+        const scoreFloatDisplay = document.getElementById("scoreFloat");
+        const livesFloatDisplay = document.getElementById("livesFloat");
+        const levelFloatDisplay = document.getElementById("levelFloat");
+        let startBtn = document.getElementById("startBtn");
+        let targetImage = document.getElementById("targetImage");
+        let gridContainer = document.getElementById("gridContainer");
+        let gameArea = document.getElementById("gameArea");
+        let feedbackDisplay = document.getElementById("feedback");
+        const titleEl = document.querySelector(".title");
+        let backBtn = document.getElementById("btnBack");
+        // expose to outer scope if needed by other funcs (some functions below use these names)
+        window.startBtn = startBtn;
+        window.targetImage = targetImage;
+        window.gridContainer = gridContainer;
+        window.gameArea = gameArea;
+        window.feedbackDisplay = feedbackDisplay;
+        // Batasi TAB hanya antara dua tombol ini
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Tab") return;
 
-      // === GAME FUNCTIONS ===
-      function startGame() {
-        score = 0;
-        level = 1;
-        lives = 3;
-        gameRunning = true;
-        totalCorrect = 0;
-        finishedGame = false;
-        lastQuestion = null;
-        updateDisplay();
-        loadRound(false);
-      }
-      function updateDisplay() {
-        scoreDisplay.textContent = score;
-        levelDisplay.textContent = level;
-        scoreFloatDisplay.textContent = score;
-        levelFloatDisplay.textContent = level;
-        livesDisplay.textContent = "❤️".repeat(lives);
-        livesFloatDisplay.textContent = "❤️".repeat(lives);
-      }
+          const focusables = [backBtn, startBtn];
+          // Nonaktifkan TAB ke elemen lain sebelum game mulai
+          document
+            .querySelectorAll(".title, .info-box, #floatingInfo")
+            .forEach((el) => {
+              el.setAttribute("tabindex", "-1");
+            });
 
-      function loadRound(repeat = false) {
-        if (!gameRunning || finishedGame) return;
-        stopSpeak();
-        if (!repeat) {
-          const keys = Object.keys(moneyImages);
-          const correctKey = keys[Math.floor(Math.random() * keys.length)];
-          currentAnswer = correctKey;
-          const otherKeys = keys.filter((k) => k !== correctKey);
-          const choicesKeys = otherKeys
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 2);
-          choicesKeys.push(correctKey);
-          choicesKeys.sort(() => Math.random() - 0.5);
-          lastQuestion = { correctKey, choicesKeys };
+          const currentIndex = focusables.indexOf(document.activeElement);
+
+          // Shift + Tab
+          if (e.shiftKey) {
+            if (currentIndex === 0) {
+              e.preventDefault();
+              focusables[1].focus();
+            }
+          }
+          // Tab biasa
+          else {
+            if (currentIndex === 1) {
+              e.preventDefault();
+              focusables[0].focus();
+            }
+          }
+        });
+        // accessibility: allow focus on info items
+        titleEl.setAttribute("tabindex", "0");
+        scoreDisplay.parentElement.setAttribute("tabindex", "0");
+        livesDisplay.parentElement.setAttribute("tabindex", "0");
+        levelDisplay.parentElement.setAttribute("tabindex", "0");
+
+        // welcome voice once
+        window.addEventListener("load", () => {
+          speak(
+            "Selamat datang di game menjodohkan gambar.",
+            () => {
+              startBtn.focus();
+              speak(
+                "Fokus ke tombol mulai permainan. Tekan Enter untuk memulai."
+              );
+            },
+            true // skipCancel
+          );
+        });
+
+        // focus voice handlers
+        titleEl.addEventListener("focus", () => {
+          speak("Judul permainan: Menjodohkan Gambar");
+        });
+        startBtn.addEventListener("focus", () => {
+          speak("Tombol mulai permainan. Tekan Enter untuk memulai permainan.");
+        });
+        // Suara saat fokus ke tombol BACK
+        backBtn.addEventListener("focus", () => {
+          speak("Tombol kembali. Tekan Enter untuk kembali ke menu.");
+        });
+        // start button actions
+        startBtn.addEventListener("click", () => {
+          startBtn.style.display = "none";
+          gameArea.style.display = "block";
+          // Aktifkan tab untuk elemen game setelah mulai
+          document.querySelectorAll(".choice").forEach((el) => {
+            el.setAttribute("tabindex", "0");
+          });
+
+          startGame();
+          speak(
+            "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
+          );
+        });
+        startBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            startBtn.click();
+          }
+        });
+
+        // BACK TO MENU
+        backBtn.addEventListener("click", () => {
+          window.location.href = "menu.html?mode=audio";
+        });
+
+        // Keyboard (ENTER / SPACE)
+        backBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            window.location.href = "menu.html?mode=audio";
+          }
+        });
+
+        // GAME FUNCTIONS (use closures to access local elements)
+        function updateDisplay() {
+          scoreDisplay.textContent = score;
+          levelDisplay.textContent = level;
+          scoreFloatDisplay.textContent = score;
+          levelFloatDisplay.textContent = level === "Selesai" ? "✅" : level;
+          livesDisplay.textContent = "❤️".repeat(lives);
+          livesFloatDisplay.textContent = "❤️".repeat(lives);
         }
-        const { correctKey, choicesKeys } = lastQuestion;
-        targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey} rupiah">`;
-        gridContainer.innerHTML = "";
-        let allChoicesVoice = "";
-        choicesKeys.forEach((key, index) => {
-          const div = document.createElement("div");
-          div.className = "choice";
-          div.setAttribute("tabindex", "0");
-          div.setAttribute(
-            "aria-label",
-            `Pilihan ${index + 1}: ${
-              itemImages[key].label
-            }, harga ${key} rupiah`
-          );
-          div.innerHTML = `<img src="${itemImages[key].src}" alt="${
-            itemImages[key].label
-          }"><p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">Rp ${Number(
-            key
-          ).toLocaleString()}</p>`;
-          div.addEventListener("click", () =>
-            handleChoice(div, key, correctKey)
-          );
-          div.addEventListener("focus", () =>
-            speak(
+
+        function startGame() {
+          score = 0;
+          level = 1;
+          lives = 3;
+          gameRunning = true;
+          totalCorrect = 0;
+          finishedGame = false;
+          lastQuestion = null;
+          updateDisplay();
+          loadRound(false);
+        }
+
+        function loadRound(repeat = false) {
+          if (!gameRunning || finishedGame) return;
+          stopSpeak();
+          if (!repeat) {
+            const keys = Object.keys(moneyImages);
+            const correctKey = keys[Math.floor(Math.random() * keys.length)];
+            const otherKeys = keys.filter((k) => k !== correctKey);
+            const choicesKeys = otherKeys
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 2);
+            choicesKeys.push(correctKey);
+            choicesKeys.sort(() => Math.random() - 0.5);
+            lastQuestion = { correctKey, choicesKeys };
+          }
+          const { correctKey, choicesKeys } = lastQuestion;
+          window.currentAnswer = correctKey;
+          targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey} rupiah">`;
+          gridContainer.innerHTML = "";
+          let allChoicesVoice = "";
+          choicesKeys.forEach((key, index) => {
+            const div = document.createElement("div");
+            div.className = "choice";
+            div.setAttribute("tabindex", "0");
+            div.setAttribute(
+              "aria-label",
               `Pilihan ${index + 1}: ${
                 itemImages[key].label
               }, harga ${key} rupiah`
-            )
+            );
+            div.innerHTML = `<img src="${itemImages[key].src}" alt="${
+              itemImages[key].label
+            }"><p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">Rp ${Number(
+              key
+            ).toLocaleString()}</p>`;
+            div.addEventListener("click", () =>
+              handleChoice(div, key, correctKey)
+            );
+            div.addEventListener("focus", () =>
+              speak(
+                `Pilihan ${index + 1}: ${
+                  itemImages[key].label
+                }, harga ${key} rupiah`
+              )
+            );
+            gridContainer.appendChild(div);
+            allChoicesVoice += `Pilihan ${index + 1}: ${
+              itemImages[key].label
+            }, harga ${key} rupiah. `;
+          });
+          speak(
+            `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice}Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
           );
-          gridContainer.appendChild(div);
-          allChoicesVoice += `Pilihan ${index + 1}: ${
-            itemImages[key].label
-          }, harga ${key} rupiah. `;
-        });
-        speak(
-          `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice}Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
-        );
-      }
+        }
 
-      function handleChoice(div, selected, correct) {
-        if (!gameRunning) return;
-        stopSpeak();
-        if (selected == correct) {
-          div.classList.add("correct");
-          feedbackDisplay.textContent = "✅ Benar!";
-          feedbackDisplay.className = "correct";
-          speak("Benar");
-          score++;
-          totalCorrect++;
-          checkLevelUp();
-          setTimeout(() => {
-            feedbackDisplay.textContent = "";
-            feedbackDisplay.className = "";
-            if (!finishedGame) loadRound(false);
-          }, 1200);
-        } else {
-          div.classList.add("wrong");
-          feedbackDisplay.textContent = "❌ Salah, coba lagi";
-          feedbackDisplay.className = "wrong";
-          speak("Salah");
-          lives--;
+        function handleChoice(div, selected, correct) {
+          if (!gameRunning) return;
+          stopSpeak();
+          if (selected == correct) {
+            div.classList.add("correct");
+            feedbackDisplay.textContent = "✅ Benar!";
+            feedbackDisplay.className = "correct";
+            speak("Benar");
+            score++;
+            totalCorrect++;
+            checkLevelUp();
+            setTimeout(() => {
+              feedbackDisplay.textContent = "";
+              feedbackDisplay.className = "";
+              if (!finishedGame) loadRound(false);
+            }, 1200);
+          } else {
+            div.classList.add("wrong");
+            feedbackDisplay.textContent = "❌ Salah, coba lagi";
+            feedbackDisplay.className = "wrong";
+            speak("Salah");
+            lives--;
+            updateDisplay();
+            if (lives <= 0) {
+              finishedGame = true;
+              gameRunning = false;
+              feedbackDisplay.textContent = "💀 Permainan berakhir!";
+              showFinishScreen(false);
+              return;
+            }
+            setTimeout(() => {
+              feedbackDisplay.textContent = "";
+              feedbackDisplay.className = "";
+              loadRound(true);
+            }, 1200);
+          }
           updateDisplay();
-          if (lives <= 0) {
+        }
+
+        function checkLevelUp() {
+          if (finishedGame) return;
+          if (level === 1 && totalCorrect >= 3) {
+            level = 2;
+            speak(`Selamat! Anda naik ke level ${level}`);
+            showLevelNotif(`Level ${level}`);
+          } else if (level === 2 && totalCorrect >= 5) {
+            level = 3;
+            speak(`Selamat! Anda naik ke level ${level}`);
+            showLevelNotif(`Level ${level}`);
+          } else if (level === 3 && totalCorrect >= 10) {
             finishedGame = true;
             gameRunning = false;
-            feedbackDisplay.textContent = "💀 Permainan berakhir!";
-            showFinishScreen(false);
+            // finish speech then show finish screen
+            speak("Selamat! Kamu telah menyelesaikan semua level!", () => {
+              showFinishScreen(true);
+            });
+            showLevelNotif("Semua Level Selesai!");
             return;
           }
-          setTimeout(() => {
-            feedbackDisplay.textContent = "";
-            feedbackDisplay.className = "";
-            loadRound(true);
-          }, 1200);
-        }
-        updateDisplay();
-      }
-
-      function checkLevelUp() {
-        if (finishedGame) return;
-        if (level === 1 && totalCorrect >= 3) {
-          level = 2;
-          speak(`Selamat! Anda naik ke level ${level}`);
-          showLevelNotif(level);
-        } else if (level === 2 && totalCorrect >= 5) {
-          level = 3;
-          speak(`Selamat! Anda naik ke level ${level}`);
-          showLevelNotif(level);
-        } else if (level === 3 && totalCorrect >= 10) {
-          level = 3;
-          finishedGame = true;
-          gameRunning = false;
-          speak("Selamat! Anda telah menyelesaikan level tertinggi.", () => {
-            showFinishScreen(true);
-          });
-          showLevelNotif(level);
           updateDisplay();
-          return;
         }
-        updateDisplay();
-      }
 
-      function showLevelNotif(levelNum) {
-        const notif = document.createElement("div");
-        notif.textContent = `🎉 Level ${levelNum}! 🎉`;
-        Object.assign(notif.style, {
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%,-50%)",
-          background: "#38a169",
-          color: "white",
-          padding: "15px 25px",
-          fontSize: "24px",
-          borderRadius: "15px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-          zIndex: 9999,
-          opacity: 0,
-          transition: "opacity 0.3s ease",
-        });
-        document.body.appendChild(notif);
-        requestAnimationFrame(() => {
-          notif.style.opacity = 1;
-        });
-        setTimeout(() => {
-          notif.style.opacity = 0;
-          setTimeout(() => notif.remove(), 300);
-        }, 2000);
-      }
+        let hasShownFinishNotif = false;
+        function showLevelNotif(text) {
+          if (hasShownFinishNotif) return;
+          // case-insensitive check for selesai/selesai words
+          if (
+            typeof text === "string" &&
+            text.toLowerCase().includes("selesai")
+          ) {
+            hasShownFinishNotif = true;
+          }
+          const notif = document.createElement("div");
+          notif.textContent = text.includes("Level")
+            ? `🎉 ${text}`
+            : `🏆 ${text}`;
+          const isFinish =
+            typeof text === "string" && text.toLowerCase().includes("selesai");
+          Object.assign(notif.style, {
+            background: isFinish ? "#d69e2e" : "#38a169",
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+            color: "white",
+            padding: "15px 25px",
+            fontSize: "24px",
+            borderRadius: "15px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+            zIndex: 9999,
+            opacity: 0,
+            transition: "opacity 0.3s ease",
+          });
+          document.body.appendChild(notif);
+          requestAnimationFrame(() => (notif.style.opacity = 1));
+          setTimeout(() => {
+            notif.style.opacity = 0;
+            setTimeout(() => notif.remove(), 300);
+          }, 2000);
+        }
 
-      // === FINISH SCREEN ===
-      function showFinishScreen(win = true) {
-        gameRunning = false;
-        gameArea.innerHTML = `
-        <div style="text-align:center; padding:20px;">
-          <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
-          <p>${
-            win
-              ? "Anda telah menyelesaikan level tertinggi"
-              : "Nyawa habis, coba lagi ya!"
-          }</p>
-          <button id="restartBtnFinish" tabindex="0">Restart Game</button>
-          <button id="backToMenuBtn" tabindex="0" style="margin-left:10px;">Kembali ke Menu</button>
-        </div>
-        `;
-        const restartBtnFinish = document.getElementById("restartBtnFinish");
-        const backToMenuBtn = document.getElementById("backToMenuBtn");
+        // FINISH SCREEN
+        function showFinishScreen(win = true) {
+          gameRunning = false;
+          // mark level display as finished (optional)
+          level = "Selesai";
+          updateDisplay();
 
-        // SPEECH
-        restartBtnFinish.addEventListener("focus", () =>
-          speak("Tombol restart. Tekan enter untuk memulai permainan lagi.")
-        );
-        backToMenuBtn.addEventListener("focus", () =>
-          speak("Tombol kembali ke menu. Tekan enter untuk kembali.")
-        );
+          gameArea.innerHTML = `
+                        <div id="finishScreen" style="text-align:center; padding:20px;">
+                          <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
+                          <p>${
+                            win
+                              ? "Selamat! Kamu telah menyelesaikan semua level!"
+                              : "Nyawa habis, coba lagi ya!"
+                          }</p>
+                          <div style="margin-top:12px;">
+                            <button id="restartBtnFinish" tabindex="0">Restart Game</button>
+                            <button id="backToMenuBtn" tabindex="0" style="margin-left:10px;">Kembali ke Menu</button>
+                          </div>
+                        </div>
+                      `;
+          const restartBtnFinish = document.getElementById("restartBtnFinish");
+          const backToMenuBtn = document.getElementById("backToMenuBtn");
+          // stop suara lama
+          stopSpeak();
 
-        // CLICK / ENTER
-        restartBtnFinish.addEventListener("click", restartGame);
-        restartBtnFinish.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            restartGame();
+          // fokus dulu
+          setTimeout(() => {
+            restartBtnFinish.focus();
+          }, 200);
+
+          // suara setelah fokus
+          setTimeout(() => {
+            if (win) {
+              speak(
+                "Selamat! Kamu telah menyelesaikan semua level. Sekarang fokus di tombol restart. Tekan enter untuk mulai lagi. Tekan tab untuk ke tombol kembali"
+              );
+            } else {
+              speak(
+                "Game over. Nyawa kamu habis. Sekarang fokus di tombol restart. Tekan enter untuk main lagi.  Tekan tab untuk ke tombol kembali"
+              );
+            }
+          }, 500);
+
+          // auto focus restart
+          setTimeout(() => restartBtnFinish.focus(), 200);
+
+          // speak on focus
+          restartBtnFinish.addEventListener("focus", () => {
+            speak(
+              "Sekarang anda berada di Tombol restart. Tekan enter untuk memulai permainan lagi. Tekan tab untuk ke tombol kembali"
+            );
+          });
+          backToMenuBtn.addEventListener("focus", () => {
+            speak(
+              "Sekarang anda berada di Tombol kembali ke menu. Tekan enter untuk kembali. Tekan tab untuk ke tombol Restart Game"
+            );
+          });
+
+          // click / enter handlers
+          restartBtnFinish.addEventListener("click", restartGame);
+          restartBtnFinish.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              restartGame();
+            }
+          });
+          backToMenuBtn.addEventListener("click", () => {
+            stopSpeak();
+            setTimeout(() => {
+              window.location.href = "menu.html?mode=audio";
+            }, 100);
+          });
+
+          backToMenuBtn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              stopSpeak();
+              setTimeout(() => {
+                window.location.href = "menu.html?mode=audio";
+              }, 100);
+            }
+          });
+
+          // focus trap inside finishScreen (only two buttons)
+          const focusable = [restartBtnFinish, backToMenuBtn];
+          document
+            .getElementById("finishScreen")
+            .addEventListener("keydown", (e) => {
+              if (e.key !== "Tab") return;
+              e.preventDefault();
+              let index = focusable.indexOf(document.activeElement);
+              if (e.shiftKey) {
+                index = index - 1;
+                if (index < 0) index = focusable.length - 1;
+              } else {
+                index = index + 1;
+                if (index >= focusable.length) index = 0;
+              }
+              focusable[index].focus();
+            });
+        }
+
+        function restartGame() {
+          stopSpeak();
+          // restore state
+          score = 0;
+          lives = 3;
+          level = 1;
+          totalCorrect = 0;
+          finishedGame = false;
+          gameRunning = true;
+          lastQuestion = null;
+          // rebuild game area
+          gameArea.innerHTML = `
+                        <h2 id="instruction">Cari gambar yang sama</h2>
+                        <div id="targetImage"></div>
+                        <div id="gridContainer" class="grid"></div>
+                        <div id="feedback"></div>
+                      `;
+          // rebind local references
+          targetImage = document.getElementById("targetImage");
+          gridContainer = document.getElementById("gridContainer");
+          feedbackDisplay = document.getElementById("feedback");
+          updateDisplay();
+          loadRound(false);
+          setTimeout(
+            () => speak("Permainan diulang. Fokus ke pilihan gambar."),
+            300
+          );
+        }
+
+        // keyboard choice shortcuts (1..n)
+        document.addEventListener("keydown", (e) => {
+          if (!gameRunning) return;
+          const choices = document.querySelectorAll(".choice");
+          const { choicesKeys } = lastQuestion || {};
+          if (
+            choicesKeys &&
+            e.key >= "1" &&
+            e.key <= String(choicesKeys.length)
+          ) {
+            const index = parseInt(e.key) - 1;
+            if (choices[index]) choices[index].click();
+            else speak("Pilihan tidak tersedia");
           }
         });
-        backToMenuBtn.addEventListener(
-          "click",
-          () => (window.location.href = "menu.html")
-        );
-        backToMenuBtn.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            window.location.href = "menu.html";
-          }
+
+        // stop audio on refresh
+        window.addEventListener("beforeunload", () => {
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         });
-      }
-
-      function restartGame() {
-        gameArea.innerHTML = `<h2 id="instruction">Cari gambar yang sama</h2><div id="targetImage"></div><div id="gridContainer" class="grid"></div><div id="feedback"></div>`;
-        targetImage = document.getElementById("targetImage");
-        gridContainer = document.getElementById("gridContainer");
-        feedbackDisplay = document.getElementById("feedback");
-        score = 0;
-        lives = 3;
-        level = 1;
-        totalCorrect = 0;
-        finishedGame = false;
-        gameRunning = true;
-        updateDisplay();
-        startGame();
-      }
-
-      // === BACK BUTTON TOP ===
-      document
-        .getElementById("btnBack")
-        .addEventListener("click", () => (window.location.href = "menu.html"));
-
-      // === KEYBOARD NUMBER CHOICES ===
-      document.addEventListener("keydown", (e) => {
-        if (!gameRunning) return;
-        const choices = document.querySelectorAll(".choice");
-        const { choicesKeys } = lastQuestion || {};
-        if (
-          choicesKeys &&
-          e.key >= "1" &&
-          e.key <= String(choicesKeys.length)
-        ) {
-          const index = parseInt(e.key) - 1;
-          if (choices[index]) choices[index].click();
-          else speak("Pilihan tidak tersedia");
-        }
-      });
-
-      // STOP AUDIO ON REFRESH
-      window.addEventListener("beforeunload", () => {
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      });
+      }); // end DOMContentLoaded
     </script>
   </body>
 </html>
