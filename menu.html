@@ -214,6 +214,11 @@
           );
         });
       }
+
+      // stop audio on refresh
+      window.addEventListener("beforeunload", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
     </script>
   </body>
 </html>

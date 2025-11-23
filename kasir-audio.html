@@ -3,49 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kasir Jajanan Anime - Belajar Uang</title>
+    <title>Kasir Kelma - Belajar Uang</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome untuk ikon loading -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <style>
       :root {
-        --primary-bg: #fef3c7; /* Kuning Muda - Latar Belakang Tubuh */
-        --header-bg: #ea580c; /* Oranye Terang - Warna Header Overlay */
-        --accent-green: #38a169; /* Hijau - Untuk Harga/Sukses */
-        --accent-yellow: #f6ad55; /* Kuning - Untuk Tombol Uang */
-        --display-blue: #3182ce; /* Biru - Untuk Display Total */
-        --font-inter: "Inter", sans-serif;
+        --primary-bg: #fef3c7;
+        --accent-green: #38a169;
+        --accent-yellow: #f6ad55;
       }
       body {
-        font-family: var(--font-inter);
-        background-color: var(--primary-bg);
+        font-family: "Poppins", sans-serif;
+        background: #fff7ed;
+        margin: 5px;
         display: flex;
         justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+        align-items: flex-start;
+
         padding: 20px;
       }
-      /* --- KOTAK KASIR --- */
       .kasir-container {
-        background-color: #ffffff;
+        background: #fff;
         border-radius: 20px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
-          0 8px 10px -6px rgba(0, 0, 0, 0.1);
         max-width: 900px;
         width: 100%;
         overflow: hidden;
         display: grid;
         grid-template-rows: auto 1fr;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       }
-
-      /* --- HEADER SCENE --- */
       .header-scene {
         background-color: #fabb58;
         color: white;
@@ -57,8 +50,6 @@
         overflow: hidden;
         height: 160px;
       }
-
-      /* --- ANIMASI BACKGROUND (opsional) --- */
       @keyframes moveBackground {
         0% {
           background-position: 0 0;
@@ -67,7 +58,6 @@
           background-position: -600px 0;
         }
       }
-
       .header-scene::before {
         content: "";
         position: absolute;
@@ -76,14 +66,12 @@
         right: 0;
         bottom: 0;
         background-repeat: repeat-x;
-        background-size: auto 100%; /* <<< fix gambar membesar */
+        background-size: auto 100%;
         background-position: 0 0;
         animation: moveBackground 25s linear infinite;
         opacity: 0.5;
         z-index: 0;
       }
-
-      /* --- KONTEN DI DEPAN --- */
       .scene-content {
         position: relative;
         z-index: 2;
@@ -93,31 +81,23 @@
         background-image: url("https://placehold.co/80x80/ffffff/000000?text=K A S I R%0AK E L M A&font-size=20");
         background-size: cover;
         border-radius: 50%;
-        border: 4px solid rgb(255, 255, 255);
+        border: 4px solid #fff;
         width: 110px;
         height: 110px;
         margin: 0 auto 10px;
       }
-      /* Kontainer bergerak */
       .moving-items {
         position: absolute;
         top: 40%;
         left: 0;
-        width: 200vw; /* WAJIB biar mulus! */
-        height: auto;
+        width: 200vw;
         display: flex;
-        gap: 0px;
         z-index: 1;
-
-        /* Remove translateY dari sini */
         animation: moveItems 20s linear infinite;
       }
-
-      /* Gambar */
       .moving-item {
         width: 100vw;
         height: auto;
-        border-radius: 0;
         object-fit: cover;
         transform: translateY(-50%);
       }
@@ -129,13 +109,98 @@
           transform: translateX(-100vw);
         }
       }
-      /* back  */
+      #moneyButtons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+      @media (max-width: 768px) {
+        #moneyButtons {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ff7b00;
+        margin-bottom: 10px;
+        text-align: center; /* <-- ini menengahkan teks */
+      }
+
+      /* Tombol Pilih Jajan */
+      .action-btn {
+        background: #fbbf24; /* kuning cerah */
+        color: #ffffff; /* teks gelap agar kontras */
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px; /* spasi antara teks & loading */
+        padding: 15px;
+        border-radius: 15px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.2s ease;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .action-btn:hover {
+        background: #fcd34d; /* lebih terang saat hover */
+        transform: translateY(-2px);
+      }
+
+      .action-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .start-container {
+        display: inline-block;
+      }
+
+      .loading-spinner {
+        /* border: 3px solid rgba(255, 255, 255, 0.3); */ /* hapus ini */
+        border-top: 3px solid #1a202c; /* warna garis spinner */
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+      }
+
+      .loading-spinner.hidden {
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .money-btn img {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+      #messageBox {
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        text-align: center;
+      }
       .back-btn {
         position: fixed;
         top: 10px;
         left: 10px;
         background: rgba(255, 255, 255, 0.85);
-        color: #ea580c; /* oranye biar cocok sama header */
+        color: #ea580c;
         font-weight: bold;
         padding: 8px 14px;
         border-radius: 10px;
@@ -145,154 +210,30 @@
         z-index: 9999;
         transition: 0.2s;
       }
-
       .back-btn:hover {
         background: white;
         transform: scale(1.05);
       }
-
-      /* --- ITEM ROW (opsional, statis di bawah kasir) --- */
-      .item-row {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
-        z-index: 2;
-      }
-
-      .item-img {
-        width: 150px;
-        height: auto;
-        border-radius: 10px;
-      }
-
-      /* Layout Tombol Uang */
-      #moneyButtons {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* DESKTOP = 4 kolom */
-        gap: 15px;
-      }
-
-      /* Tombol Denominasi */
-      .money-btn {
-        font-weight: 700;
-        transition: transform 0.1s, box-shadow 0.1s;
-        box-shadow: 0 4px rgba(0, 0, 0, 0.2);
-        border-radius: 12px;
-        padding: 10px;
-        height: 150px;
-      }
-      .money-btn:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Gambar Uang */
-      .money-btn img,
-      .note-img {
-        width: 100%;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 8px;
-        display: block;
-      }
-
-      /* RESPONSIVE: HP → 2 kolom */
-      @media (max-width: 768px) {
-        #moneyButtons {
-          grid-template-columns: repeat(2, 1fr); /* HP = 2 kolom */
-        }
-
-        .money-btn {
-          height: 170px;
-        }
-
-        .money-btn img,
-        .note-img {
-          height: 120px;
-        }
-      }
-      /* Efek pop */
-      #btnPlus {
-        transition: transform 0.15s ease;
-      }
-
-      #btnPlus.clicked {
-        transform: scale(0.92);
-      }
-
-      /* Tombol Aksi */
-      .action-btn {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: white;
-        transition: background-color 0.1s;
-        box-shadow: 0 4px rgba(0, 0, 0, 0.3);
-      }
-      .action-btn:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px rgba(0, 0, 0, 0.3);
-      }
-      .btn-plus {
-        background-color: #fabb58;
-        box-shadow: 0 4px #929292;
-      }
-      .btn-plus:active {
-        box-shadow: 0 2px #2f855a;
-      }
-      .btn-minus {
-        background-color: #e53e3e; /* Merah */
-        box-shadow: 0 4px #c53030;
-      }
-      .btn-minus:active {
-        box-shadow: 0 2px #c53030;
-      }
-      .btn-equals {
-        background-color: var(--accent-green);
-        box-shadow: 0 4px #2f855a;
-      }
-      .btn-equals:active {
-        box-shadow: 0 2px #2f855a;
-      }
-      /* Loading Spinner */
-      .loading-spinner {
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top: 4px solid white;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      } /* Tombol Scroll to Top */
       #scrollTopBtn {
         position: fixed;
         bottom: 20px;
         right: 20px;
         width: 45px;
         height: 45px;
-        background: #ea580c; /* warna oranye */
+        background: #ea580c;
         color: white;
         border: none;
-        border-radius: 50%; /* bulat */
+        border-radius: 50%;
         font-size: 22px;
         font-weight: bold;
         cursor: pointer;
-        display: none; /* disembunyikan dulu */
+        display: none;
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
         z-index: 9999;
         transition: 0.3s ease;
       }
-
-      /* Hover */
       #scrollTopBtn:hover {
         background: #c2410c;
       }
@@ -300,809 +241,402 @@
   </head>
   <body>
     <div class="kasir-container">
-      <!-- button back -->
       <button id="btnBack" class="back-btn">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <!-- Header: Warung Jajanan Anime & Kasir -->
       <header class="header-scene">
-        <div class="scene-content">
-          <div class="cashier-img"></div>
-        </div>
-
+        <div class="scene-content"><div class="cashier-img"></div></div>
         <div class="moving-items">
           <img src="img/header.jpg" alt="header" class="moving-item" />
           <img src="img/header.jpg" alt="header" class="moving-item" />
         </div>
       </header>
-
-      <!-- Konten Utama: Display Harga & Tombol Uang -->
       <main class="p-6">
+        <h1 class="title">Kasir Kelma 🍱✨</h1>
         <button
           id="btnPlus"
           class="action-btn btn-plus w-full p-4 mb-3 rounded-xl flex items-center justify-center"
-          aria-label="Pilih Jajan. Tekan Enter untuk memilih. Gunakan Tab untuk pindah antar tombol."
         >
-          <span id="plusText">Pilih 1 jajan ✨</span>
+          <span id="plusText">Pilih Jajan ✨</span>
           <div id="plusLoading" class="loading-spinner hidden ml-2"></div>
         </button>
-
-        <!-- Display Nama Barang & Harga & Quantity -->
+        <!-- Tambahkan class hidden ke semua elemen yang muncul step berikutnya -->
         <div
-          class="bg-gray-100 p-4 rounded-lg mb-4 border-2 border-dashed border-gray-400"
+          id="itemGambarDisplay"
+          class="w-full h-40 mb-3 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden hidden"
+        ></div>
+        <div
+          id="itemNameDisplay"
+          class="text-2xl font-bold text-center mb-4 hidden"
+        ></div>
+        <div
+          id="itemPriceDisplay"
+          class="flex items-center justify-center gap-3 mb-4 hidden"
+        ></div>
+        <div
+          class="flex items-center justify-center gap-3 mb-4 hidden"
+          id="quantityControls"
         >
-          <div
-            id="itemGambarDisplay"
-            class="block mx-auto w-40 h-32 md:w-72 md:h-56 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center overflow-hidden shadow"
-          ></div>
-          <p class="text-lg font-semibold text-gray-700">Nama Item Jajanan:</p>
-          <div
-            id="itemNameDisplay"
-            class="text-2xl font-bold text-gray-800 p-2 rounded-lg text-center bg-white mb-4"
-          >
-            Tekan "Pilih Jajan"
-          </div>
-
-          <!-- Quantity Control Baru -->
-          <div class="flex items-center justify-between mt-2 mb-4">
-            <div class="text-lg font-semibold text-gray-700">Jumlah Item:</div>
-            <div class="flex items-center space-x-3">
-              <button
-                id="btnQuantityMinus"
-                class="text-2xl font-bold bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition duration-150 disabled:opacity-50"
-                disabled
-              >
-                -
-              </button>
-              <span
-                id="quantityDisplay"
-                class="text-3xl font-extrabold text-gray-800 w-10 text-center"
-                >0</span
-              >
-              <button
-                id="btnQuantityPlus"
-                class="text-2xl font-bold bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition duration-150 disabled:opacity-50"
-                disabled
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <p class="text-lg font-semibold text-gray-700 mt-2">
-            Total Harga Belanjaan:
-          </p>
-
-          <!-- Total Price Display -->
-          <div
-            id="itemPriceDisplay"
-            class="text-4xl font-extrabold text-[#f38229] bg-white p-3 rounded-xl shadow-lg mt-1 text-center"
-          >
-            Rp 0
-          </div>
-        </div>
-
-        <!-- Display Uang Pembayaran (Uang yang dimasukkan) -->
-        <div class="bg-display-blue p-4 rounded-lg mb-6 shadow-xl">
-          <p class="text-xl font-bold text-white mb-2">Total Uang Dibayar:</p>
-          <div
-            id="paymentDisplay"
-            class="text-5xl font-extrabold text-accent-yellow bg-white p-3 rounded-xl text-center"
-          >
-            Rp 0
-          </div>
-        </div>
-
-        <!-- Tombol Denominasi Uang -->
-        <div class="text-center mb-6">
-          <p class="text-lg font-semibold mb-3 text-gray-800">
-            Tekan Uang yang Kamu Bayarkan:
-          </p>
-          <div id="moneyButtons">
-            <!-- Denominasi Uang akan di-generate di sini dalam bentuk gambar placeholder yang realistis -->
-          </div>
-        </div>
-
-        <!-- Tombol Aksi (Kurang/Reset Pembayaran, Tambah/Harga Baru, Sama Dengan/Hitung Kembalian) -->
-        <div class="flex space-x-3">
           <button
-            id="btnMinus"
-            class="action-btn btn-minus w-1/2 p-2 rounded-xl"
+            id="btnQuantityMinus"
+            class="bg-red-500 w-10 h-10 text-white rounded-full disabled:opacity-50"
+            disabled
           >
-            <span class="block text-2xl mb-1">Ulangi</span>
-            <span class="text-sm font-normal">(Reset Pembayaran)</span>
+            -
           </button>
-
-          <button
-            id="btnEquals"
-            class="action-btn btn-equals w-1/2 p-2 rounded-xl flex flex-col items-center justify-center"
+          <span
+            id="quantityDisplay"
+            class="text-3xl font-extrabold w-10 text-center"
+            >0</span
           >
-            <span class="block text-2xl mb-1">Hitung Kembalian</span>
-            <span class="text-sm font-normal"></span>
+          <button
+            id="btnQuantityPlus"
+            class="bg-green-500 w-10 h-10 text-white rounded-full disabled:opacity-50"
+            disabled
+          >
+            +
           </button>
         </div>
+        <button
+          id="btnProceedPayment"
+          disabled
+          class="bg-blue-500 text-white p-3 rounded-lg w-full mb-4 hidden"
+        >
+          Lanjut ke Bayar
+        </button>
+        <div id="moneyButtons" class="hidden"></div>
 
-        <!-- Display Kembalian/Pesan & Play Audio Button -->
-        <div id="messageContainer" class="mt-6">
-          <div
-            id="messageBox"
-            class="p-4 rounded-lg text-center font-bold text-lg hidden"
-          >
-            <!-- Pesan Kembalian akan muncul di sini -->
-          </div>
-          <div class="mt-2 text-center">
-            <button
-              id="btnPlayAudio"
-              class="bg-[#FABB58] hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full hidden items-center"
-              disabled
-            >
-              <i class="fas fa-volume-up mr-2"></i>
-              <span id="playAudioText">Kasir Bicara</span>
-              <div id="audioLoading" class="loading-spinner ml-2 hidden"></div>
-            </button>
-          </div>
-        </div>
+        <div id="messageBox" class="hidden"></div>
       </main>
     </div>
+    <button id="scrollTopBtn">↑</button>
 
-    <script type="module">
-      // --- KONSTANTA & SETUP API GEMINI ---
-      const API_KEY = ""; // Kunci API akan disediakan oleh runtime
-      const GENERATE_CONTENT_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
-      const GENERATE_TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
-
-      // Data Denominasi, Pahlawan, Warna, dan Bentuk (audio Uang Nyata)
-      // Data Uang: koin dan uang kertas
-      const heroData = {
-        100: {
-          name: "Koin 100 Rupiah",
-          shape: "coin",
-          img: "img/100.png",
-          color: "FFD700",
-          text: "100",
-        },
-        200: {
-          name: "Koin 200 Rupiah",
-          shape: "coin",
-          img: "img/200.png",
-          color: "FFD700",
-          text: "200",
-        },
-        500: {
-          name: "Koin 500 Rupiah",
-          shape: "coin",
-          img: "img/500.png",
-          color: "FFD700",
-          text: "500",
-        },
-        1000: {
-          name: "1 Ribu Rupiah",
-          shape: "note",
-          img: "img/1000.png",
-          color: "388E3C",
-          text: "1000",
-        },
-        2000: {
-          name: "2 Ribu Rupiah",
-          shape: "note",
-          img: "img/2000.png",
-          color: "8D6E63",
-          text: "2000",
-        },
-        5000: {
-          name: "5 Ribu Rupiah",
-          shape: "note",
-          img: "img/5000.png",
-          color: "FFC107",
-          text: "5000",
-        },
-        10000: {
-          name: "10 Ribu Rupiah",
-          shape: "note",
-          img: "img/10000.png",
-          color: "1976D2",
-          text: "10000",
-        },
-        20000: {
-          name: "20 Ribu Rupiah",
-          shape: "note",
-          img: "img/20000.png",
-          color: "2E7D32",
-          text: "20000",
-        },
-        50000: {
-          name: "50 Ribu Rupiah",
-          shape: "note",
-          img: "img/50000.png",
-          color: "512DA8",
-          text: "50000",
-        },
-        100000: {
-          name: "100 Ribu Rupiah",
-          shape: "note",
-          img: "img/100000.png",
-          color: "C2185B",
-          text: "100000",
-        },
-      };
-      const denominations = Object.keys(heroData).map(Number); // Mengambil array nilai [100, 200, ...]
-
-      // Elemen DOM
+    <script>
       const itemNameDisplay = document.getElementById("itemNameDisplay");
+      const itemGambarDisplay = document.getElementById("itemGambarDisplay");
       const itemPriceDisplay = document.getElementById("itemPriceDisplay");
-      const paymentDisplay = document.getElementById("paymentDisplay");
-      const moneyButtonsContainer = document.getElementById("moneyButtons");
-      const btnMinus = document.getElementById("btnMinus");
+      const quantityDisplay = document.getElementById("quantityDisplay");
+      const btnQuantityPlus = document.getElementById("btnQuantityPlus");
+      const btnQuantityMinus = document.getElementById("btnQuantityMinus");
       const btnPlus = document.getElementById("btnPlus");
+      const plusText = document.getElementById("plusText");
+      const plusLoading = document.getElementById("plusLoading");
+      const moneyButtonsContainer = document.getElementById("moneyButtons");
+      const messageBox = document.getElementById("messageBox");
+      const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+      let basePrice = 0,
+        itemQuantity = 0,
+        itemPrice = 0,
+        totalPaid = 0;
+      const priceList = {
+        "Ayam Goreng": 12000,
+        Bakso: 10000,
+        Batagor: 8000,
+        "Bubur Ayam": 10000,
+        Cilok: 5000,
+        Cimol: 5000,
+        Dimsum: 10000,
+        Donat: 5000,
+        "Es Buah": 8000,
+        "Es Jeruk": 5000,
+        "Es Krim": 6000,
+        "Es Teh": 4000,
+        "Es Teler": 10000,
+        Jus: 7000,
+        Kwetiau: 15000,
+        Maklor: 5000,
+        "Martabak Manis": 12000,
+        "Martabak Telur": 15000,
+        "Mie Ayam": 15000,
+        Mineral: 3000,
+        Nasgor: 15000,
+        "Pecel Lele": 15000,
+        "Risol Mayo": 6000,
+        "Roti Bakar": 10000,
+        Seblak: 8000,
+        Somay: 8000,
+        Soto: 12000,
+        Takoyaki: 10000,
+        "Telur Gulung": 3000,
+        "Telur Puyuh": 4000,
+      };
+      const itemImages = {
+        "Ayam Goreng": "img/menu/ayam_goreng.jpg",
+        Bakso: "img/menu/bakso.jpeg",
+        Batagor: "img/menu/batagor.jpg",
+        "Bubur Ayam": "img/menu/bubur_ayam.jpeg",
+        Cilok: "img/menu/cilok.jpeg",
+        Cimol: "img/menu/cimol.jpeg",
+        Dimsum: "img/menu/dimsum.jpeg",
+        Donat: "img/menu/donat.jpeg",
+        "Es Buah": "img/menu/es_buah.jpg",
+        "Es Jeruk": "img/menu/es_jeruk.jpeg",
+        "Es Krim": "img/menu/es_krim.jpeg",
+        "Es Teh": "img/menu/es_teh.jpeg",
+        "Es Teler": "img/menu/es_teler.jpeg",
+        Jus: "img/menu/jus.jpeg",
+        Kwetiau: "img/menu/kwetiau.jpeg",
+        Maklor: "img/menu/maklor.jpeg",
+        "Martabak Manis": "img/menu/martabak_manis.jpeg",
+        "Martabak Telur": "img/menu/martabak_telur.jpeg",
+        "Mie Ayam": "img/menu/mie_ayam.jpeg",
+        Mineral: "img/menu/mineral.jpg",
+        Nasgor: "img/menu/nasgor.jpeg",
+        "Pecel Lele": "img/menu/pecel_lele.jpeg",
+        "Risol Mayo": "img/menu/risol_mayo.jpeg",
+        "Roti Bakar": "img/menu/roti_bakar.jpeg",
+        Seblak: "img/menu/seblak.jpeg",
+        Somay: "img/menu/somay.jpeg",
+        Soto: "img/menu/soto.jpeg",
+        Takoyaki: "img/menu/takoyaki.jpeg",
+        "Telur Gulung": "img/menu/telur_gulung.jpeg",
+        "Telur Puyuh": "img/menu/telur_puyuh.jpg",
+      };
+      const denominations = [
+        100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+      ];
+      const heroData = {
+        100: { name: "Koin 100", img: "img/100.png" },
+        200: { name: "Koin 200", img: "img/200.png" },
+        500: { name: "Koin 500", img: "img/500.png" },
+        1000: { name: "1 Ribu", img: "img/1000.png" },
+        2000: { name: "2 Ribu", img: "img/2000.png" },
+        5000: { name: "5 Ribu", img: "img/5000.png" },
+        10000: { name: "10 Ribu", img: "img/10000.png" },
+        20000: { name: "20 Ribu", img: "img/20000.png" },
+        50000: { name: "50 Ribu", img: "img/50000.png" },
+        100000: { name: "100 Ribu", img: "img/100000.png" },
+      };
+
+      function formatRupiah(n) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(n);
+      }
+      function playVerbalFeedback(msg) {
+        if (!msg) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(msg);
+        utter.lang = "id-ID";
+        window.speechSynthesis.speak(utter);
+      }
+      function updateDisplay() {
+        itemPriceDisplay.textContent = formatRupiah(itemPrice);
+        quantityDisplay.textContent = itemQuantity;
+        messageBox.classList.add("hidden");
+      }
+      function recalc() {
+        itemPrice = basePrice * itemQuantity;
+        updateDisplay();
+      }
+
+      // ===== Tombol Pilih Jajan =====
+      // Aktifkan Enter untuk Pilih Jajan sekali saja
       btnPlus.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === "Enter") {
           e.preventDefault();
           btnPlus.click();
         }
       });
 
-      const btnEquals = document.getElementById("btnEquals");
-      const messageBox = document.getElementById("messageBox");
-      const btnPlayAudio = document.getElementById("btnPlayAudio");
-      const plusLoading = document.getElementById("plusLoading");
-      const plusText = document.getElementById("plusText");
-      const audioLoading = document.getElementById("audioLoading");
-      const playAudioText = document.getElementById("playAudioText");
-      // Elemen DOM baru untuk kontrol kuantitas
-      const quantityDisplay = document.getElementById("quantityDisplay");
-      const btnQuantityMinus = document.getElementById("btnQuantityMinus");
-      const btnQuantityPlus = document.getElementById("btnQuantityPlus");
+      // Listener click tunggal
+      let menuAktif = false;
 
-      // State Aplikasi (Diperbarui untuk mengakomodasi kuantitas)
-      let basePrice = 0; // Harga dasar per unit (Rp)
-      let itemQuantity = 0; // Jumlah unit
-      let itemPrice = 0; // Total Harga yang harus dibayar (basePrice * itemQuantity)
-      let totalPaid = 0; // Uang yang sudah dibayarkan oleh anak
-      let audioContext;
-      let audioSource;
+      function loadMenuLoop() {
+        const keys = Object.keys(priceList);
+        const randomName = keys[Math.floor(Math.random() * keys.length)];
+        basePrice = priceList[randomName];
+        itemQuantity = 1;
+        totalPaid = 0;
+        recalc();
 
-      // --- HELPER FUNCTIONS (API & Audio) ---
+        itemNameDisplay.textContent = randomName;
+        itemGambarDisplay.innerHTML = `<img src="${itemImages[randomName]}" class="w-full h-full object-contain"/>`;
 
-      function base64ToArrayBuffer(base64) {
-        const binaryString = atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-      }
+        itemGambarDisplay.classList.remove("hidden");
+        itemNameDisplay.classList.remove("hidden");
+        itemPriceDisplay.classList.remove("hidden");
+        document.getElementById("quantityControls").classList.remove("hidden");
+        btnProceedPayment.classList.remove("hidden");
+        btnProceedPayment.disabled = false;
 
-      function pcmToWav(pcm16, sampleRate) {
-        const numChannels = 1;
-        const bitDepth = 16;
-        const bytesPerSample = bitDepth / 8;
-        const blockAlign = numChannels * bytesPerSample;
-        const byteRate = sampleRate * blockAlign;
-        const dataSize = pcm16.length * bytesPerSample;
-        const buffer = new ArrayBuffer(44 + dataSize);
-        const view = new DataView(buffer);
+        // 🔹 tandai menu aktif supaya keyboard +- berfungsi
+        menuAktif = true;
 
-        function writeString(view, offset, string) {
-          for (let i = 0; i < string.length; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
-          }
-        }
-
-        writeString(view, 0, "RIFF");
-        view.setUint32(4, 36 + dataSize, true);
-        writeString(view, 8, "WAVE");
-        writeString(view, 12, "fmt ");
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, numChannels, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, byteRate, true);
-        view.setUint16(32, blockAlign, true);
-        view.setUint16(34, bitDepth, true);
-        writeString(view, 36, "data");
-        view.setUint32(40, dataSize, true);
-
-        let offset = 44;
-        for (let i = 0; i < pcm16.length; i++, offset += 2) {
-          view.setInt16(offset, pcm16[i], true);
-        }
-
-        return new Blob([view], { type: "audio/wav" });
-      }
-
-      async function callApiWithRetry(url, payload, maxRetries = 5) {
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-          try {
-            const response = await fetch(url, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            if (response.status === 429 && attempt < maxRetries - 1) {
-              const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-              await new Promise((resolve) => setTimeout(resolve, delay));
-              continue;
-            }
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-          } catch (error) {
-            if (attempt === maxRetries - 1) throw error;
-          }
-        }
-      }
-
-      const formatRupiah = (number) => {
-        return new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(number);
-      };
-
-      const recalculatePrice = () => {
-        itemPrice = basePrice * itemQuantity;
-        updateDisplay();
-      };
-
-      const updateDisplay = () => {
-        itemPriceDisplay.textContent = formatRupiah(itemPrice);
-        paymentDisplay.textContent = formatRupiah(totalPaid);
-        quantityDisplay.textContent = itemQuantity;
-
-        // Kontrol tombol kuantitas
-        btnQuantityMinus.disabled = itemQuantity <= 1;
-        btnQuantityPlus.disabled = itemQuantity >= 99;
-
-        messageBox.classList.add("hidden");
-        btnPlayAudio.classList.add("hidden");
-      };
-
-      // --- GEMINI ITEM GENERATOR (diubah jadi lokal) ---
-      async function startNewTransaction() {
-        plusText.textContent = "Memuat...";
-        plusLoading.classList.remove("hidden");
-        btnPlus.disabled = true;
-
-        try {
-          const priceList = {
-            "Ayam Goreng": 12000,
-            Bakso: 10000,
-            Batagor: 8000,
-            "Bubur Ayam": 10000,
-            Cilok: 5000,
-            Cimol: 5000,
-            Dimsum: 10000,
-            Donat: 5000,
-            "Es Buah": 8000,
-            "Es Jeruk": 5000,
-            "Es Krim": 6000,
-            "Es Teh": 4000,
-            "Es Teler": 10000,
-            Jus: 7000,
-            Kwetiau: 15000,
-            Maklor: 5000,
-            "Martabak Manis": 12000,
-            "Martabak Telur": 15000,
-            "Mie Ayam": 15000,
-            Mineral: 3000,
-            Nasgor: 15000,
-            "Pecel Lele": 15000,
-            "Risol Mayo": 6000,
-            "Roti Bakar": 10000,
-            Seblak: 8000,
-            Somay: 8000,
-            Soto: 12000,
-            Takoyaki: 10000,
-            "Telur Gulung": 3000,
-            "Telur Puyuh": 4000,
-          };
-          const itemImages = {
-            "Ayam Goreng": "img/menu/ayam_goreng.jpg",
-            Bakso: "img/menu/bakso.jpeg",
-            Batagor: "img/menu/batagor.jpg",
-            "Bubur Ayam": "img/menu/bubur_ayam.jpeg",
-            Cilok: "img/menu/cilok.jpeg",
-            Cimol: "img/menu/cimol.jpeg",
-            Dimsum: "img/menu/dimsum.jpeg",
-            Donat: "img/menu/donat.jpeg",
-            "Es Buah": "img/menu/es_buah.jpg",
-            "Es Jeruk": "img/menu/es_jeruk.jpeg",
-            "Es Krim": "img/menu/es_krim.jpeg",
-            "Es Teh": "img/menu/es_teh.jpeg",
-            "Es Teler": "img/menu/es_teler.jpeg",
-            Jus: "img/menu/jus.jpeg",
-            Kwetiau: "img/menu/kwetiau.jpeg",
-            Maklor: "img/menu/maklor.jpeg",
-            "Martabak Manis": "img/menu/martabak_manis.jpeg",
-            "Martabak Telur": "img/menu/martabak_telur.jpeg",
-            "Mie Ayam": "img/menu/mie_ayam.jpeg",
-            Mineral: "img/menu/mineral.jpg",
-            Nasgor: "img/menu/nasgor.jpeg",
-            "Pecel Lele": "img/menu/pecel_lele.jpeg",
-            "Risol Mayo": "img/menu/risol_mayo.jpeg",
-            "Roti Bakar": "img/menu/roti_bakar.jpeg",
-            Seblak: "img/menu/seblak.jpeg",
-            Somay: "img/menu/somay.jpeg",
-            Soto: "img/menu/soto.jpeg",
-            Takoyaki: "img/menu/takoyaki.jpeg",
-            "Telur Gulung": "img/menu/telur_gulung.jpeg",
-            "Telur Puyuh": "img/menu/telur_puyuh.jpg",
-          };
-          // Generate item secara acak
-          const sampleItems = [
-            "Ayam Goreng",
-            "Bakso",
-            "Batagor",
-            "Bubur Ayam",
-            "Cilok",
-            "Cimol",
-            "Dimsum",
-            "Donat",
-            "Es Buah",
-            "Es Jeruk",
-            "Es Krim",
-            "Es Teh",
-            "Es Teler",
-            "Jus",
-            "Kwetiau",
-            "Maklor",
-            "Martabak Manis",
-            "Martabak Telur",
-            "Mie Ayam",
-            "Mineral",
-            "Nasgor",
-            "Pecel Lele",
-            "Risol Mayo",
-            "Roti Bakar",
-            "Seblak",
-            "Somay",
-            "Soto",
-            "Takoyaki",
-            "Telur Gulung",
-            "Telur Puyuh",
-          ];
-
-          const randomName =
-            sampleItems[Math.floor(Math.random() * sampleItems.length)];
-
-          const randomPrice = priceList[randomName];
-          const generatedItem = {
-            itemName: randomName,
-            price: randomPrice,
-          };
-
-          // Atur harga dasar dan kuantitas awal
-          basePrice = generatedItem.price;
-          itemQuantity = 1;
-          totalPaid = 0;
-          recalculatePrice(); // Hitung total harga dan update display
-
-          // Update UI
-          itemNameDisplay.textContent = generatedItem.itemName;
-          // Update gambar di display
-          itemGambarDisplay.innerHTML = `  <img src="${itemImages[randomName]}" class="w-full h-full object-contain p-1" />`;
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
-          messageBox.textContent = `Menu Baru: ${
-            generatedItem.itemName
-          } (${formatRupiah(basePrice)}/item). Ayo bayar!`;
-          messageBox.classList.remove("hidden");
-        } catch (error) {
-          itemNameDisplay.textContent = "Gagal memuat item. Coba lagi.";
-          basePrice = 15000;
-          itemQuantity = 1;
-          recalculatePrice();
-          messageBox.textContent = `Gagal membuat item. Harga default: ${formatRupiah(
+        playVerbalFeedback(
+          `Menu baru: ${randomName}. Harganya ${formatRupiah(
             basePrice
-          )}Per item.`;
-        } finally {
-          plusText.textContent = "Pilih Jajan ✨";
-          const itemName = generatedItem ? generatedItem.itemName : "item";
-          const itemPriceText = basePrice
-            ? formatRupiah(basePrice)
-            : formatRupiah(15000);
+          )}. Tekan enter untuk memilih menu jajanan lainya. Tekan tanda tambah di keyboard untuk menambah banyak item. Tekan tanda kurang di keyboard untuk mengurangi banyak item.     kalau sudah selesai, bisa tekan tab untuk masuk ke menu lanjut ke pembayaran `
+        );
+      }
+
+      // Tekan Enter → pilih menu baru
+      btnPlus.addEventListener("click", loadMenuLoop);
+      btnPlus.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          loadMenuLoop();
+        }
+      });
+
+      // ===== Tombol Kuantitas =====
+      document.addEventListener("keydown", (e) => {
+        if (!menuAktif) return; // pakai flag menuAktif
+        if (e.key === "+" || e.key === "=") {
+          if (itemQuantity < 99) itemQuantity++;
+          recalc();
           playVerbalFeedback(
-            `Item ${itemName} seharga ${itemPriceText}. Gunakan Tab untuk pindah tombol, Enter untuk memilih. Tekan tombol 'Pilih Jajan' untuk membeli.`
+            `Jumlah sekarang, ${itemQuantity} item, Silakan tekan tab untuk masuk ke menu lanjutkan pembayaran.`
           );
-
-          plusLoading.classList.add("hidden");
-          btnPlus.disabled = false;
-
-          btnPlus.classList.add("clicked");
-          setTimeout(() => {
-            btnPlus.classList.remove("clicked");
-          }, 150);
         }
-      }
-
-      // --- TTS FEEDBACK (pakai browser speechSynthesis) ---
-      function playVerbalFeedback(
-        message,
-        voiceName = "Google Bahasa Indonesia"
-      ) {
-        if (!message) return;
-
-        // Hentikan jika ada suara lama
-        window.speechSynthesis.cancel();
-
-        btnPlayAudio.disabled = true;
-        playAudioText.textContent = "Memutar...";
-        audioLoading.classList.remove("hidden");
-
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "id-ID";
-
-        // Pilih voice jika tersedia
-        const voices = window.speechSynthesis.getVoices();
-        const selectedVoice = voices.find((v) => v.name.includes(voiceName));
-        if (selectedVoice) utterance.voice = selectedVoice;
-
-        utterance.onend = () => {
-          btnPlayAudio.disabled = false;
-          playAudioText.textContent = "Kasir Bicara";
-          audioLoading.classList.add("hidden");
-        };
-
-        utterance.onerror = () => {
-          btnPlayAudio.disabled = false;
-          playAudioText.textContent = "Gagal Bicara";
-          audioLoading.classList.add("hidden");
-        };
-
-        window.speechSynthesis.speak(utterance);
-      }
-
-      // --- EVENT LISTENERS & UI GENERATION ---
-
-      // Tombol Kuantiitas Plus
-      btnQuantityPlus.addEventListener("click", () => {
-        itemQuantity++;
-        recalculatePrice();
-        playVerbalFeedback(`Jumlah item bertambah menjadi ${itemQuantity}`);
+        if (e.key === "-") {
+          if (itemQuantity > 1) itemQuantity--;
+          recalc();
+          playVerbalFeedback(
+            `Jumlah sekarang, ${itemQuantity} item, Silakan tekan tab untuk masuk ke menu lanjutkan pembayaran.`
+          );
+        }
       });
 
-      btnQuantityMinus.addEventListener("click", () => {
-        itemQuantity--;
-        recalculatePrice();
-        playVerbalFeedback(`Jumlah item berkurang menjadi ${itemQuantity}`);
-      });
+      const btnProceedPayment = document.getElementById("btnProceedPayment");
 
-      // Inisialisasi Tombol Uang (Generasi audio Uang Nyata)
-      denominations.forEach((value) => {
-        const button = document.createElement("button");
-        const data = heroData[value];
-        const isCoin = data.shape === "coin";
-        // Ukuran gambar
-        const imgWidth = isCoin ? 120 : 200;
-        const imgHeight = isCoin ? 120 : 110;
+      btnProceedPayment.addEventListener("click", () => {
+        moneyButtonsContainer.classList.remove("hidden");
+        moneyButtonsContainer.innerHTML = ""; // Kosongkan dulu
 
-        // HTML gambar
-        let imageHtml;
+        denominations.forEach((value) => {
+          const btn = document.createElement("button");
+          const data = heroData[value];
+          btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/>
+                     <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
+          btn.classList.add("money-btn");
+          btn.style.display = "flex";
+          btn.style.flexDirection = "column";
+          btn.style.alignItems = "center";
+          btn.style.justifyContent = "center";
+          btn.style.margin = "5px";
+          btn.style.padding = "5px";
+          btn.style.height = "160px";
+          btn.addEventListener("click", () => {
+            totalPaid += value;
+            const remaining = itemPrice - totalPaid;
+            if (remaining > 0) {
+              playVerbalFeedback(
+                `Kamu memasukkan ${formatRupiah(
+                  value
+                )}. Sisa bayar ${formatRupiah(remaining)}.`
+              );
+            } else {
+              const change = Math.abs(remaining);
+              playVerbalFeedback(
+                `Kamu membayar ${formatRupiah(totalPaid)}. ${
+                  change > 0 ? `Kembalian ${formatRupiah(change)}.` : ""
+                } Transaksi selesai!`
+              );
 
-        if (isCoin) {
-          // Gambar koin, bulat
-          imageHtml = `
-                <img src="${data.img}"
-                     alt="Koin ${formatRupiah(value)}"
-                     style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
-              `;
-        } else {
-          // Gambar uang kertas, TANPA CROP
-          imageHtml = `
-                <img src="${data.img}"
-                     alt="Uang ${formatRupiah(value)}"
-                     style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
-              `;
-        }
-
-        // Isi tombol
-        button.innerHTML = `
-              ${imageHtml}
-              <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
-                ${data.name}
-              </span>
-            `;
-
-        // Style tombol
-        button.classList.add("money-btn");
-        button.style.display = "flex";
-        button.style.flexDirection = "column";
-        button.style.alignItems = "center";
-        button.style.justifyContent = "center";
-        button.style.margin = "5px";
-        button.style.padding = "5px";
-        button.style.backgroundColor = "#fff";
-        button.style.borderRadius = "10px";
-        button.style.height = "160px";
-
-        button.setAttribute("data-value", value);
-
-        // Event klik uang
-        button.addEventListener("click", () => {
-          if (itemPrice === 0) {
-            messageBox.className =
-              "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
-            messageBox.textContent =
-              'Tekan "Pilih Jajan" dulu untuk memulai transaksi!';
-            messageBox.classList.remove("hidden");
-            return;
-          }
-          totalPaid += value;
-          updateDisplay();
-          playVerbalFeedback(`Kamu memasukkan ${formatRupiah(value)}`);
+              // Reset dan kembali ke menu awal
+              setTimeout(() => {
+                startGame(); // kembalikan ke awal
+              }, 1500); // kasih jeda 1,5 detik supaya user sempat dengar feedback
+            }
+          });
+          btn.addEventListener("focus", () => {
+            playVerbalFeedback(`Ini ${data.name}. Tekan Enter untuk memilih.`);
+          });
+          moneyButtonsContainer.appendChild(btn);
         });
 
-        moneyButtonsContainer.appendChild(button);
+        const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
+        if (firstMoneyBtn) firstMoneyBtn.focus();
       });
 
-      // Tombol Minus (Kurang/Reset Pembayaran)
-      btnMinus.addEventListener("click", () => {
-        totalPaid = 0;
-        updateDisplay();
-        const msg = "Pembayaran diulang. Silakan masukkan uang lagi.";
-        playVerbalFeedback(msg);
-        messageBox.className =
-          "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
-        messageBox.textContent = msg;
-        messageBox.classList.remove("hidden");
-        btnPlayAudio.classList.remove("hidden");
-      });
-
-      // Tombol Plus (Tambah/Harga Baru)
-      btnPlus.addEventListener("click", startNewTransaction);
-
-      // Tombol Sama Dengan (Hitung Kembalian)
-      btnEquals.addEventListener("click", () => {
-        const change = totalPaid - itemPrice;
-        let feedbackMessage = "";
-
-        if (itemPrice === 0) {
-          feedbackMessage =
-            'Hai! Tekan "Pilih Jajan" dulu untuk memulai transaksi.';
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
-          messageBox.innerHTML = feedbackMessage;
-        } else if (totalPaid === 0) {
-          feedbackMessage =
-            "Ups, Kamu belum membayar! Coba masukkan uang yang tepat. Semangat!";
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
-          messageBox.innerHTML = feedbackMessage;
-        } else if (change < 0) {
-          // Uang kurang
-          feedbackMessage = `Uangmu kurang ${formatRupiah(
-            Math.abs(change)
-          )}! Coba hitung lagi, uang mana yang perlu kamu tambahkan?`;
-
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
-
-          // Hitung pecahan yang dibutuhkan
-          const uangPecahan = [
-            100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
-          ];
-
-          let sisa = Math.abs(change);
-
-          let gambarHTML = "<div class='flex flex-wrap justify-center mt-3'>";
-
-          uangPecahan.forEach((nominal) => {
-            let jumlah = Math.floor(sisa / nominal);
-            sisa %= nominal;
-
-            for (let i = 0; i < jumlah; i++) {
-              gambarHTML += `
-                      <img src="img/${nominal}.png" class="w-26 h-24 m-1 rounded-sm shadow-md" />
-                    `;
-            }
-          });
-
-          gambarHTML += "</div>";
-
-          // Tampilkan pesan + gambar
-          messageBox.innerHTML = feedbackMessage + gambarHTML;
-        } else {
-          // Transaksi berhasil
-          feedbackMessage = `Yey! Transaksi berhasil! Total kembalianmu adalah ${formatRupiah(
-            change
-          )}.<br>Kamu hebat dalam menghitung!`;
-
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
-
-          // Hitung pecahan kembalian
-          const uangPecahan = [
-            100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
-          ];
-
-          let sisa = change;
-
-          let gambarHTML = "<div class='flex flex-wrap justify-center mt-3'>";
-
-          uangPecahan.forEach((nominal) => {
-            let jumlah = Math.floor(sisa / nominal);
-            sisa %= nominal;
-
-            for (let i = 0; i < jumlah; i++) {
-              gambarHTML += `
-                      <img src="img/${nominal}.png" class="w-26 h-24 m-1 rounded-sm shadow-md" />
-                    `;
-            }
-          });
-
-          gambarHTML += "</div>";
-
-          messageBox.innerHTML = feedbackMessage + gambarHTML;
-
-          if (change >= 0) {
-            // transaksi berhasil
-            feedbackMessage = `Yey! Transaksi berhasil! Total kembalianmu adalah ${formatRupiah(
-              change
-            )}. Kamu hebat dalam menghitung!`;
-            messageBox.className =
-              "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
-
-            // Hitung pecahan kembalian (sudah ada kode HTML kembalian di atas)
-            // ...
-
-            messageBox.innerHTML = feedbackMessage + gambarHTML;
-            messageBox.classList.remove("hidden");
-
-            // Reset state
-            totalPaid = 0;
-            itemQuantity = 0; // optional, kalau mau reset kuantitas
-            itemPrice = 0;
-            updateDisplay();
-
-            // Ambil item baru
-            startNewTransaction();
-          }
+      // Keyboard: tekan Tab dari quantityDisplay → fokus ke Lanjut ke Bayar
+      quantityDisplay.addEventListener("keydown", (e) => {
+        if (e.key === "Tab" && !btnProceedPayment.disabled) {
+          e.preventDefault(); // cegah default tab
+          btnProceedPayment.focus(); // fokus ke tombol Lanjut
         }
-
-        // Tampilkan message box
-        messageBox.classList.remove("hidden");
-
-        // TTS
-        btnPlayAudio.classList.remove("hidden");
-        playVerbalFeedback(messageBox.textContent, "Puck");
-      });
-      // Tombol Play Audio terpisah
-      btnPlayAudio.addEventListener("click", () => {
-        // Mainkan pesan terakhir yang ada di messageBox
-        playVerbalFeedback(messageBox.textContent, "Puck");
       });
 
-      // button back
+      // ===== Fokus Tab Awal =====
+      function setMoneyButtonsTabIndex() {
+        btnPlus.setAttribute("tabindex", "0");
+        btnPlus.focus();
+        quantityDisplay.setAttribute("tabindex", "1");
+        moneyButtonsContainer
+          .querySelectorAll("button")
+          .forEach((b) => b.setAttribute("tabindex", "2"));
+        scrollTopBtn.setAttribute("tabindex", "99");
+      }
+
+      // ===== Fokus Tab Setelah Menu Dipilih =====
+      function setMoneyButtonsTabIndexAfterMenu() {
+        btnPlus.setAttribute("tabindex", "0"); // Pilih Jajan
+        // Hapus tabindex quantityDisplay
+        quantityDisplay.removeAttribute("tabindex");
+        // Hapus tombol plus/minus dari tab
+        btnQuantityMinus.setAttribute("tabindex", "-1");
+        btnQuantityPlus.setAttribute("tabindex", "-1");
+
+        // Tombol uang fokusable setelah Pilih Jajan
+        moneyButtonsContainer
+          .querySelectorAll("button")
+          .forEach((b, i) => b.setAttribute("tabindex", 1 + i));
+
+        scrollTopBtn.setAttribute("tabindex", 99); // tombol scroll/restart
+      }
+
+      // ===== Inisialisasi Awal =====
+      window.addEventListener("load", () => {
+        playVerbalFeedback(
+          "Selamat datang di Game Kasir Kelma! Untuk memulai tekan enter untuk memilih menu jajanan."
+        );
+        setMoneyButtonsTabIndex();
+      });
+
+      // ===== Tombol Scroll Top / Restart =====
+      scrollTopBtn.addEventListener("focus", () => {
+        playVerbalFeedback(
+          "Tombol kembali ke awal. Tekan Enter untuk mengulang permainan."
+        );
+      });
+      scrollTopBtn.addEventListener("click", () => {
+        restartGame();
+      });
+      function restartGame() {
+        window.speechSynthesis.cancel();
+        playVerbalFeedback(
+          "Game diulang. Tekan Pilih Jajan untuk memulai lagi."
+        );
+        startGame();
+      }
+
+      function startGame() {
+        basePrice = 0;
+        itemQuantity = 0;
+        itemPrice = 0;
+        totalPaid = 0;
+        itemNameDisplay.textContent = 'Tekan "Pilih Jajan"';
+        itemGambarDisplay.innerHTML = "";
+        itemPriceDisplay.textContent = "";
+        quantityDisplay.textContent = "0";
+
+        menuAktif = false; // reset menu aktif
+        setMoneyButtonsTabIndex();
+      }
+
+      // ===== Tombol Back =====
       document.getElementById("btnBack").addEventListener("click", () => {
-        // Ambil mode dari localStorage
         const mode = localStorage.getItem("gameMode") || "audio";
         window.location.href = `menu.html?mode=${mode}`;
       });
-
-      // Inisialisasi awal saat halaman dimuat
-      window.onload = startNewTransaction;
-      const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-      // Munculkan tombol kalau sudah scroll 200px
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 200) {
-          scrollTopBtn.style.display = "flex";
-        } else {
-          scrollTopBtn.style.display = "none";
-        }
-      });
-
-      // Aksi saat tombol diklik
-      scrollTopBtn.addEventListener("click", () => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
+      // stop audio on refresh
+      window.addEventListener("beforeunload", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       });
     </script>
-    <button id="scrollTopBtn">↑</button>
   </body>
 </html>

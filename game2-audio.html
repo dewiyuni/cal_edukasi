@@ -593,24 +593,30 @@
               loadRound(true);
             }, 1200);
           }
-          updateDisplay();
+          updateDisplay(); // Saat load halaman
         }
+        window.addEventListener("load", () => {
+          const wasGameOver = localStorage.getItem("gameOver");
+          if (wasGameOver === "true") {
+            feedbackDisplay.textContent = "💀 Permainan berakhir!";
+          }
+        });
 
         function checkLevelUp() {
           if (finishedGame) return;
           if (level === 1 && totalCorrect >= 3) {
             level = 2;
-            speak(`Selamat! Anda naik ke level ${level}`);
+            speak(`Level 2`);
             showLevelNotif(`Level ${level}`);
           } else if (level === 2 && totalCorrect >= 5) {
             level = 3;
-            speak(`Selamat! Anda naik ke level ${level}`);
+            speak(`Level3`);
             showLevelNotif(`Level ${level}`);
           } else if (level === 3 && totalCorrect >= 10) {
             finishedGame = true;
             gameRunning = false;
             // finish speech then show finish screen
-            speak("Selamat! Kamu telah menyelesaikan semua level!", () => {
+            speak("Semua level selesai", () => {
               showFinishScreen(true);
             });
             showLevelNotif("Semua Level Selesai!");
@@ -763,7 +769,11 @@
 
         function restartGame() {
           stopSpeak();
-          // restore state
+
+          // Hapus status gameOver dari localStorage
+          localStorage.removeItem("gameOver");
+
+          // Restore state
           score = 0;
           lives = 3;
           level = 1;
@@ -771,19 +781,24 @@
           finishedGame = false;
           gameRunning = true;
           lastQuestion = null;
-          // rebuild game area
+
+          // Rebuild game area
           gameArea.innerHTML = `
-                        <h2 id="instruction">Cari gambar yang sama</h2>
-                        <div id="targetImage"></div>
-                        <div id="gridContainer" class="grid"></div>
-                        <div id="feedback"></div>
-                      `;
-          // rebind local references
+    <h2 id="instruction">Cari gambar yang sama</h2>
+    <div id="targetImage"></div>
+    <div id="gridContainer" class="grid"></div>
+    <div id="feedback"></div>
+  `;
+
+          // Rebind local references
           targetImage = document.getElementById("targetImage");
           gridContainer = document.getElementById("gridContainer");
           feedbackDisplay = document.getElementById("feedback");
+
+          // Update tampilan dan load ronde baru
           updateDisplay();
           loadRound(false);
+
           setTimeout(
             () => speak("Permainan diulang. Fokus ke pilihan gambar."),
             300
