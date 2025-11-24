@@ -114,13 +114,6 @@
         speechSynthesis.speak(msg);
       }
       // ========== HENTIKAN SUARA SAAT PINDAH HALAMAN / TAB ==========
-
-      window.addEventListener("beforeunload", () => {
-        if (window.speechSynthesis) {
-          speechSynthesis.cancel();
-        }
-      });
-
       document.addEventListener("visibilitychange", () => {
         if (document.hidden && window.speechSynthesis) {
           speechSynthesis.cancel();
@@ -129,7 +122,7 @@
 
       // ========== KHUSUS MODE AUDIO ==========
       if (mode === "audio") {
-        const focusable = [btnKasir, btnUang, backBtn];
+        const focusable = [btnKasir, btnUang];
 
         // Auto focus ke tombol pertama
         setTimeout(() => {
@@ -152,7 +145,7 @@
 
         btnUang.addEventListener("focus", () => {
           speak(
-            "Anda berada di Tombol mulai game uang match. Tekan enter untuk memulai. Tekan tab untuk tombol kembali."
+            "Anda berada di Tombol mulai game uang match. Tekan enter untuk memulai. Tekan tab untuk ke game kasir."
           );
         });
 
@@ -198,20 +191,25 @@
       });
 
       // Tekan keyboard (Enter / Space)
-      backBtn.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
+      document.addEventListener("keydown", (e) => {
+        const tag = document.activeElement.tagName;
+
+        if (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(tag)) {
           e.preventDefault();
+
+          if (mode === "audio") {
+            speak("Kembali ke halaman utama");
+          }
+
           window.location.href = "index.html";
         }
       });
 
-      // Mode audio → suara fokus
       if (mode === "audio") {
-        backBtn.tabIndex = 0;
-        backBtn.addEventListener("focus", () => {
-          speak(
-            "Tombol kembali. Tekan enter untuk kembali ke menu. Tekan tab untuk tombol mulai game kasir."
-          );
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace") {
+            speak("Kembali ke halaman utama");
+          }
         });
       }
 

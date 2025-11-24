@@ -315,7 +315,7 @@
         <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
 
         <!-- INFO BOX AWAL -->
-        <div class="info-box">
+        <div class="info-box" id="judulGame">
           <p>Skor: <span id="score">0</span></p>
           <p>Nyawa: <span id="lives">❤️❤️❤️</span></p>
           <p>Level: <span id="level">1</span></p>
@@ -470,6 +470,11 @@
         gameArea.style.display = "block";
         startGame();
 
+        // ✅ Tunggu sedikit biar layout muncul dulu
+        setTimeout(() => {
+          scrollToAfterHeader();
+        }, 200);
+
         if (isVisualMode()) {
           setTimeout(() => {
             speak(
@@ -533,8 +538,8 @@
         const { correctKey, choicesKeys } = lastQuestion;
 
         targetImage.innerHTML = `
-    <img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />
-  `;
+          <img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />
+        `;
 
         gridContainer.innerHTML = "";
 
@@ -542,11 +547,13 @@
           const div = document.createElement("div");
           div.className = "choice";
           div.innerHTML = `
-            <img src="${itemImages[key].src}" alt="${itemImages[key].label}">
-            <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
-              Rp ${Number(key).toLocaleString()}
-            </p>
-          `;
+                  <img src="${itemImages[key].src}" alt="${
+            itemImages[key].label
+          }">
+                  <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+                    Rp ${Number(key).toLocaleString()}
+                  </p>
+                `;
           div.addEventListener("click", () =>
             handleChoice(div, key, correctKey)
           );
@@ -592,7 +599,7 @@
           }
         } else {
           div.classList.add("wrong");
-          feedbackDisplay.textContent = "❌ Salah, coba lagi";
+          feedbackDisplay.textContent = "❌ Salah";
           feedbackDisplay.className = "wrong";
 
           if (isVisualMode()) {
@@ -635,20 +642,20 @@
       function showFinishScreen(win = true) {
         if (win) {
           gameArea.innerHTML = `
-      <div style="text-align:center; padding:20px;">
-        <h2>🎉 Selamat!</h2>
-        <p>Anda telah menyelesaikan level tertinggi</p>
-        <button id="restartBtn" style="
-          margin-top:15px;
-          padding:12px 24px;
-          font-size:18px;
-          border-radius:12px;
-          background:#ea580c;
-          color:white;
-          border:none;
-        ">Restart Game</button>
-      </div>
-    `;
+            <div style="text-align:center; padding:20px;">
+              <h2>🎉 Selamat!</h2>
+              <p>Anda telah menyelesaikan level tertinggi</p>
+              <button id="restartBtn" style="
+                margin-top:15px;
+                padding:12px 24px;
+                font-size:18px;
+                border-radius:12px;
+                background:#ea580c;
+                color:white;
+                border:none;
+              ">Restart Game</button>
+            </div>
+          `;
           if (isVisualMode()) {
             speak(
               "Selamat. Kamu telah menyelesaikan permainan. Tekan tombol restart untuk main lagi."
@@ -656,23 +663,23 @@
           }
         } else {
           gameArea.innerHTML = `
-      <div style="text-align:center; padding:20px;">
-        <h2>💀 Game Over</h2>
-        <p>Nyawa habis, coba lagi ya!</p>
-        <button id="restartBtn" style="
-          margin-top:15px;
-          padding:12px 24px;
-          font-size:18px;
-          border-radius:12px;
-          background:#ea580c;
-          color:white;
-          border:none;
-        ">Restart Game</button>
-      </div>
-    `;
+            <div style="text-align:center; padding:20px;">
+              <h2>💀 Game Over</h2>
+              <p>Nyawa habis, coba lagi ya!</p>
+              <button id="restartBtn" style="
+                margin-top:15px;
+                padding:12px 24px;
+                font-size:18px;
+                border-radius:12px;
+                background:#ea580c;
+                color:white;
+                border:none;
+              ">Restart Game</button>
+            </div>
+          `;
           if (isVisualMode()) {
             speak(
-              "Permainan berakhir. Tekan tombol restart untuk mencoba lagi."
+              "Permainan berakhir. Tekan tombol restart untuk mencoba lagi. Atau tekan tombol kembali untuk ke menu awal game"
             );
           }
         }
@@ -721,6 +728,21 @@
       window.addEventListener("beforeunload", () => {
         if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       });
+
+      window.addEventListener("load", () => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      });
+      function scrollToAfterHeader() {
+        const target = document.getElementById("instruction");
+        if (!target) return;
+
+        const y = target.getBoundingClientRect().top + window.scrollY - 20;
+
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
     </script>
   </body>
 </html>

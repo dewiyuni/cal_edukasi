@@ -281,7 +281,7 @@
       </header>
       <main>
         <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
-        <div class="info-box">
+        <div class="info-box" id="judulGame">
           <p>Skor: <span id="score">0</span></p>
           <p>Nyawa: <span id="lives">❤️❤️❤️</span></p>
           <p>Level: <span id="level">1</span></p>
@@ -457,9 +457,18 @@
           });
 
           startGame();
-          speak(
-            "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
-          );
+          // ✅ Tunggu sedikit biar layout muncul dulu
+          setTimeout(() => {
+            scrollToAfterHeader();
+          }, 200);
+
+          if (isVisualMode()) {
+            setTimeout(() => {
+              speak(
+                "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
+              );
+            }, 500);
+          }
         });
         startBtn.addEventListener("keydown", (e) => {
           if (e.key === "Enter") {
@@ -825,7 +834,21 @@
         window.addEventListener("beforeunload", () => {
           if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         });
-      }); // end DOMContentLoaded
+      });
+      window.addEventListener("load", () => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      });
+      function scrollToAfterHeader() {
+        const target = document.getElementById("instruction");
+        if (!target) return;
+
+        const y = target.getBoundingClientRect().top + window.scrollY - 20;
+
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      } // end DOMContentLoaded `
     </script>
   </body>
 </html>

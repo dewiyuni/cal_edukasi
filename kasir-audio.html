@@ -244,7 +244,7 @@
       <button id="btnBack" class="back-btn">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <header class="header-scene">
+      <header class="header-scene" id="headerScene">
         <div class="scene-content"><div class="cashier-img"></div></div>
         <div class="moving-items">
           <img src="img/header.jpg" alt="header" class="moving-item" />
@@ -324,6 +324,7 @@
       const moneyButtonsContainer = document.getElementById("moneyButtons");
       const messageBox = document.getElementById("messageBox");
       const scrollTopBtn = document.getElementById("scrollTopBtn");
+      const mode = localStorage.getItem("gameMode") || "audio";
 
       let basePrice = 0,
         itemQuantity = 0,
@@ -472,9 +473,23 @@
           )}. Tekan enter untuk memilih menu jajanan lainya. Tekan tanda tambah di keyboard untuk menambah banyak item. Tekan tanda kurang di keyboard untuk mengurangi banyak item.     kalau sudah selesai, bisa tekan tab untuk masuk ke menu lanjut ke pembayaran `
         );
       }
+      // scroll setelah header
+      function scrollToAfterHeader() {
+        const header = document.querySelector(".header-scene");
+        if (!header) return;
+
+        const y = header.offsetHeight;
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
 
       // Tekan Enter → pilih menu baru
-      btnPlus.addEventListener("click", loadMenuLoop);
+      btnPlus.addEventListener("click", () => {
+        loadMenuLoop(); // logic pilih menu
+        scrollToAfterHeader(); // ✅ scroll otomatis
+      });
       btnPlus.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -513,13 +528,8 @@
           btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/>
                      <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
           btn.classList.add("money-btn");
-          btn.style.display = "flex";
-          btn.style.flexDirection = "column";
-          btn.style.alignItems = "center";
-          btn.style.justifyContent = "center";
-          btn.style.margin = "5px";
-          btn.style.padding = "5px";
-          btn.style.height = "160px";
+
+          // Tambahkan klik
           btn.addEventListener("click", () => {
             totalPaid += value;
             const remaining = itemPrice - totalPaid;
@@ -534,23 +544,58 @@
               playVerbalFeedback(
                 `Kamu membayar ${formatRupiah(totalPaid)}. ${
                   change > 0 ? `Kembalian ${formatRupiah(change)}.` : ""
-                } Transaksi selesai!`
+                } Transaksi selesai!, Tekan pilih jajan untuk memulai lagi, Tekan backspace untuk kembali ke menu awal`
               );
-
-              // Reset dan kembali ke menu awal
               setTimeout(() => {
-                startGame(); // kembalikan ke awal
-              }, 1500); // kasih jeda 1,5 detik supaya user sempat dengar feedback
+                startGame(); // Reset game
+              }, 1500);
             }
           });
+
+          // 🔹 Tambahkan suara saat fokus
           btn.addEventListener("focus", () => {
             playVerbalFeedback(`Ini ${data.name}. Tekan Enter untuk memilih.`);
           });
+
           moneyButtonsContainer.appendChild(btn);
         });
 
+        // Fokus tombol pertama
         const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
         if (firstMoneyBtn) firstMoneyBtn.focus();
+      });
+
+      // Index tombol uang yang sedang fokus
+      let currentMoneyIndex = 0;
+
+      function focusMoneyBtn(index) {
+        const buttons = moneyButtonsContainer.querySelectorAll("button");
+        if (buttons.length === 0) return;
+        if (index < 0) index = 0;
+        if (index >= buttons.length) index = buttons.length - 1;
+        currentMoneyIndex = index;
+        buttons[currentMoneyIndex].focus();
+      }
+
+      // Listener global untuk ArrowLeft, ArrowRight, Enter
+      document.addEventListener("keydown", (e) => {
+        const buttons = moneyButtonsContainer.querySelectorAll("button");
+        if (buttons.length === 0) return;
+
+        if (document.activeElement.closest("#moneyButtons")) {
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            focusMoneyBtn(currentMoneyIndex + 1);
+          }
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            focusMoneyBtn(currentMoneyIndex - 1);
+          }
+          if (e.key === "Enter") {
+            e.preventDefault();
+            buttons[currentMoneyIndex].click();
+          }
+        }
       });
 
       // Keyboard: tekan Tab dari quantityDisplay → fokus ke Lanjut ke Bayar
@@ -558,9 +603,28 @@
         if (e.key === "Tab" && !btnProceedPayment.disabled) {
           e.preventDefault(); // cegah default tab
           btnProceedPayment.focus(); // fokus ke tombol Lanjut
+          playVerbalFeedback(
+            "Tombol lanjut ke pembayaran. Tekan Enter untuk melanjutkan."
+          );
         }
       });
+      btnProceedPayment.addEventListener("focus", () => {
+        playVerbalFeedback(
+          "Tombol lanjut ke pembayaran. Tekan Enter untuk melanjutkan."
+        );
+      });
 
+      // scroll ke pembayaran
+      function scrollToAftertbnbayar() {
+        const header = document.querySelector(".header-scene");
+        if (!header) return;
+
+        const y = header.offsetHeight;
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
       // ===== Fokus Tab Awal =====
       function setMoneyButtonsTabIndex() {
         btnPlus.setAttribute("tabindex", "0");
@@ -636,6 +700,25 @@
       // stop audio on refresh
       window.addEventListener("beforeunload", () => {
         if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
+
+      window.addEventListener("load", () => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      });
+
+      // Tekan keyboard (Enter / Space)
+      document.addEventListener("keydown", (e) => {
+        const tag = document.activeElement.tagName;
+        if (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(tag)) {
+          e.preventDefault(); // cegah default scroll ke atas
+
+          if (mode === "audio") {
+            playVerbalFeedback("Kembali ke halaman utama");
+          }
+
+          // ganti ke halaman menu
+          window.location.href = `menu.html?mode=${mode}`;
+        }
       });
     </script>
   </body>
