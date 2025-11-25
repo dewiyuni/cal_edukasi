@@ -425,13 +425,51 @@
       };
 
       const itemImages = {
-        1000: { src: "img/permen.jpg", label: "Permen" },
-        2000: { src: "img/pulpen.png", label: "Pulpen" },
-        5000: { src: "img/gelang.png", label: "Gelang" },
-        10000: { src: "img/coklat.png", label: "Coklat" },
-        20000: { src: "img/topi.jpg", label: "Topi" },
-        50000: { src: "img/boneka.png", label: "Boneka" },
-        100000: { src: "img/tas.png", label: "Tas" },
+        1000: [
+          { src: "img/permen.jpg", label: "Permen" },
+          { src: "img/ballon.png", label: "Balon" },
+          { src: "img/pensil-mini.png", label: "Pensil Mini" },
+        ],
+
+        2000: [
+          { src: "img/bengbeng.jpeg", label: "Beng-beng" },
+          { src: "img/nabati.jpeg", label: "Nabati" },
+          { src: "img/tango.jpeg", label: "Tango" },
+          { src: "img/penghapus.jpeg", label: "Penghapus" },
+        ],
+
+        5000: [
+          { src: "img/coklat.png", label: "Coklat" },
+          { src: "img/chikitwist.jpeg", label: "Chiki Twist" },
+          { src: "img/ultramilk.jpeg", label: "Ultra Milk" },
+          { src: "img/ganci.jpeg", label: "Gantungan Kunci" },
+          { src: "img/gelang.png", label: "Gelang" },
+          { src: "img/jepit.jpg", label: "Jepit Rambut" },
+        ],
+
+        10000: [
+          { src: "img/cake.jpg", label: "Kue" },
+          { src: "img/frenchfries.jpeg", label: "Kentang Goreng" },
+          { src: "img/nescafe.jpeg", label: "Nescafe" },
+          { src: "img/kaoskaki.jpeg", label: "Kaos Kaki" },
+        ],
+
+        20000: [
+          { src: "img/botol.jpeg", label: "Botol Minum" },
+          { src: "img/topi.jpg", label: "Topi" },
+          { src: "img/sendal.jpeg", label: "Sandal" },
+        ],
+
+        50000: [
+          { src: "img/boneka.png", label: "Boneka" },
+          { src: "img/jashujan.jpeg", label: "Jas Hujan" },
+          { src: "img/tas.png", label: "Tas" },
+        ],
+
+        100000: [
+          { src: "img/mobil.jpeg", label: "Mobil Mainan" },
+          { src: "img/sepatu.jpeg", label: "Sepatu" },
+        ],
       };
 
       // ================== GAME STATE ==================
@@ -546,14 +584,16 @@
         choicesKeys.forEach((key) => {
           const div = document.createElement("div");
           div.className = "choice";
+          const items = itemImages[key];
+          const randomItem = items[Math.floor(Math.random() * items.length)];
+
           div.innerHTML = `
-                  <img src="${itemImages[key].src}" alt="${
-            itemImages[key].label
-          }">
-                  <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
-                    Rp ${Number(key).toLocaleString()}
-                  </p>
-                `;
+  <img src="${randomItem.src}" alt="${randomItem.label}">
+  <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+    Rp ${Number(key).toLocaleString()}
+  </p>
+`;
+
           div.addEventListener("click", () =>
             handleChoice(div, key, correctKey)
           );

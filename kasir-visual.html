@@ -658,7 +658,7 @@
           const btn = document.createElement("button");
           const data = heroData[value];
           btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/>
-                     <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
+                           <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
           btn.classList.add("money-btn");
           btn.style.display = "flex";
           btn.style.flexDirection = "column";
@@ -735,35 +735,35 @@
         try {
           const priceList = {
             "Ayam Goreng": 12000,
-            Bakso: 10000,
-            Batagor: 8000,
+            Bakso: 10800,
+            Batagor: 8500,
             "Bubur Ayam": 10000,
-            Cilok: 5000,
-            Cimol: 5000,
-            Dimsum: 10000,
-            Donat: 5000,
-            "Es Buah": 8000,
-            "Es Jeruk": 5000,
+            Cilok: 5200,
+            Cimol: 5400,
+            Dimsum: 10900,
+            Donat: 5500,
+            "Es Buah": 8700,
+            "Es Jeruk": 5600,
             "Es Krim": 6000,
             "Es Teh": 4000,
-            "Es Teler": 10000,
-            Jus: 7000,
-            Kwetiau: 15000,
-            Maklor: 5000,
-            "Martabak Manis": 12000,
-            "Martabak Telur": 15000,
+            "Es Teler": 10400,
+            Jus: 7600,
+            Kwetiau: 15700,
+            Maklor: 5800,
+            "Martabak Manis": 12700,
+            "Martabak Telur": 15900,
             "Mie Ayam": 15000,
-            Mineral: 3000,
-            Nasgor: 15000,
+            Mineral: 3200,
+            Nasgor: 15800,
             "Pecel Lele": 15000,
-            "Risol Mayo": 6000,
-            "Roti Bakar": 10000,
-            Seblak: 8000,
-            Somay: 8000,
-            Soto: 12000,
-            Takoyaki: 10000,
-            "Telur Gulung": 3000,
-            "Telur Puyuh": 4000,
+            "Risol Mayo": 6500,
+            "Roti Bakar": 10500,
+            Seblak: 8800,
+            Somay: 8600,
+            Soto: 12300,
+            Takoyaki: 10700,
+            "Telur Gulung": 3300,
+            "Telur Puyuh": 4200,
           };
           const itemImages = {
             "Ayam Goreng": "img/menu/ayam_goreng.jpg",
@@ -963,26 +963,26 @@
         if (isCoin) {
           // Gambar koin, bulat
           imageHtml = `
-    <img src="${data.img}"
-         alt="Koin ${formatRupiah(value)}"
-         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
-  `;
+          <img src="${data.img}"
+               alt="Koin ${formatRupiah(value)}"
+               style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
+        `;
         } else {
           // Gambar uang kertas, TANPA CROP
           imageHtml = `
-    <img src="${data.img}"
-         alt="Uang ${formatRupiah(value)}"
-         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
-  `;
+          <img src="${data.img}"
+               alt="Uang ${formatRupiah(value)}"
+               style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
+        `;
         }
 
         // Isi tombol
         button.innerHTML = `
-  ${imageHtml}
-  <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
-    ${data.name}
-  </span>
-`;
+        ${imageHtml}
+        <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
+          ${data.name}
+        </span>
+      `;
 
         // Style tombol
         button.classList.add("money-btn");
@@ -1164,6 +1164,7 @@
             itemPriceDisplay.textContent = formatRupiah(0);
             if (paymentDisplay) paymentDisplay.textContent = formatRupiah(0);
             itemNameDisplay.textContent = "Tekan 'Pilih Jajan'";
+            itemGambarDisplay.textContent = " ";
             updateDisplay();
           } else if (change < 0) {
             // Uang kurang → scroll ke tombol uang
@@ -1194,7 +1195,29 @@
       });
 
       // Inisialisasi awal saat halaman dimuat
-      window.onload = startNewTransaction;
+      // Hapus ini
+      // window.onload = startNewTransaction;
+
+      // Ganti dengan inisialisasi awal
+      window.onload = () => {
+        // Reset state
+        basePrice = 0;
+        itemQuantity = 0;
+        itemPrice = 0;
+        totalPaid = 0;
+
+        // Update tampilan
+        itemNameDisplay.textContent = "Tekan 'Pilih Jajan' untuk memulai!";
+        itemPriceDisplay.textContent = formatRupiah(0);
+        paymentDisplay.textContent = formatRupiah(0);
+        quantityDisplay.textContent = 0;
+
+        // Sembunyikan elemen yang tidak perlu
+        messageBox.classList.add("hidden");
+        btnPlayAudio.classList.add("hidden");
+        itemGambarDisplay.classList.remove("hidden");
+      };
+
       const scrollTopBtn = document.getElementById("scrollTopBtn");
 
       // Munculkan tombol kalau sudah scroll 200px

@@ -323,19 +323,6 @@
           window.speechSynthesis.cancel();
         }
       }
-      function speak(text, onEnd = null) {
-        if (!("speechSynthesis" in window)) return;
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = "id-ID";
-        msg.rate = 0.95;
-        msg.pitch = 1;
-        if (onEnd) msg.onend = onEnd;
-        window.speechSynthesis.speak(msg);
-      }
-      function stopSpeak() {
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      }
       // === DATA (tetap di luar) ===
       const moneyImages = {
         1000: "img/1000.png",
@@ -347,13 +334,51 @@
         100000: "img/100000.png",
       };
       const itemImages = {
-        1000: { src: "img/permen.jpg", label: "Permen" },
-        2000: { src: "img/pulpen.png", label: "Pulpen" },
-        5000: { src: "img/gelang.png", label: "Gelang" },
-        10000: { src: "img/coklat.png", label: "Coklat" },
-        20000: { src: "img/topi.jpg", label: "Topi" },
-        50000: { src: "img/boneka.png", label: "Boneka" },
-        100000: { src: "img/tas.png", label: "Tas" },
+        1000: [
+          { src: "img/permen.jpg", label: "Permen" },
+          { src: "img/ballon.png", label: "Balon" },
+          { src: "img/pensil-mini.png", label: "Pensil Mini" },
+        ],
+
+        2000: [
+          { src: "img/bengbeng.jpeg", label: "Beng-beng" },
+          { src: "img/nabati.jpeg", label: "Nabati" },
+          { src: "img/tango.jpeg", label: "Tango" },
+          { src: "img/penghapus.jpeg", label: "Penghapus" },
+        ],
+
+        5000: [
+          { src: "img/coklat.png", label: "Coklat" },
+          { src: "img/chikitwist.jpeg", label: "Chiki Twist" },
+          { src: "img/ultramilk.jpeg", label: "Ultra Milk" },
+          { src: "img/ganci.jpeg", label: "Gantungan Kunci" },
+          { src: "img/gelang.png", label: "Gelang" },
+          { src: "img/jepit.jpg", label: "Jepit Rambut" },
+        ],
+
+        10000: [
+          { src: "img/cake.jpg", label: "Kue" },
+          { src: "img/frenchfries.jpeg", label: "Kentang Goreng" },
+          { src: "img/nescafe.jpeg", label: "Nescafe" },
+          { src: "img/kaoskaki.jpeg", label: "Kaos Kaki" },
+        ],
+
+        20000: [
+          { src: "img/botol.jpeg", label: "Botol Minum" },
+          { src: "img/topi.jpg", label: "Topi" },
+          { src: "img/sendal.jpeg", label: "Sandal" },
+        ],
+
+        50000: [
+          { src: "img/boneka.png", label: "Boneka" },
+          { src: "img/jashujan.jpeg", label: "Jas Hujan" },
+          { src: "img/tas.png", label: "Tas" },
+        ],
+
+        100000: [
+          { src: "img/mobil.jpeg", label: "Mobil Mainan" },
+          { src: "img/sepatu.jpeg", label: "Sepatu" },
+        ],
       };
 
       // === STATE DEFAULTS ===
@@ -392,30 +417,28 @@
           if (e.key !== "Tab") return;
 
           const focusables = [backBtn, startBtn];
-          // Nonaktifkan TAB ke elemen lain sebelum game mulai
-          document
-            .querySelectorAll(".title, .info-box, #floatingInfo")
-            .forEach((el) => {
-              el.setAttribute("tabindex", "-1");
-            });
-
           const currentIndex = focusables.indexOf(document.activeElement);
 
-          // Shift + Tab
+          // Cegah fokus ke elemen aneh sebelum game mulai
+          if (!gameRunning) {
+            document
+              .querySelectorAll(".title, .info-box, #floatingInfo")
+              .forEach((el) => el.setAttribute("tabindex", "-1"));
+          }
+
           if (e.shiftKey) {
             if (currentIndex === 0) {
               e.preventDefault();
               focusables[1].focus();
             }
-          }
-          // Tab biasa
-          else {
+          } else {
             if (currentIndex === 1) {
               e.preventDefault();
               focusables[0].focus();
             }
           }
         });
+
         // accessibility: allow focus on info items
         titleEl.setAttribute("tabindex", "0");
         scoreDisplay.parentElement.setAttribute("tabindex", "0");
@@ -515,8 +538,11 @@
         function loadRound(repeat = false) {
           if (!gameRunning || finishedGame) return;
           stopSpeak();
+
+          // ambil semua key uang
+          const keys = Object.keys(moneyImages);
+
           if (!repeat) {
-            const keys = Object.keys(moneyImages);
             const correctKey = keys[Math.floor(Math.random() * keys.length)];
             const otherKeys = keys.filter((k) => k !== correctKey);
             const choicesKeys = otherKeys
@@ -526,43 +552,84 @@
             choicesKeys.sort(() => Math.random() - 0.5);
             lastQuestion = { correctKey, choicesKeys };
           }
+
           const { correctKey, choicesKeys } = lastQuestion;
           window.currentAnswer = correctKey;
+
+          // tampilkan gambar uang target
           targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey} rupiah">`;
+
           gridContainer.innerHTML = "";
           let allChoicesVoice = "";
+
           choicesKeys.forEach((key, index) => {
+            // ambil array item untuk harga ini
+            const items = itemImages[key];
+
+            // jika tidak ada item untuk key ini, buat placeholder sederhana agar tidak error
+            if (!items || !Array.isArray(items) || items.length === 0) {
+              const divPlaceholder = document.createElement("div");
+              divPlaceholder.className = "choice";
+              divPlaceholder.setAttribute("tabindex", "0");
+              divPlaceholder.innerHTML = `
+        <div style="padding:20px;">Tidak ada barang</div>
+        <p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">
+          Rp ${Number(key).toLocaleString()}
+        </p>
+      `;
+              divPlaceholder.addEventListener("click", () =>
+                speak("Tidak ada barang untuk pilihan ini")
+              );
+              divPlaceholder.addEventListener("focus", () =>
+                speak(
+                  `Pilihan ${index + 1}: tidak ada barang, harga ${key} rupiah`
+                )
+              );
+              gridContainer.appendChild(divPlaceholder);
+              allChoicesVoice += `Pilihan ${
+                index + 1
+              }: tidak ada barang, harga ${key} rupiah. `;
+              return;
+            }
+
+            // ambil item random dari array
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+
             const div = document.createElement("div");
             div.className = "choice";
             div.setAttribute("tabindex", "0");
+
+            // gunakan randomItem untuk label dan src
             div.setAttribute(
               "aria-label",
-              `Pilihan ${index + 1}: ${
-                itemImages[key].label
-              }, harga ${key} rupiah`
+              `Pilihan ${index + 1}: ${randomItem.label}, harga ${key} rupiah`
             );
-            div.innerHTML = `<img src="${itemImages[key].src}" alt="${
-              itemImages[key].label
-            }"><p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">Rp ${Number(
-              key
-            ).toLocaleString()}</p>`;
+
+            div.innerHTML = `
+      <img src="${randomItem.src}" alt="${randomItem.label}">
+      <p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">
+        Rp ${Number(key).toLocaleString()}
+      </p>
+    `;
+
             div.addEventListener("click", () =>
               handleChoice(div, key, correctKey)
             );
             div.addEventListener("focus", () =>
               speak(
-                `Pilihan ${index + 1}: ${
-                  itemImages[key].label
-                }, harga ${key} rupiah`
+                `Pilihan ${index + 1}: ${randomItem.label}, harga ${key} rupiah`
               )
             );
+
             gridContainer.appendChild(div);
             allChoicesVoice += `Pilihan ${index + 1}: ${
-              itemImages[key].label
+              randomItem.label
             }, harga ${key} rupiah. `;
           });
+
+          // sekarang bicara semua pilihan (panggil speak setelah semua dibuat)
           speak(
-            `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice}Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
+            `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice} Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
           );
         }
 
@@ -681,19 +748,19 @@
           updateDisplay();
 
           gameArea.innerHTML = `
-                        <div id="finishScreen" style="text-align:center; padding:20px;">
-                          <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
-                          <p>${
-                            win
-                              ? "Selamat! Kamu telah menyelesaikan semua level!"
-                              : "Nyawa habis, coba lagi ya!"
-                          }</p>
-                          <div style="margin-top:12px;">
-                            <button id="restartBtnFinish" tabindex="0">Restart Game</button>
-                            <button id="backToMenuBtn" tabindex="0" style="margin-left:10px;">Kembali ke Menu</button>
-                          </div>
-                        </div>
-                      `;
+                            <div id="finishScreen" style="text-align:center; padding:20px;">
+                              <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
+                              <p>${
+                                win
+                                  ? "Selamat! Kamu telah menyelesaikan semua level!"
+                                  : "Nyawa habis, coba lagi ya!"
+                              }</p>
+                              <div style="margin-top:12px;">
+                                <button id="restartBtnFinish" tabindex="0">Restart Game</button>
+                                <button id="backToMenuBtn" tabindex="0" style="margin-left:10px;">Kembali ke Menu</button>
+                              </div>
+                            </div>
+                          `;
           const restartBtnFinish = document.getElementById("restartBtnFinish");
           const backToMenuBtn = document.getElementById("backToMenuBtn");
           // stop suara lama
@@ -793,11 +860,11 @@
 
           // Rebuild game area
           gameArea.innerHTML = `
-    <h2 id="instruction">Cari gambar yang sama</h2>
-    <div id="targetImage"></div>
-    <div id="gridContainer" class="grid"></div>
-    <div id="feedback"></div>
-  `;
+        <h2 id="instruction">Cari gambar yang sama</h2>
+        <div id="targetImage"></div>
+        <div id="gridContainer" class="grid"></div>
+        <div id="feedback"></div>
+      `;
 
           // Rebind local references
           targetImage = document.getElementById("targetImage");
