@@ -237,6 +237,14 @@
       #scrollTopBtn:hover {
         background: #c2410c;
       }
+      #floatingTotal {
+        position: fixed;
+        bottom: 16px;
+        left: 50%; /* posisinya di tengah layar */
+        transform: translateX(-50%); /* geser ke kiri setengah lebarnya */
+        width: 300px; /* ganti sesuai kebutuhan */
+        z-index: 9999;
+      }
     </style>
   </head>
   <body>
@@ -330,9 +338,139 @@
         <div id="messageBox" class="hidden"></div>
       </main>
     </div>
+    <!-- Popup Total Harga -->
+    <div
+      id="floatingTotal"
+      class="fixed bottom-4 left-4 right-4 bg-green-600 text-white p-4 rounded-2xl shadow-xl text-center font-bold text-lg hidden z-50"
+    >
+      Total: <span id="floatingTotalText">Rp 0</span>
+    </div>
     <button id="scrollTopBtn">↑</button>
 
     <script>
+      /* -------------- AUDIO UTIL & STATE -------------- */
+      let currentAudio = null; // untuk audio umum (menu, intro, dsb)
+      let currentMoneyAudio = null; // untuk audio spesifik tombol uang fokus
+      let allowVoice = true; // global TTS allowed flag
+
+      function stopSpeak() {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      }
+
+      function stopAllSound() {
+        // hentikan TTS
+        stopSpeak();
+
+        // hentikan audio umum
+        if (currentAudio) {
+          try {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          } catch (e) {}
+          currentAudio = null;
+        }
+
+        // hentikan audio money
+        if (currentMoneyAudio) {
+          try {
+            currentMoneyAudio.pause();
+            currentMoneyAudio.currentTime = 0;
+          } catch (e) {}
+          currentMoneyAudio = null;
+        }
+      }
+
+      // play audio file dan resolve saat selesai
+      function playAudioAsync(src, { asMoney = false } = {}) {
+        return new Promise((resolve) => {
+          // hentikan semua sebelum play supaya tidak overlap
+          stopAllSound();
+
+          const audio = new Audio(src);
+          if (asMoney) currentMoneyAudio = audio;
+          else currentAudio = audio;
+
+          audio.onended = () => {
+            if (asMoney) currentMoneyAudio = null;
+            else currentAudio = null;
+            resolve();
+          };
+          audio.onerror = () => {
+            if (asMoney) currentMoneyAudio = null;
+            else currentAudio = null;
+            resolve();
+          };
+          audio.play().catch(() => resolve());
+        });
+      }
+
+      // speak (TTS) yang menunggu selesai
+      function speakTextAsync(text) {
+        return new Promise((resolve) => {
+          if (!text) return resolve();
+          stopSpeak(); // pastikan tidak ada TTS lain
+          const utt = new SpeechSynthesisUtterance(text);
+          utt.lang = "id-ID";
+          utt.onend = () => resolve();
+          utt.onerror = () => resolve();
+          window.speechSynthesis.speak(utt);
+        });
+      }
+
+      /* Helper khusus money button: intro -> TTS -> enter */
+      async function playMoneyAudioSequence(introSrc, ttsText, enterSrc) {
+        // hentikan audio money/tidak supaya sequence bisa mulai clean
+        if (currentMoneyAudio) {
+          try {
+            currentMoneyAudio.pause();
+            currentMoneyAudio.currentTime = 0;
+          } catch (e) {}
+          currentMoneyAudio = null;
+        }
+        stopSpeak();
+
+        if (introSrc) {
+          currentMoneyAudio = new Audio(introSrc);
+          await new Promise((res) => {
+            currentMoneyAudio.onended = () => {
+              currentMoneyAudio = null;
+              res();
+            };
+            currentMoneyAudio.onerror = () => {
+              currentMoneyAudio = null;
+              res();
+            };
+            currentMoneyAudio.play().catch(() => {
+              currentMoneyAudio = null;
+              res();
+            });
+          });
+        }
+
+        if (ttsText) {
+          await speakTextAsync(ttsText);
+        }
+
+        if (enterSrc) {
+          currentMoneyAudio = new Audio(enterSrc);
+          await new Promise((res) => {
+            currentMoneyAudio.onended = () => {
+              currentMoneyAudio = null;
+              res();
+            };
+            currentMoneyAudio.onerror = () => {
+              currentMoneyAudio = null;
+              res();
+            };
+            currentMoneyAudio.play().catch(() => {
+              currentMoneyAudio = null;
+              res();
+            });
+          });
+        }
+      }
+
+      /* -------------- UI + GAME DATA (dipertahankan dari file mu) -------------- */
       const itemNameDisplay = document.getElementById("itemNameDisplay");
       const itemGambarDisplay = document.getElementById("itemGambarDisplay");
       const itemPriceDisplay = document.getElementById("itemPriceDisplay");
@@ -351,6 +489,7 @@
         itemQuantity = 0,
         itemPrice = 0,
         totalPaid = 0;
+
       const priceList = {
         "Ayam Goreng": 12000,
         Bakso: 10800,
@@ -415,6 +554,7 @@
         "Telur Gulung": "img/menu/telur_gulung.jpeg",
         "Telur Puyuh": "img/menu/telur_puyuh.jpg",
       };
+
       const denominations = [
         100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
       ];
@@ -438,13 +578,6 @@
           minimumFractionDigits: 0,
         }).format(n);
       }
-      function playVerbalFeedback(msg) {
-        if (!msg) return;
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(msg);
-        utter.lang = "id-ID";
-        window.speechSynthesis.speak(utter);
-      }
       function updateDisplay() {
         itemPriceDisplay.textContent = formatRupiah(itemPrice);
         quantityDisplay.textContent = itemQuantity;
@@ -455,14 +588,10 @@
         updateDisplay();
       }
 
-      // Listener click tunggal
-      let menuAktif = false;
-
-      // =======================
-      // Main play menu audio
-      // =======================
+      /* -------------- MENU AUDIO (bisa dihentikan oleh stopAllSound) -------------- */
       async function playMenuAudio(name, price) {
         try {
+          // jangan auto-hentikan di sini — caller bisa hentikan bila perlu
           await playAudioAsync("audio/kasir_audio/menu_baru.mp3");
           await speakTextAsync(`${name}. Harganya ${formatRupiah(price)}.`);
           await playAudioAsync("audio/kasir_audio/instruksi1.mp3");
@@ -472,61 +601,15 @@
         }
       }
 
-      // =======================
-      // Audio helper async
-      // =======================
-      let currentAudio = null;
-
-      async function playAudioAsync(src) {
-        return new Promise((resolve) => {
-          if (currentAudio) {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-            currentAudio = null;
-          }
-
-          const audio = new Audio(src);
-          currentAudio = audio;
-          audio.onended = () => {
-            currentAudio = null;
-            resolve();
-          };
-          audio.onerror = () => {
-            console.error("Audio gagal diputar:", src);
-            resolve(); // jangan block jika error
-          };
-          audio.play();
-        });
-      }
-
-      function speakTextAsync(text) {
-        return new Promise((resolve) => {
-          if (!text) return resolve();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = "id-ID";
-          utter.onend = resolve;
-          utter.onerror = () => resolve(); // fallback
-          window.speechSynthesis.speak(utter);
-        });
-      }
-
-      // =======================
-      // Load menu loop
-      // =======================
+      /* -------------- LOAD MENU LOOP -------------- */
+      let menuAktif = false;
       async function loadMenuLoop() {
         menuAktif = false;
+        // hentikan TTS & audio lama
+        stopAllSound();
 
-        // hentikan audio lama
-        window.speechSynthesis.cancel();
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-          currentAudio = null;
-        }
-
-        btnPlus.disabled = false; // tombol aktif segera
+        btnPlus.disabled = false;
         menuAktif = true;
-
         try {
           const keys = Object.keys(priceList);
           const randomName = keys[Math.floor(Math.random() * keys.length)];
@@ -534,12 +617,12 @@
           basePrice = priceList[randomName];
           itemQuantity = 1;
           totalPaid = 0;
-
           recalc();
 
-          // Update tampilan menu
           itemNameDisplay.textContent = randomName;
-          itemGambarDisplay.innerHTML = `<img src="${itemImages[randomName]}" class="w-full h-full object-contain"/>`;
+          itemGambarDisplay.innerHTML = `<img src="${
+            itemImages[randomName] || ""
+          }" class="w-full h-full object-contain"/>`;
 
           itemGambarDisplay.classList.remove("hidden");
           itemNameDisplay.classList.remove("hidden");
@@ -551,78 +634,64 @@
           btnProceedPayment.classList.remove("hidden");
           btnProceedPayment.disabled = false;
 
-          // Jalankan audio/TTS tanpa men-block tombol
+          // Jalankan audio/TTS (caller tidak perlu stopAllSound lagi)
           playMenuAudio(randomName, basePrice).catch((e) => console.error(e));
         } catch (err) {
           console.error("Error loadMenuLoop:", err);
         }
       }
-
       let loadingMenu = false;
-      // ===== Tombol Pilih Jajan =====
       btnPlus.addEventListener("click", async () => {
         if (loadingMenu) return;
-
         loadingMenu = true;
         await loadMenuLoop();
         scrollToAfterHeader();
         loadingMenu = false;
       });
-
       btnPlus.addEventListener("keydown", async (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
           if (loadingMenu) return;
-
           loadingMenu = true;
           await loadMenuLoop();
           loadingMenu = false;
         }
       });
 
+      /* -------------- QUANTITY AUDIO HANDLING (tetap sama konsep) -------------- */
       const audioJumlah = new Audio("audio/kasir_audio/jumlah.mp3");
       const audioTab = new Audio("audio/kasir_audio/lanjut_bayar.mp3");
-
       document.addEventListener("keydown", (e) => {
         if (!menuAktif) return;
-
-        // Hanya izinkan tombol: +, = dan -
         if (e.key !== "+" && e.key !== "=" && e.key !== "-") return;
 
-        // Stop semua suara dulu agar tidak bertabrakan
-        speechSynthesis.cancel();
+        // hentikan TTS / audio yang mungkin aktif
+        stopAllSound();
         audioJumlah.pause();
         audioJumlah.currentTime = 0;
         audioTab.pause();
         audioTab.currentTime = 0;
 
-        // Fungsi TTS angka
         const playNumberTTS = (num, callback) => {
-          const utterance = new SpeechSynthesisUtterance(`${num}`);
-          utterance.lang = "id-ID";
-          utterance.onend = callback;
-          speechSynthesis.speak(utterance);
+          const utter = new SpeechSynthesisUtterance(`${num}`);
+          utter.lang = "id-ID";
+          utter.onend = callback;
+          window.speechSynthesis.speak(utter);
         };
-
-        // Efek audio jumlah → TTS angka → audio lanjut pembayaran
         const handleQuantityChange = () => {
           audioJumlah.play();
-
           setTimeout(() => {
             playNumberTTS(itemQuantity, () => {
               audioTab.play();
             });
-          }, 500); // tidak perlu 1 detik penuh
+          }, 500);
         };
 
-        // Tambah jumlah
         if (e.key === "+" || e.key === "=") {
           if (itemQuantity < 99) itemQuantity++;
           recalc();
           handleQuantityChange();
         }
-
-        // Kurangi jumlah
         if (e.key === "-") {
           if (itemQuantity > 1) itemQuantity--;
           recalc();
@@ -630,157 +699,287 @@
         }
       });
 
-      // scroll setelah header
-      function scrollToAfterHeader() {
-        const header = document.querySelector(".header-scene");
-        if (!header) return;
-
-        const y = header.offsetHeight;
-        window.scrollTo({
-          top: y,
-          behavior: "smooth",
-        });
-      }
-
+      /* -------------- PAYMENT / MONEY BUTTONS -------------- */
       const btnProceedPayment = document.getElementById("btnProceedPayment");
 
       btnProceedPayment.addEventListener("click", () => {
-        moneyButtonsContainer.classList.remove("hidden");
-        moneyButtonsContainer.innerHTML = ""; // Kosongkan dulu
+        // stop other audio so money-buttons audio starts clean
+        stopAllSound();
 
-        // 🔹 Tambahkan ini
-        let totalPrice = getTotalKeranjang(); // total semua item
-        let totalPaid = 0;
+        moneyButtonsContainer.classList.remove("hidden");
+        moneyButtonsContainer.innerHTML = "";
+
+        const totalPrice = getTotalKeranjang();
+        totalPaid = 0;
+
         denominations.forEach((value) => {
           const btn = document.createElement("button");
           const data = heroData[value];
-          btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/>
-                     <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
           btn.classList.add("money-btn");
+          btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/><span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
 
+          // when user clicks a money button -> play sequence, stop others
           btn.addEventListener("click", async () => {
-            const thisValue = value; // nominal uang yang dipilih
-            totalPaid += thisValue;
+            // hentikan semua suara saat click (sangat penting)
+            stopAllSound();
+
+            totalPaid += value;
             const thisRemaining = totalPrice - totalPaid;
 
             if (thisRemaining > 0) {
-              // 🔹 Kamu memasukkan + TTS nominal + Sisa bayar
-              const audioMasuk = new Audio(
-                "audio/kasir_audio/kamu_memasukkan.mp3"
-              );
-              audioMasuk.play();
-              audioMasuk.onended = async () => {
-                await speakTextAsync(formatRupiah(thisValue));
-                const audioSisa = new Audio(
-                  "audio/kasir_audio/sisa_membayar.mp3"
-                );
-                audioSisa.play();
-                audioSisa.onended = () =>
-                  speakTextAsync(formatRupiah(thisRemaining));
-              };
+              // Kamu memasukkan -> TTS nominal -> sisa bayar
+              await playAudioAsync("audio/kasir_audio/kamu_memasukkan.mp3", {
+                asMoney: false,
+              });
+              await speakTextAsync(formatRupiah(value));
+              await playAudioAsync("audio/kasir_audio/sisa_membayar.mp3");
+              await speakTextAsync(formatRupiah(thisRemaining));
             } else {
-              // 🔹 Uang cukup / kembalian
-              const change = Math.abs(thisRemaining); // pakai thisRemaining, bukan remaining
-
-              // 1️⃣ Audio: "Kamu membayar"
-              const audioIntro = new Audio("audio/kasir_audio/kamu_bayar.mp3");
-              audioIntro.play();
-              audioIntro.onended = async () => {
-                // 2️⃣ TTS total bayar
-                await speakTextAsync(formatRupiah(totalPaid));
-
-                if (change > 0) {
-                  // 3️⃣ Audio: "Kembalian"
-                  const audioKembali = new Audio(
-                    "audio/kasir_audio/kembalian.mp3"
-                  );
-                  audioKembali.play();
-                  audioKembali.onended = async () => {
-                    // 4️⃣ TTS kembalian
-                    await speakTextAsync(formatRupiah(change));
-                    // 5️⃣ Audio transaksi selesai
-                    const audioSelesai = new Audio(
-                      "audio/kasir_audio/transaksi_selesai.mp3"
-                    );
-                    audioSelesai.play();
-                    audioSelesai.onended = () => startGame();
-                  };
-                } else {
-                  // Tidak ada kembalian
-                  const audioSelesai = new Audio(
-                    "audio/kasir_audio/transaksi_selesai.mp3"
-                  );
-                  audioSelesai.play();
-                  audioSelesai.onended = () => startGame();
-                }
-              };
+              const change = Math.abs(thisRemaining);
+              await playAudioAsync("audio/kasir_audio/kamu_bayar.mp3");
+              await speakTextAsync(formatRupiah(totalPaid));
+              if (change > 0) {
+                await playAudioAsync("audio/kasir_audio/kembalian.mp3");
+                await speakTextAsync(formatRupiah(change));
+              }
+              await playAudioAsync("audio/kasir_audio/transaksi_selesai.mp3");
+              startGame();
             }
           });
 
-          // 🔹 Fokus → audio pengantar + TTS nama uang + audio tekan Enter
+          // fokus pada tombol -> gunakan helper async agar dapat dibatalkan
           btn.addEventListener("focus", () => {
-            currentMoneyIndex = denominations.indexOf(value); // update index sesuai tombol fokus
-            const audioIntro = new Audio("audio/kasir_audio/ini.mp3");
-            audioIntro.play();
-            audioIntro.onended = async () => {
-              await speakTextAsync(data.name);
-              const audioEnter = new Audio("audio/kasir_audio/enter.mp3");
-              audioEnter.play();
-            };
+            // jangan await di sini, cukup jalankan async sequence
+            playMoneyAudioSequence(
+              "audio/kasir_audio/ini.mp3",
+              data.name,
+              "audio/kasir_audio/enter.mp3"
+            ).catch(console.error);
           });
 
           moneyButtonsContainer.appendChild(btn);
         });
 
-        // Fokus tombol pertama
-        const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
-        if (firstMoneyBtn) firstMoneyBtn.focus();
+        // fokus ke tombol pertama
+        const first = moneyButtonsContainer.querySelector("button");
+        if (first) first.focus();
       });
 
-      // Index tombol uang yang sedang fokus
+      /* keyboard navigation for money buttons */
       let currentMoneyIndex = 0;
-
-      function focusMoneyBtn(index) {
+      function focusMoneyBtn(i) {
         const buttons = moneyButtonsContainer.querySelectorAll("button");
-        if (buttons.length === 0) return;
-        if (index < 0) index = 0;
-        if (index >= buttons.length) index = buttons.length - 1;
-        currentMoneyIndex = index;
+        if (!buttons.length) return;
+        if (i < 0) i = 0;
+        if (i >= buttons.length) i = buttons.length - 1;
+        currentMoneyIndex = i;
         buttons[currentMoneyIndex].focus();
       }
-
-      // Listener global untuk ArrowLeft, ArrowRight, Enter
       document.addEventListener("keydown", (e) => {
         const buttons = moneyButtonsContainer.querySelectorAll("button");
-        if (buttons.length === 0) return;
+        if (!buttons.length) return;
+        if (
+          !document.activeElement.closest ||
+          !document.activeElement.closest("#moneyButtons")
+        )
+          return;
 
-        if (document.activeElement.closest("#moneyButtons")) {
-          if (e.key === "ArrowRight") {
-            e.preventDefault();
-            focusMoneyBtn(currentMoneyIndex + 1);
-          }
-          if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            focusMoneyBtn(currentMoneyIndex - 1);
-          }
-          if (e.key === "Enter") {
-            e.preventDefault();
-            buttons[currentMoneyIndex].click();
-          }
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          focusMoneyBtn(currentMoneyIndex + 1);
+        }
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          focusMoneyBtn(currentMoneyIndex - 1);
+        }
+        if (e.key === "Enter") {
+          e.preventDefault();
+          buttons[currentMoneyIndex].click();
         }
       });
 
-      // Keyboard: tekan Tab dari quantityDisplay → fokus ke Lanjut ke Bayar
-      quantityDisplay.addEventListener("keydown", (e) => {
-        if (e.key === "Tab" && !btnProceedPayment.disabled) {
-          e.preventDefault(); // cegah default tab
-          btnProceedPayment.focus(); // fokus ke tombol Lanjut
+      /* -------------- BTN ADD TO CART (stop audio before action) -------------- */
+      const btnAddToCart = document.getElementById("btnAddToCart");
+      const keranjangSection = document.getElementById("keranjangSection");
+      const audioKeranjang = new Audio("audio/kasir_audio/keranjang.mp3");
+      const audioBayar = new Audio("audio/kasir_audio/bayar.mp3");
 
-          // mainkan audio
-          const audioLanjut = new Audio("audio/kasir_audio/bayar.mp3");
-          audioLanjut.play();
+      btnAddToCart.addEventListener("focus", () => {
+        stopAllSound(); // pastikan bersih
+        audioKeranjang.currentTime = 0;
+        audioKeranjang.play().catch(() => {});
+      });
+      btnProceedPayment.addEventListener("focus", () => {
+        stopAllSound(); // pastikan bersih
+        // 🔽 scroll otomatis ke tombol bayar
+        btnProceedPayment.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        audioBayar.currentTime = 0;
+        audioBayar.play().catch(() => {});
+      });
+
+      /* ----------------- ADD TO CART ----------------- */
+      btnAddToCart.addEventListener("keydown", async (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        stopAllSound();
+
+        const itemName = itemNameDisplay.textContent;
+        const itemImg = itemGambarDisplay.querySelector("img")?.src || "";
+        const qty = itemQuantity;
+        const price = basePrice;
+
+        let cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+        const existing = cart.find((i) => i.name === itemName);
+        if (existing) existing.qty += qty;
+        else cart.push({ name: itemName, img: itemImg, price, qty });
+
+        localStorage.setItem("cartItems", JSON.stringify(cart));
+        renderKeranjang();
+
+        // scroll ke keranjang
+        keranjangSection.setAttribute("tabindex", "0");
+        keranjangSection.scrollIntoView({ behavior: "smooth" });
+
+        // 🔥 TUNGGU SCROLL ±300ms LALU MAIN AUDIO KERANJANG
+        setTimeout(() => {
+          stopAllSound();
+          const audioKeranjang = new Audio(
+            "audio/kasir_audio/lanjut_bayar.mp3"
+          );
+          audioKeranjang.play().catch(() => {});
+        }, 350);
+
+        keranjangSection.focus();
+      });
+
+      /* -------------- KERANJANG & HELPERS -------------- */
+      function getTotalKeranjang() {
+        const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+        return cart.reduce((s, i) => s + i.price * i.qty, 0);
+      }
+      function renderKeranjang() {
+        const listKeranjang = document.getElementById("listKeranjang");
+        const ks = document.getElementById("keranjangSection");
+        let cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+        if (!cart.length) {
+          ks.classList.add("hidden");
+          listKeranjang.innerHTML = "";
+          return;
+        }
+        ks.classList.remove("hidden");
+        listKeranjang.innerHTML = "";
+        cart.forEach((item) => {
+          const row = document.createElement("div");
+          row.className =
+            "flex items-center justify-between p-3 bg-gray-100 rounded-lg";
+          row.innerHTML = `
+      <div class="flex items-center gap-3">
+        <img src="${item.img}" class="w-12 h-12 rounded object-cover">
+        <div><p class="font-semibold">${
+          item.name
+        }</p><p class="text-sm text-gray-600">Qty: ${item.qty}</p></div>
+      </div>
+      <p class="font-bold">${formatRupiah(item.price * item.qty)}</p>
+    `;
+          listKeranjang.appendChild(row);
+        });
+      }
+
+      /* -------------- START / RESTART / SCROLL HELPERS -------------- */
+      function startGame() {
+        basePrice = 0;
+        itemQuantity = 0;
+        itemPrice = 0;
+        totalPaid = 0;
+        menuAktif = false;
+        itemNameDisplay.textContent = 'Tekan "Pilih Jajan"';
+        itemGambarDisplay.innerHTML = "";
+        itemPriceDisplay.textContent = "";
+        quantityDisplay.textContent = "0";
+        moneyButtonsContainer.classList.add("hidden");
+        document.getElementById("quantityControls").classList.add("hidden");
+        btnProceedPayment.classList.add("hidden");
+        localStorage.removeItem("cartItems");
+        renderKeranjang();
+        setMoneyButtonsTabIndex();
+      }
+      function restartGame() {
+        stopAllSound();
+        playVerbalFeedback(
+          "Game diulang. Tekan Pilih Jajan untuk memulai lagi."
+        );
+        startGame();
+      }
+      function scrollToAfterHeader() {
+        const header = document.querySelector(".header-scene");
+        if (!header) return;
+        const y = header.offsetHeight;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+
+      /* Fokus tab helper */
+      function setMoneyButtonsTabIndex() {
+        btnPlus.setAttribute("tabindex", "0");
+        btnPlus.focus();
+        quantityDisplay.setAttribute("tabindex", "1");
+        moneyButtonsContainer
+          .querySelectorAll("button")
+          .forEach((b) => b.setAttribute("tabindex", "2"));
+        scrollTopBtn.setAttribute("tabindex", "99");
+      }
+
+      /* -------------- INITIALISASI & CLEANUP -------------- */
+      window.addEventListener("load", async () => {
+        // play intro but ensure it's stoppable
+        await playAudioAsync("audio/kasir_audio/awal.mp3");
+        setMoneyButtonsTabIndex();
+        btnPlus.disabled = false;
+        startGame();
+      });
+      window.addEventListener("beforeunload", () => {
+        stopAllSound();
+        localStorage.removeItem("cartItems");
+      });
+      scrollTopBtn.addEventListener("click", restartGame);
+      scrollTopBtn.addEventListener("focus", () =>
+        playVerbalFeedback(
+          "Tombol kembali ke awal. Tekan Enter untuk mengulang permainan."
+        )
+      );
+      document.getElementById("btnBack").addEventListener("click", () => {
+        const m = localStorage.getItem("gameMode") || "audio";
+        window.location.href = `menu.html?mode=${m}`;
+      });
+
+      /* small helper playVerbalFeedback (non-await) */
+      function playVerbalFeedback(msg) {
+        stopAllSound();
+        const u = new SpeechSynthesisUtterance(msg);
+        u.lang = "id-ID";
+        window.speechSynthesis.speak(u);
+      }
+
+      /* render keranjang awal */
+      renderKeranjang();
+
+      /* Jika ada bagian lain di file asli yang belum tercopy (itemImages dsb), pastikan menyalinnya dari file awal kamu. */
+
+      // Tekan keyboard (Enter / Space)
+      document.addEventListener("keydown", (e) => {
+        const tag = document.activeElement.tagName;
+        if (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(tag)) {
+          e.preventDefault(); // cegah default scroll ke atas
+          // ganti ke halaman menu
+          window.location.href = `menu.html?mode=${mode}`;
         }
       });
+      // back to pilih jajan
       document.addEventListener("keydown", (e) => {
         const active = document.activeElement;
 
@@ -805,266 +1004,6 @@
           btnPlus.focus();
         }
       });
-
-      // Kalau tombol mendapat fokus langsung
-      btnProceedPayment.addEventListener("focus", () => {
-        const audioLanjut = new Audio("audio/kasir_audio/bayar.mp3");
-        audioLanjut.play();
-      });
-
-      // scroll ke pembayaran
-      function scrollToAftertbnbayar() {
-        const header = document.querySelector(".header-scene");
-        if (!header) return;
-
-        const y = header.offsetHeight;
-        window.scrollTo({
-          top: y,
-          behavior: "smooth",
-        });
-      }
-      // ===== Fokus Tab Awal =====
-      function setMoneyButtonsTabIndex() {
-        btnPlus.setAttribute("tabindex", "0");
-        btnPlus.focus();
-        quantityDisplay.setAttribute("tabindex", "1");
-        moneyButtonsContainer
-          .querySelectorAll("button")
-          .forEach((b) => b.setAttribute("tabindex", "2"));
-        scrollTopBtn.setAttribute("tabindex", "99");
-      }
-
-      // ===== Fokus Tab Setelah Menu Dipilih =====
-      function setMoneyButtonsTabIndexAfterMenu() {
-        btnPlus.setAttribute("tabindex", "0"); // Pilih Jajan
-        // Hapus tabindex quantityDisplay
-        quantityDisplay.removeAttribute("tabindex");
-        // Hapus tombol plus/minus dari tab
-        btnQuantityMinus.setAttribute("tabindex", "-1");
-        btnQuantityPlus.setAttribute("tabindex", "-1");
-
-        // Tombol uang fokusable setelah Pilih Jajan
-        moneyButtonsContainer
-          .querySelectorAll("button")
-          .forEach((b, i) => b.setAttribute("tabindex", 1 + i));
-
-        scrollTopBtn.setAttribute("tabindex", 99); // tombol scroll/restart
-      }
-
-      // ===== Inisialisasi Awal =====
-      async function playIntroAudio() {
-        // hentikan semua TTS dan audio sebelumnya
-        window.speechSynthesis.cancel();
-
-        // mainkan audio intro dan tunggu selesai
-        await playAudioAsync("audio/kasir_audio/awal.mp3");
-      }
-
-      // saat load
-      window.addEventListener("load", async () => {
-        await playIntroAudio(); // tunggu audio intro selesai
-        setMoneyButtonsTabIndex();
-        btnPlus.disabled = false; // hidupkan tombol setelah selesai
-      });
-
-      // ===== Tombol Scroll Top / Restart =====
-      scrollTopBtn.addEventListener("focus", () => {
-        playVerbalFeedback(
-          "Tombol kembali ke awal. Tekan Enter untuk mengulang permainan."
-        );
-      });
-      scrollTopBtn.addEventListener("click", () => {
-        restartGame();
-      });
-      function restartGame() {
-        window.speechSynthesis.cancel();
-        playVerbalFeedback(
-          "Game diulang. Tekan Pilih Jajan untuk memulai lagi."
-        );
-        startGame();
-      }
-
-      function startGame() {
-        basePrice = 0;
-        itemQuantity = 0;
-        itemPrice = 0;
-        totalPaid = 0;
-        menuAktif = false;
-
-        // Reset tampilan
-        itemNameDisplay.textContent = 'Tekan "Pilih Jajan"';
-        itemGambarDisplay.innerHTML = "";
-        itemPriceDisplay.textContent = "";
-        quantityDisplay.textContent = "0";
-
-        // Sembunyikan elemen aktif
-        moneyButtonsContainer.classList.add("hidden");
-        document.getElementById("quantityControls").classList.add("hidden");
-        btnProceedPayment.classList.add("hidden");
-
-        // Reset keranjang lokal
-        localStorage.removeItem("cartItems");
-        renderKeranjang();
-
-        // Set fokus awal
-        setMoneyButtonsTabIndex();
-      }
-
-      // ===== Tombol Back =====
-      document.getElementById("btnBack").addEventListener("click", () => {
-        const mode = localStorage.getItem("gameMode") || "audio";
-        window.location.href = `menu.html?mode=${mode}`;
-      });
-      // stop audio on refresh
-      window.addEventListener("beforeunload", () => {
-        // hentikan TTS
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-
-        // hentikan audio global
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-          currentAudio = null;
-        }
-
-        // hentikan audio lainnya jika ada
-        [audioJumlah, audioTab, audioKeranjang].forEach((a) => {
-          if (a && !a.paused) {
-            a.pause();
-            a.currentTime = 0;
-          }
-        });
-      });
-
-      window.addEventListener("load", () => {
-        startGame(); // reset semua saat halaman dibuka/reload
-        window.scrollTo({ top: 0, behavior: "instant" });
-      });
-
-      window.addEventListener("beforeunload", () => {
-        localStorage.removeItem("cartItems"); // hapus keranjang saat refresh/close
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      });
-
-      // Tekan keyboard (Enter / Space)
-      document.addEventListener("keydown", (e) => {
-        const tag = document.activeElement.tagName;
-        if (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(tag)) {
-          e.preventDefault(); // cegah default scroll ke atas
-          // ganti ke halaman menu
-          window.location.href = `menu.html?mode=${mode}`;
-        }
-      });
-      // ================= KERANJANG =================
-
-      // Tombol Tambah ke Keranjang
-      const btnAddToCart = document.getElementById("btnAddToCart");
-
-      // Fokus → mainkan audio keranjang
-      btnAddToCart.addEventListener("focus", () => {
-        audioKeranjang.currentTime = 0;
-        audioKeranjang.play().catch((err) => console.error(err));
-      });
-
-      // Enter → tambahkan ke keranjang + mainkan audio lanjut bayar
-      btnAddToCart.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter") return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Tambah ke keranjang
-        const itemName = itemNameDisplay.textContent;
-        const itemImg = itemGambarDisplay.querySelector("img")?.src || "";
-        const qty = itemQuantity;
-        const price = basePrice;
-
-        let cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-        const existing = cart.find((item) => item.name === itemName);
-
-        if (existing) {
-          existing.qty += qty;
-        } else {
-          cart.push({ name: itemName, img: itemImg, price, qty });
-        }
-
-        localStorage.setItem("cartItems", JSON.stringify(cart));
-        renderKeranjang();
-
-        // Audio aman
-        playAudioAsync("audio/kasir_audio/lanjut_bayar.mp3");
-
-        // Pastikan keranjang bisa fokus
-        keranjangSection.setAttribute("tabindex", "0");
-
-        // Scroll ke keranjang dan fokus ke container
-        keranjangSection.scrollIntoView({ behavior: "smooth" });
-        keranjangSection.focus(); // sekarang keranjang bisa menerima keyboard
-      });
-      // total keranjang
-      function getTotalKeranjang() {
-        const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-        return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-      }
-
-      // Fungsi render keranjang
-      function renderKeranjang() {
-        const listKeranjang = document.getElementById("listKeranjang");
-        const keranjangSection = document.getElementById("keranjangSection");
-
-        let cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-
-        if (cart.length === 0) {
-          keranjangSection.classList.add("hidden");
-          listKeranjang.innerHTML = "";
-          return;
-        }
-
-        keranjangSection.classList.remove("hidden");
-        listKeranjang.innerHTML = "";
-
-        cart.forEach((item) => {
-          const row = document.createElement("div");
-          row.className =
-            "flex items-center justify-between p-3 bg-gray-100 rounded-lg";
-
-          row.innerHTML = `
-            <div class="flex items-center gap-3">
-              <img src="${item.img}" class="w-12 h-12 rounded object-cover">
-              <div>
-                <p class="font-semibold">${item.name}</p>
-                <p class="text-sm text-gray-600">Qty: ${item.qty}</p>
-              </div>
-            </div>
-            <p class="font-bold">${item.price * item.qty}</p>
-          `;
-
-          listKeranjang.appendChild(row);
-        });
-      }
-
-      // ================= Audio Fokus / Enter =================
-      const keranjangSection = document.getElementById("keranjangSection");
-      const audioKeranjang = new Audio("audio/kasir_audio/keranjang.mp3"); // audio fokus Tab
-
-      // Render keranjang awal saat load
-      renderKeranjang();
-
-      // reset
-      function resetMenuForNextChoice() {
-        menuAktif = false;
-        loadingMenu = false;
-        btnPlus.disabled = false; // pastikan tombol hidup
-        itemNameDisplay.textContent = 'Tekan "Pilih Jajan"';
-        itemGambarDisplay.innerHTML = "";
-        itemPriceDisplay.textContent = "";
-        quantityDisplay.textContent = "0";
-
-        // sembunyikan elemen lain
-        document.getElementById("quantityControls").classList.add("hidden");
-        btnProceedPayment.classList.add("hidden");
-        moneyButtonsContainer.classList.add("hidden");
-      }
     </script>
   </body>
 </html>

@@ -339,6 +339,7 @@
           <div id="targetImage"></div>
           <div id="gridContainer" class="grid"></div>
         </div>
+        <div id="finishScreen" style="display: none"></div>
 
         <div id="feedback"></div>
         <button
@@ -509,13 +510,13 @@
       function playAudio(src) {
         return new Promise((resolve) => {
           // stop audio sebelumnya
-          if (window.currentAudio) {
-            window.currentAudio.pause();
-            window.currentAudio.currentTime = 0;
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
           }
 
           const audio = new Audio(src);
-          window.currentAudio = audio;
+          currentAudio = audio;
           audio.volume = 1;
 
           audio.onended = () => {
@@ -528,33 +529,6 @@
 
           audio.play().catch(() => resolve());
         });
-      }
-
-      function speak(text, onEnd = null) {
-        // Hentikan audio file dulu
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-        }
-
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = "id-ID";
-
-        if (onEnd) {
-          utter.onend = onEnd;
-        }
-
-        window.speechSynthesis.speak(utter);
-      }
-
-      function stopAllSound() {
-        window.speechSynthesis.cancel();
-
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-          currentAudio = null;
-        }
       }
 
       // ================== START ==================
@@ -596,7 +570,7 @@
         lastQuestion = null;
 
         updateDisplay();
-        loadRound(false);
+        loadRound(false, true);
       }
 
       function updateDisplay() {
@@ -615,7 +589,7 @@
       let currentChoices = [];
       let currentAnswer = "";
 
-      async function loadRound(repeat = false) {
+      async function loadRound(repeat = false, isFirstRound = false) {
         if (!gameRunning || finishedGame) return;
 
         stopSpeak();
@@ -661,9 +635,11 @@
         });
 
         // ✅ TTS dengan await agar soal berikutnya terdengar
-        if (isVisualMode() && allowVoice && !finishedGame) {
-          await playAudio("audio/match_audio/cari_barang.mp3");
-          speak(`${correctKey} rupiah`);
+        if (!isFirstRound) {
+          if (isVisualMode() && allowVoice && !finishedGame) {
+            await playAudio("audio/match_audio/cari_barang.mp3");
+            speak(`${correctKey} rupiah`);
+          }
         }
       }
 
@@ -750,8 +726,23 @@
         }
         updateDisplay();
       }
+
+      // palyaudiosafe
+      async function playAudioSafe(src) {
+        // stop audio sebelumnya
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+        }
+
+        // jeda kecil agar browser siap
+        await new Promise((r) => setTimeout(r, 30));
+
+        // play audio baru
+        return playAudio(src);
+      }
+
       async function showFinishScreen(win = true) {
-        stopAllSound(); // hentikan audio sebelumnya
         gameRunning = false;
 
         if (win) {
@@ -770,10 +761,14 @@
         ">Restart Game</button>
       </div>
     `;
+          stopAllSound();
+          allowVoice = false;
+          stopSpeak();
 
           if (isVisualMode()) {
             // ⚡ langsung await, jangan pakai IIFE
-            await playAudio("audio/match_visual/selamat.mp3");
+            await playAudio(""),
+              await playAudio("audio/match_visual/selamat.mp3");
             await playAudio("audio/match_visual/restart.mp3");
           }
         } else {
@@ -792,6 +787,9 @@
         ">Restart Game</button>
       </div>
     `;
+          stopAllSound();
+          allowVoice = false;
+          stopSpeak();
 
           if (isVisualMode()) {
             await playAudio("audio/match_visual/gagal.mp3");
@@ -847,6 +845,18 @@
       window.addEventListener("load", () => {
         window.scrollTo({ top: 0, behavior: "instant" });
       });
+
+      function stopAllSound() {
+        window.speechSynthesis.cancel();
+
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
+        }
+      }
+
+      // scrolltoafterheader
       function scrollToAfterHeader() {
         const target = document.getElementById("instruction");
         if (!target) return;

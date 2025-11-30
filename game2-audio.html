@@ -828,6 +828,9 @@
         gameArea.style.display = "block";
         refreshGameElements();
         startGame();
+        setTimeout(() => {
+          scrollToAfterHeader();
+        }, 200);
       });
 
       // ================== BACK BUTTON ==================
@@ -843,6 +846,18 @@
       window.addEventListener("beforeunload", () => {
         if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       });
+
+      function scrollToAfterHeader() {
+        const target = document.getElementById("instruction");
+        if (!target) return;
+
+        const y = target.getBoundingClientRect().top + window.scrollY - 20;
+
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
     </script>
   </body>
 </html>
