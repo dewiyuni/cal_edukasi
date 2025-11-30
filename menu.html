@@ -84,17 +84,20 @@
     <button class="back-btn" id="btnBack">
       <i class="fas fa-arrow-left"></i>
     </button>
-
+    <!-- AUDIO PLAYER -->
+    <audio id="audioPlayer"></audio>
     <script>
       const params = new URLSearchParams(window.location.search);
-      const mode = params.get("mode") || localStorage.getItem("gameMode");
+      const mode =
+        params.get("mode") || localStorage.getItem("gameMode") || "visual";
 
       const modeText = document.getElementById("modeText");
       const btnKasir = document.getElementById("btnKasir");
       const btnUang = document.getElementById("btnUang");
       const backBtn = document.getElementById("btnBack");
+      const audioPlayer = document.getElementById("audioPlayer");
 
-      // ========== SET MODE ==========
+      // ====== SET MODE ======
       if (mode === "audio") {
         modeText.textContent = "Mode Aktif: 🔊 Audio";
         btnKasir.href = "kasir-audio.html";
@@ -104,52 +107,44 @@
         btnKasir.href = "kasir-visual.html";
         btnUang.href = "game2-visual.html";
       }
+      // ====== PLAY AUDIO FUNCTION ======
+      function playAudio(file) {
+        if (mode !== "audio") return;
 
-      // ========== SPEAK FUNCTION ==========
-      function speak(text) {
-        if (!window.speechSynthesis) return;
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = "id-ID";
-        speechSynthesis.cancel();
-        speechSynthesis.speak(msg);
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        audioPlayer.src = file;
+        audioPlayer.play().catch(() => {});
       }
-      // ========== HENTIKAN SUARA SAAT PINDAH HALAMAN / TAB ==========
+
+      // ====== STOP AUDIO KETIKA PINDAH HALAMAN ======
       document.addEventListener("visibilitychange", () => {
-        if (document.hidden && window.speechSynthesis) {
-          speechSynthesis.cancel();
+        if (document.hidden) {
+          audioPlayer.pause();
+          audioPlayer.currentTime = 0;
         }
       });
 
-      // ========== KHUSUS MODE AUDIO ==========
+      // ====== MODE AUDIO ======
       if (mode === "audio") {
         const focusable = [btnKasir, btnUang];
 
-        // Auto focus ke tombol pertama
-        setTimeout(() => {
-          btnKasir.focus();
-        }, 300);
+        setTimeout(() => btnKasir.focus(), 300);
 
         // Suara otomatis saat halaman muncul
         setTimeout(() => {
-          speak(
-            "Menu game. Anda berada di Tombol mulai game kasir. Tekan tab untuk ke game uang match."
-          );
+          playAudio("audio/menu/menu_awal.mp3");
         }, 500);
 
-        // Suara saat fokus
         btnKasir.addEventListener("focus", () => {
-          speak(
-            "Anda berada di Tombol mulai game kasir. Tekan enter untuk memulai. Tekan tab untuk ke game uang match."
-          );
+          playAudio("audio/menu/menu_kasir.mp3");
         });
 
         btnUang.addEventListener("focus", () => {
-          speak(
-            "Anda berada di Tombol mulai game uang match. Tekan enter untuk memulai. Tekan tab untuk ke game kasir."
-          );
+          playAudio("audio/menu/menu_match.mp3");
         });
 
-        // ENTER agar bisa jalan dari keyboard
+        // ENTER
         btnKasir.addEventListener("keydown", (e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -167,55 +162,39 @@
         // TAB muter hanya di 2 tombol
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Tab") return;
-
           e.preventDefault();
-
           const active = document.activeElement;
           let index = focusable.indexOf(active);
-
-          if (e.shiftKey) {
-            index--;
-            if (index < 0) index = focusable.length - 1;
-          } else {
-            index++;
-            if (index >= focusable.length) index = 0;
-          }
-
+          if (e.shiftKey) index--;
+          else index++;
+          if (index < 0) index = focusable.length - 1;
+          if (index >= focusable.length) index = 0;
           focusable[index].focus();
+        });
+
+        // BACKSPACE - FIXED
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace") {
+            e.preventDefault(); // <<< PENTING
+            playAudio("audio/menu/kembali.mp3");
+
+            // optional: pindah halaman setelah suara
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 500);
+          }
         });
       }
 
-      // Klik mouse
+      // ====== BACK BUTTON ======
       backBtn.addEventListener("click", () => {
         window.location.href = "index.html";
       });
 
-      // Tekan keyboard (Enter / Space)
-      document.addEventListener("keydown", (e) => {
-        const tag = document.activeElement.tagName;
-
-        if (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(tag)) {
-          e.preventDefault();
-
-          if (mode === "audio") {
-            speak("Kembali ke halaman utama");
-          }
-
-          window.location.href = "index.html";
-        }
-      });
-
-      if (mode === "audio") {
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Backspace") {
-            speak("Kembali ke halaman utama");
-          }
-        });
-      }
-
       // stop audio on refresh
       window.addEventListener("beforeunload", () => {
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
       });
     </script>
   </body>

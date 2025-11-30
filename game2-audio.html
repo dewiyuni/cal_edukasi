@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jodohkan Gambar - HP & Laptop Aksesibel</title>
+    <title>Jodohkan Gambar</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <style>
       :root {
         --primary-bg: #fef3c7;
@@ -17,6 +18,7 @@
         --display-blue: #3182ce;
         --font-inter: "Inter", sans-serif;
       }
+
       body {
         font-family: "Poppins", sans-serif;
         background: #fff7ed;
@@ -25,6 +27,7 @@
         justify-content: center;
         align-items: flex-start;
       }
+
       .container {
         width: 100%;
         max-width: 1100px;
@@ -33,6 +36,7 @@
         padding: 10px 20px;
         box-sizing: border-box;
       }
+
       .header-scene {
         position: relative;
         overflow: hidden;
@@ -45,6 +49,7 @@
         color: white;
         padding: 20px;
       }
+
       .moving-bg {
         position: absolute;
         top: 0;
@@ -58,6 +63,7 @@
         animation: moveBackground 25s linear infinite;
         z-index: 0;
       }
+
       @keyframes moveBackground {
         0% {
           background-position: 0 0;
@@ -66,6 +72,7 @@
           background-position: -1000px 0;
         }
       }
+
       main {
         background: white;
         padding: 20px;
@@ -77,6 +84,7 @@
         box-sizing: border-box;
         position: relative;
       }
+
       .cashier-img {
         position: relative;
         z-index: 1;
@@ -90,6 +98,7 @@
         align-items: center;
         border: 4px solid #ff7b00;
       }
+
       .cashier-text {
         color: white;
         font-size: 18px;
@@ -97,12 +106,15 @@
         text-align: center;
         line-height: 1.2;
       }
+
       .title {
         font-size: 28px;
         font-weight: 800;
         color: #ff7b00;
         margin-bottom: 10px;
       }
+
+      /* --- INFO BOX AWAL --- */
       .info-box {
         display: flex;
         justify-content: space-between;
@@ -115,6 +127,8 @@
         font-size: 18px;
         box-shadow: 4px 4px 0 #ffa726;
       }
+
+      /* --- FLOATING INFO --- */
       #floatingInfo {
         position: fixed;
         top: 10px;
@@ -132,9 +146,11 @@
         opacity: 0;
         transition: opacity 0.3s ease;
       }
+
       #floatingInfo.visible {
         opacity: 1;
       }
+
       .start-container button {
         padding: 12px 18px;
         font-size: 18px;
@@ -146,15 +162,18 @@
         cursor: pointer;
         margin-bottom: 20px;
       }
+
       .start-container button:hover {
         background: #ffe28a;
         transform: scale(1.05);
         transition: 0.2s;
       }
+
       #gameArea {
         display: none;
         width: 100%;
       }
+
       .grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -162,6 +181,7 @@
         margin-top: 20px;
         width: 100%;
       }
+
       .choice {
         background: white;
         border: 3px solid #ffa726;
@@ -171,9 +191,11 @@
         box-shadow: 4px 4px 0 #ffb74d;
         transition: 0.15s;
       }
+
       .choice:hover {
         transform: scale(1.07);
       }
+
       .choice img {
         width: 100%;
         height: 140px;
@@ -183,6 +205,7 @@
       .choice:focus {
         outline: 4px solid blue;
       }
+
       #targetImage img {
         width: 40%;
         max-width: 300px;
@@ -197,11 +220,13 @@
         border-color: #4ade80 !important;
         box-shadow: 4px 4px 0 #22c55e !important;
       }
+
       .wrong {
         animation: shake 0.3s;
         border-color: #ef4444 !important;
         box-shadow: 4px 4px 0 #dc2626 !important;
       }
+
       @keyframes shake {
         0% {
           transform: translateX(0);
@@ -219,6 +244,7 @@
           transform: translateX(0);
         }
       }
+
       #feedback {
         font-size: 24px;
         font-weight: bold;
@@ -231,6 +257,7 @@
         opacity: 0;
         transform: scale(0.8);
       }
+
       #feedback.correct {
         color: #22c55e;
         background: #d1fae5;
@@ -238,6 +265,7 @@
         opacity: 1;
         transform: scale(1);
       }
+
       #feedback.wrong {
         color: #ef4444;
         background: #fee2e2;
@@ -269,9 +297,12 @@
   </head>
   <body>
     <div class="container">
-      <button id="btnBack" class="back-btn" tabindex="0">
+      <!-- button back -->
+      <button id="btnBack" class="back-btn">
         <i class="fas fa-arrow-left"></i>
       </button>
+
+      <!-- Header -->
       <header class="header-scene">
         <div class="moving-bg"></div>
         <div class="moving-bg"></div>
@@ -279,43 +310,51 @@
           <span class="cashier-text">Uang<br />Match</span>
         </div>
       </header>
+
       <main>
         <h1 class="title">Menjodohkan Gambar 🍱✨</h1>
+
+        <!-- INFO BOX AWAL -->
         <div class="info-box" id="judulGame">
           <p>Skor: <span id="score">0</span></p>
           <p>Nyawa: <span id="lives">❤️❤️❤️</span></p>
           <p>Level: <span id="level">1</span></p>
         </div>
+
+        <!-- FLOATING INFO -->
         <div id="floatingInfo">
           <p>Skor: <span id="scoreFloat">0</span></p>
           <p>Nyawa: <span id="livesFloat">❤️❤️❤️</span></p>
           <p>Level: <span id="levelFloat">1</span></p>
         </div>
+
         <div class="start-container">
           <button id="startBtn" tabindex="0" aria-label="Mulai Permainan">
             Mulai Permainan
           </button>
         </div>
+
         <div id="gameArea">
-          <h2 id="instruction">Cari gambar yang sama</h2>
+          <h2 id="instruction">cari gambar dengan harga yang sama</h2>
           <div id="targetImage"></div>
           <div id="gridContainer" class="grid"></div>
         </div>
+        <div id="finishScreen" style="display: none"></div>
+
         <div id="feedback"></div>
+        <p id="sr-only" style="position: absolute; left: -9999px"></p>
       </main>
     </div>
 
     <script>
-      // SINGLE SPEAK UTILITY
-      function speak(text, onEnd = null, skipCancel = false) {
-        if (!("speechSynthesis" in window)) return;
-        if (!skipCancel) window.speechSynthesis.cancel(); // hanya cancel kalau bukan welcome
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = "id-ID";
-        msg.rate = 0.95;
-        msg.pitch = 1;
-        if (onEnd) msg.onend = onEnd;
-        window.speechSynthesis.speak(msg);
+      let allowVoice = true;
+      let finishedGame = false;
+      let totalCorrect = 0;
+      let lastQuestion = null;
+
+      // ================== MODE & SPEECH ==================
+      function isAudioMode() {
+        return localStorage.getItem("gameMode") === "audio";
       }
 
       function stopSpeak() {
@@ -323,7 +362,10 @@
           window.speechSynthesis.cancel();
         }
       }
-      // === DATA (tetap di luar) ===
+
+      let isSpeaking = false;
+
+      // ================== DATA ==================
       const moneyImages = {
         1000: "img/1000.png",
         2000: "img/2000.png",
@@ -333,20 +375,19 @@
         50000: "img/50000.png",
         100000: "img/100000.png",
       };
+
       const itemImages = {
         1000: [
           { src: "img/permen.jpg", label: "Permen" },
           { src: "img/ballon.png", label: "Balon" },
           { src: "img/pensil-mini.png", label: "Pensil Mini" },
         ],
-
         2000: [
           { src: "img/bengbeng.jpeg", label: "Beng-beng" },
           { src: "img/nabati.jpeg", label: "Nabati" },
           { src: "img/tango.jpeg", label: "Tango" },
           { src: "img/penghapus.jpeg", label: "Penghapus" },
         ],
-
         5000: [
           { src: "img/coklat.png", label: "Coklat" },
           { src: "img/chikitwist.jpeg", label: "Chiki Twist" },
@@ -355,567 +396,453 @@
           { src: "img/gelang.png", label: "Gelang" },
           { src: "img/jepit.jpg", label: "Jepit Rambut" },
         ],
-
         10000: [
           { src: "img/cake.jpg", label: "Kue" },
           { src: "img/frenchfries.jpeg", label: "Kentang Goreng" },
           { src: "img/nescafe.jpeg", label: "Nescafe" },
           { src: "img/kaoskaki.jpeg", label: "Kaos Kaki" },
         ],
-
         20000: [
           { src: "img/botol.jpeg", label: "Botol Minum" },
           { src: "img/topi.jpg", label: "Topi" },
           { src: "img/sendal.jpeg", label: "Sandal" },
         ],
-
         50000: [
           { src: "img/boneka.png", label: "Boneka" },
           { src: "img/jashujan.jpeg", label: "Jas Hujan" },
           { src: "img/tas.png", label: "Tas" },
         ],
-
         100000: [
           { src: "img/mobil.jpeg", label: "Mobil Mainan" },
           { src: "img/sepatu.jpeg", label: "Sepatu" },
         ],
       };
 
-      // === STATE DEFAULTS ===
+      function formatRupiahText(value) {
+        switch (Number(value)) {
+          case 1000:
+            return "1 ribu rupiah";
+          case 2000:
+            return "2 ribu rupiah";
+          case 5000:
+            return "5 ribu rupiah";
+          case 10000:
+            return "10 ribu rupiah";
+          case 20000:
+            return "20 ribu rupiah";
+          case 50000:
+            return "50 ribu rupiah";
+          case 100000:
+            return "100 ribu rupiah";
+          default:
+            return `${Number(value).toLocaleString()} rupiah`;
+        }
+      }
+
+      // ================== GAME STATE ==================
       let score = 0,
         level = 1,
         lives = 3,
-        totalCorrect = 0,
-        finishedGame = false,
-        lastQuestion = null,
         gameRunning = false;
 
-      // DOM setup after DOM ready
-      document.addEventListener("DOMContentLoaded", () => {
-        // grab elements
-        const scoreDisplay = document.getElementById("score");
-        const livesDisplay = document.getElementById("lives");
-        const levelDisplay = document.getElementById("level");
-        const scoreFloatDisplay = document.getElementById("scoreFloat");
-        const livesFloatDisplay = document.getElementById("livesFloat");
-        const levelFloatDisplay = document.getElementById("levelFloat");
-        let startBtn = document.getElementById("startBtn");
-        let targetImage = document.getElementById("targetImage");
-        let gridContainer = document.getElementById("gridContainer");
-        let gameArea = document.getElementById("gameArea");
-        let feedbackDisplay = document.getElementById("feedback");
-        const titleEl = document.querySelector(".title");
-        let backBtn = document.getElementById("btnBack");
-        // expose to outer scope if needed by other funcs (some functions below use these names)
-        window.startBtn = startBtn;
-        window.targetImage = targetImage;
-        window.gridContainer = gridContainer;
-        window.gameArea = gameArea;
-        window.feedbackDisplay = feedbackDisplay;
-        // Batasi TAB hanya antara dua tombol ini
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Tab") return;
+      const scoreDisplay = document.getElementById("score");
+      const livesDisplay = document.getElementById("lives");
+      const levelDisplay = document.getElementById("level");
+      const startBtn = document.getElementById("startBtn");
+      const targetImage = document.getElementById("targetImage");
+      const gridContainer = document.getElementById("gridContainer");
+      const gameArea = document.getElementById("gameArea");
+      const feedbackDisplay = document.getElementById("feedback");
+      const restartBtn = document.getElementById("restartBtn");
 
-          const focusables = [backBtn, startBtn];
-          const currentIndex = focusables.indexOf(document.activeElement);
+      let currentAudio = null;
 
-          // Cegah fokus ke elemen aneh sebelum game mulai
-          if (!gameRunning) {
-            document
-              .querySelectorAll(".title, .info-box, #floatingInfo")
-              .forEach((el) => el.setAttribute("tabindex", "-1"));
-          }
-
-          if (e.shiftKey) {
-            if (currentIndex === 0) {
-              e.preventDefault();
-              focusables[1].focus();
-            }
-          } else {
-            if (currentIndex === 1) {
-              e.preventDefault();
-              focusables[0].focus();
-            }
-          }
-        });
-
-        // accessibility: allow focus on info items
-        titleEl.setAttribute("tabindex", "0");
-        scoreDisplay.parentElement.setAttribute("tabindex", "0");
-        livesDisplay.parentElement.setAttribute("tabindex", "0");
-        levelDisplay.parentElement.setAttribute("tabindex", "0");
-
-        // welcome voice once
-        window.addEventListener("load", () => {
-          speak(
-            "Selamat datang di game menjodohkan gambar.",
-            () => {
-              startBtn.focus();
-              speak(
-                "Fokus ke tombol mulai permainan. Tekan Enter untuk memulai."
-              );
-            },
-            true // skipCancel
-          );
-        });
-
-        // focus voice handlers
-        titleEl.addEventListener("focus", () => {
-          speak("Judul permainan: Menjodohkan Gambar");
-        });
-        startBtn.addEventListener("focus", () => {
-          speak("Tombol mulai permainan. Tekan Enter untuk memulai permainan.");
-        });
-        // Suara saat fokus ke tombol BACK
-        backBtn.addEventListener("focus", () => {
-          speak("Tombol kembali. Tekan Enter untuk kembali ke menu.");
-        });
-        // start button actions
-        startBtn.addEventListener("click", () => {
-          startBtn.style.display = "none";
-          gameArea.style.display = "block";
-          // Aktifkan tab untuk elemen game setelah mulai
-          document.querySelectorAll(".choice").forEach((el) => {
-            el.setAttribute("tabindex", "0");
-          });
-
-          startGame();
-          // ✅ Tunggu sedikit biar layout muncul dulu
-          setTimeout(() => {
-            scrollToAfterHeader();
-          }, 200);
-
-          if (isVisualMode()) {
-            setTimeout(() => {
-              speak(
-                "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
-              );
-            }, 500);
-          }
-        });
-        startBtn.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            startBtn.click();
-          }
-        });
-
-        // BACK TO MENU
-        backBtn.addEventListener("click", () => {
-          window.location.href = "menu.html?mode=audio";
-        });
-
-        // Keyboard (ENTER / SPACE)
-        backBtn.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            window.location.href = "menu.html?mode=audio";
-          }
-        });
-
-        // GAME FUNCTIONS (use closures to access local elements)
-        function updateDisplay() {
-          scoreDisplay.textContent = score;
-          levelDisplay.textContent = level;
-          scoreFloatDisplay.textContent = score;
-          levelFloatDisplay.textContent = level === "Selesai" ? "✅" : level;
-          livesDisplay.textContent = "❤️".repeat(lives);
-          livesFloatDisplay.textContent = "❤️".repeat(lives);
+      // ================== AUDIO & TTS ==================
+      function stopAllSound() {
+        stopSpeak();
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
         }
+      }
 
-        function startGame() {
-          score = 0;
-          level = 1;
-          lives = 3;
-          gameRunning = true;
-          totalCorrect = 0;
-          finishedGame = false;
-          lastQuestion = null;
-          updateDisplay();
-          loadRound(false);
-        }
+      function playAudio(src) {
+        return new Promise((resolve) => {
+          stopAllSound();
+          const audio = new Audio(src);
+          currentAudio = audio;
+          audio.volume = 1;
+          audio.onended = resolve;
+          audio.onerror = resolve;
+          audio.play().catch(() => resolve());
+        });
+      }
 
-        function loadRound(repeat = false) {
-          if (!gameRunning || finishedGame) return;
-          stopSpeak();
+      function speakAsync(text) {
+        return new Promise((resolve) => {
+          stopAllSound();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = "id-ID";
+          utter.rate = 0.9;
+          utter.pitch = 1;
+          utter.onend = resolve;
+          window.speechSynthesis.speak(utter);
+        });
+      }
 
-          // ambil semua key uang
+      // ================== START GAME ==================
+      function startGame() {
+        score = 0;
+        level = 1;
+        lives = 3;
+        totalCorrect = 0;
+        gameRunning = true;
+        finishedGame = false;
+        lastQuestion = null;
+
+        updateDisplay();
+        loadRound();
+      }
+
+      function updateDisplay() {
+        scoreDisplay.textContent = score;
+        levelDisplay.textContent = level;
+        livesDisplay.textContent = "❤️".repeat(lives);
+      }
+      function refreshGameElements() {
+        window.targetImage = document.getElementById("targetImage");
+        window.gridContainer = document.getElementById("gridContainer");
+        window.feedbackDisplay = document.getElementById("feedback");
+      }
+
+      // ================== GAME ROUND ==================
+      async function loadRound(repeat = false) {
+        refreshGameElements();
+        if (!gameRunning || finishedGame) return;
+        stopAllSound();
+
+        if (!repeat) {
           const keys = Object.keys(moneyImages);
+          const correctKey = keys[Math.floor(Math.random() * keys.length)];
+          currentAnswer = correctKey;
 
-          if (!repeat) {
-            const correctKey = keys[Math.floor(Math.random() * keys.length)];
-            const otherKeys = keys.filter((k) => k !== correctKey);
-            const choicesKeys = otherKeys
-              .sort(() => Math.random() - 0.5)
-              .slice(0, 2);
-            choicesKeys.push(correctKey);
-            choicesKeys.sort(() => Math.random() - 0.5);
-            lastQuestion = { correctKey, choicesKeys };
-          }
+          const otherKeys = keys.filter((k) => k !== correctKey);
+          const choicesKeys = otherKeys
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 2);
+          choicesKeys.push(correctKey);
+          choicesKeys.sort(() => Math.random() - 0.5);
 
-          const { correctKey, choicesKeys } = lastQuestion;
-          window.currentAnswer = correctKey;
+          lastQuestion = { correctKey, choicesKeys };
+        }
 
-          // tampilkan gambar uang target
-          targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey} rupiah">`;
+        const { correctKey, choicesKeys } = lastQuestion;
+        targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />`;
+        gridContainer.innerHTML = "";
 
-          gridContainer.innerHTML = "";
-          let allChoicesVoice = "";
+        const choiceItems = [];
 
-          choicesKeys.forEach((key, index) => {
-            // ambil array item untuk harga ini
-            const items = itemImages[key];
+        for (let index = 0; index < choicesKeys.length; index++) {
+          const key = choicesKeys[index];
+          const items = itemImages[key];
+          const randomItem = items[Math.floor(Math.random() * items.length)];
+          choiceItems.push({ key, randomItem });
 
-            // jika tidak ada item untuk key ini, buat placeholder sederhana agar tidak error
-            if (!items || !Array.isArray(items) || items.length === 0) {
-              const divPlaceholder = document.createElement("div");
-              divPlaceholder.className = "choice";
-              divPlaceholder.setAttribute("tabindex", "0");
-              divPlaceholder.innerHTML = `
-        <div style="padding:20px;">Tidak ada barang</div>
-        <p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">
-          Rp ${Number(key).toLocaleString()}
-        </p>
-      `;
-              divPlaceholder.addEventListener("click", () =>
-                speak("Tidak ada barang untuk pilihan ini")
-              );
-              divPlaceholder.addEventListener("focus", () =>
-                speak(
-                  `Pilihan ${index + 1}: tidak ada barang, harga ${key} rupiah`
-                )
-              );
-              gridContainer.appendChild(divPlaceholder);
-              allChoicesVoice += `Pilihan ${
-                index + 1
-              }: tidak ada barang, harga ${key} rupiah. `;
-              return;
-            }
-
-            // ambil item random dari array
-            const randomItem = items[Math.floor(Math.random() * items.length)];
-
-            const div = document.createElement("div");
-            div.className = "choice";
-            div.setAttribute("tabindex", "0");
-
-            // gunakan randomItem untuk label dan src
-            div.setAttribute(
-              "aria-label",
-              `Pilihan ${index + 1}: ${randomItem.label}, harga ${key} rupiah`
-            );
-
-            div.innerHTML = `
-      <img src="${randomItem.src}" alt="${randomItem.label}">
-      <p style="margin-top:8px;font-weight:bold;font-size:16px;color:#ff7b00;">
-        Rp ${Number(key).toLocaleString()}
-      </p>
-    `;
-
-            div.addEventListener("click", () =>
-              handleChoice(div, key, correctKey)
-            );
-            div.addEventListener("focus", () =>
-              speak(
-                `Pilihan ${index + 1}: ${randomItem.label}, harga ${key} rupiah`
-              )
-            );
-
-            gridContainer.appendChild(div);
-            allChoicesVoice += `Pilihan ${index + 1}: ${
+          const div = document.createElement("div");
+          div.className = "choice";
+          div.setAttribute("tabindex", "0");
+          div.setAttribute(
+            "aria-label",
+            `Pilihan ${index + 1}: ${
               randomItem.label
-            }, harga ${key} rupiah. `;
-          });
-
-          // sekarang bicara semua pilihan (panggil speak setelah semua dibuat)
-          speak(
-            `Cari barang dengan harga ${correctKey} rupiah. ${allChoicesVoice} Gunakan tombol angka 1 sampai ${choicesKeys.length} untuk memilih.`
+            }, harga ${formatRupiahText(key)}`
           );
+          div.innerHTML = `
+                              <img src="${randomItem.src}" alt="${
+            randomItem.label
+          }">
+                              <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+                                Rp ${Number(key).toLocaleString()}
+                              </p>
+                            `;
+          div.addEventListener("click", () =>
+            handleChoice(div, key, correctKey)
+          );
+          div.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") div.click();
+          });
+          gridContainer.appendChild(div);
         }
-
-        function handleChoice(div, selected, correct) {
+        // ================== PILIH PAKAI ANGKA 1,2,3 ==================
+        document.onkeydown = function (e) {
           if (!gameRunning) return;
-          stopSpeak();
-          if (selected == correct) {
-            div.classList.add("correct");
-            feedbackDisplay.textContent = "✅ Benar!";
-            feedbackDisplay.className = "correct";
-            speak("Benar");
-            score++;
-            totalCorrect++;
-            checkLevelUp();
-            setTimeout(() => {
-              feedbackDisplay.textContent = "";
-              feedbackDisplay.className = "";
-              if (!finishedGame) loadRound(false);
-            }, 1200);
-          } else {
-            div.classList.add("wrong");
-            feedbackDisplay.textContent = "❌ Salah, coba lagi";
-            feedbackDisplay.className = "wrong";
-            speak("Salah");
-            lives--;
-            updateDisplay();
-            if (lives <= 0) {
-              finishedGame = true;
-              gameRunning = false;
-              feedbackDisplay.textContent = "💀 Permainan berakhir!";
-              showFinishScreen(false);
-              return;
-            }
-            setTimeout(() => {
-              feedbackDisplay.textContent = "";
-              feedbackDisplay.className = "";
-              loadRound(true);
-            }, 1200);
-          }
-          updateDisplay(); // Saat load halaman
-        }
-        window.addEventListener("load", () => {
-          const wasGameOver = localStorage.getItem("gameOver");
-          if (wasGameOver === "true") {
-            feedbackDisplay.textContent = "💀 Permainan berakhir!";
-          }
-        });
+          // angka 1,2,3 di keyboard atas (kode 'Digit1','Digit2','Digit3')
+          // atau numpad (Numpad1, Numpad2, Numpad3)
+          let keyIndex = -1;
+          if (e.code === "Digit1" || e.code === "Numpad1") keyIndex = 0;
+          else if (e.code === "Digit2" || e.code === "Numpad2") keyIndex = 1;
+          else if (e.code === "Digit3" || e.code === "Numpad3") keyIndex = 2;
 
-        function checkLevelUp() {
-          if (finishedGame) return;
-          if (level === 1 && totalCorrect >= 3) {
-            level = 2;
-            speak(`Level 2`);
-            showLevelNotif(`Level ${level}`);
-          } else if (level === 2 && totalCorrect >= 5) {
-            level = 3;
-            speak(`Level3`);
-            showLevelNotif(`Level ${level}`);
-          } else if (level === 3 && totalCorrect >= 10) {
+          if (keyIndex !== -1) {
+            e.preventDefault();
+            const choiceDiv = gridContainer.children[keyIndex];
+            if (choiceDiv) {
+              choiceDiv.click();
+            }
+          }
+        };
+
+        if (isAudioMode()) {
+          await playAudio("audio/match_audio/cari_barang.mp3");
+          await speakAsync(formatRupiahText(correctKey));
+
+          // Audio & TTS tiap pilihan
+          for (let i = 0; i < choiceItems.length; i++) {
+            const { key, randomItem } = choiceItems[i];
+            await playAudio(`audio/match_audio/pilihan${i + 1}.mp3`);
+            await speakAsync(`${i + 1}. ${randomItem.label}`);
+            await playAudio("audio/match_audio/harga.mp3");
+            await speakAsync(formatRupiahText(key));
+          }
+          await playAudio("audio/match_audio/tombol.mp3");
+        }
+      }
+
+      // ================== HANDLE CHOICE ==================
+      function handleChoice(div, selected, correct) {
+        if (!gameRunning) return;
+        stopAllSound();
+        allowVoice = false;
+
+        if (selected === correct) {
+          div.classList.add("correct");
+          feedbackDisplay.textContent = "✅ Benar!";
+          feedbackDisplay.className = "correct";
+
+          score += 1;
+          totalCorrect++;
+          updateDisplay();
+
+          // CEK kalau sudah selesai game
+          let isFinalWin = false;
+          if (level === 1 && totalCorrect >= 3) level = 2;
+          else if (level === 2 && totalCorrect >= 5) level = 3;
+          else if (level === 3 && totalCorrect >= 7) isFinalWin = true;
+
+          if (isAudioMode()) {
+            playAudio("audio/match_audio/benar.mp3").then(() => {
+              // ======== KALAU SUDAH MENANG ========
+              if (isFinalWin) {
+                finishedGame = true;
+                gameRunning = false;
+                showFinishScreen(true); // ← audio selamat pasti bunyi
+                return;
+              }
+
+              // ======== LANJUT ROUND NORMAL ========
+              feedbackDisplay.textContent = "";
+              feedbackDisplay.className = "";
+              loadRound(false);
+            });
+          } else {
+            setTimeout(() => {
+              if (isFinalWin) {
+                finishedGame = true;
+                gameRunning = false;
+                showFinishScreen(true);
+                return;
+              }
+
+              feedbackDisplay.textContent = "";
+              feedbackDisplay.className = "";
+              loadRound(false);
+            }, 800);
+          }
+        } else {
+          div.classList.add("wrong");
+          feedbackDisplay.textContent = "❌ Salah";
+          feedbackDisplay.className = "wrong";
+          lives--;
+          updateDisplay();
+
+          if (isAudioMode()) playAudio("audio/match_audio/salah.mp3");
+
+          if (lives <= 0) {
             finishedGame = true;
             gameRunning = false;
-            // finish speech then show finish screen
-            speak("Semua level selesai", () => {
-              showFinishScreen(true);
-            });
-            showLevelNotif("Semua Level Selesai!");
+            feedbackDisplay.textContent = "💀 Permainan berakhir!";
+            showFinishScreen(false);
             return;
           }
-          updateDisplay();
-        }
 
-        let hasShownFinishNotif = false;
-        function showLevelNotif(text) {
-          if (hasShownFinishNotif) return;
-          // case-insensitive check for selesai/selesai words
-          if (
-            typeof text === "string" &&
-            text.toLowerCase().includes("selesai")
-          ) {
-            hasShownFinishNotif = true;
-          }
-          const notif = document.createElement("div");
-          notif.textContent = text.includes("Level")
-            ? `🎉 ${text}`
-            : `🏆 ${text}`;
-          const isFinish =
-            typeof text === "string" && text.toLowerCase().includes("selesai");
-          Object.assign(notif.style, {
-            background: isFinish ? "#d69e2e" : "#38a169",
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-            color: "white",
-            padding: "15px 25px",
-            fontSize: "24px",
-            borderRadius: "15px",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-            zIndex: 9999,
-            opacity: 0,
-            transition: "opacity 0.3s ease",
-          });
-          document.body.appendChild(notif);
-          requestAnimationFrame(() => (notif.style.opacity = 1));
           setTimeout(() => {
-            notif.style.opacity = 0;
-            setTimeout(() => notif.remove(), 300);
-          }, 2000);
+            feedbackDisplay.textContent = "";
+            feedbackDisplay.className = "";
+            loadRound(true);
+          }, 1200);
         }
+      }
 
-        // FINISH SCREEN
-        function showFinishScreen(win = true) {
+      // ================== LEVEL UP ==================
+      function checkLevelUp() {
+        if (level === 1 && totalCorrect >= 3) level = 2;
+        else if (level === 2 && totalCorrect >= 5) level = 3;
+        else if (level === 3 && totalCorrect >= 7) {
+          finishedGame = true;
           gameRunning = false;
-          // mark level display as finished (optional)
-          level = "Selesai";
-          updateDisplay();
-
-          gameArea.innerHTML = `
-                            <div id="finishScreen" style="text-align:center; padding:20px;">
-                              <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
-                              <p>${
-                                win
-                                  ? "Selamat! Kamu telah menyelesaikan semua level!"
-                                  : "Nyawa habis, coba lagi ya!"
-                              }</p>
-                              <div style="margin-top:12px;">
-                                <button id="restartBtnFinish" tabindex="0">Restart Game</button>
-                                <button id="backToMenuBtn" tabindex="0" style="margin-left:10px;">Kembali ke Menu</button>
-                              </div>
-                            </div>
-                          `;
-          const restartBtnFinish = document.getElementById("restartBtnFinish");
-          const backToMenuBtn = document.getElementById("backToMenuBtn");
-          // stop suara lama
-          stopSpeak();
-
-          // fokus dulu
-          setTimeout(() => {
-            restartBtnFinish.focus();
-          }, 200);
-
-          // suara setelah fokus
-          setTimeout(() => {
-            if (win) {
-              speak(
-                "Selamat! Kamu telah menyelesaikan semua level. Sekarang fokus di tombol restart. Tekan enter untuk mulai lagi. Tekan tab untuk ke tombol kembali"
-              );
-            } else {
-              speak(
-                "Game over. Nyawa kamu habis. Sekarang fokus di tombol restart. Tekan enter untuk main lagi.  Tekan tab untuk ke tombol kembali"
-              );
-            }
-          }, 500);
-
-          // auto focus restart
-          setTimeout(() => restartBtnFinish.focus(), 200);
-
-          // speak on focus
-          restartBtnFinish.addEventListener("focus", () => {
-            speak(
-              "Sekarang anda berada di Tombol restart. Tekan enter untuk memulai permainan lagi. Tekan tab untuk ke tombol kembali"
-            );
-          });
-          backToMenuBtn.addEventListener("focus", () => {
-            speak(
-              "Sekarang anda berada di Tombol kembali ke menu. Tekan enter untuk kembali. Tekan tab untuk ke tombol Restart Game"
-            );
-          });
-
-          // click / enter handlers
-          restartBtnFinish.addEventListener("click", restartGame);
-          restartBtnFinish.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              restartGame();
-            }
-          });
-          backToMenuBtn.addEventListener("click", () => {
-            stopSpeak();
-            setTimeout(() => {
-              window.location.href = "menu.html?mode=audio";
-            }, 100);
-          });
-
-          backToMenuBtn.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              stopSpeak();
-              setTimeout(() => {
-                window.location.href = "menu.html?mode=audio";
-              }, 100);
-            }
-          });
-
-          // focus trap inside finishScreen (only two buttons)
-          const focusable = [restartBtnFinish, backToMenuBtn];
-          document
-            .getElementById("finishScreen")
-            .addEventListener("keydown", (e) => {
-              if (e.key !== "Tab") return;
-              e.preventDefault();
-              let index = focusable.indexOf(document.activeElement);
-              if (e.shiftKey) {
-                index = index - 1;
-                if (index < 0) index = focusable.length - 1;
-              } else {
-                index = index + 1;
-                if (index >= focusable.length) index = 0;
-              }
-              focusable[index].focus();
-            });
+          stopAllSound();
+          showFinishScreen(true);
         }
+      }
 
-        function restartGame() {
-          stopSpeak();
+      // ============= set focus restart dan kembali ==================
+      function setFinishFocus() {
+        const restartBtn = document.getElementById("restartBtnFinish");
+        const backMenuBtn = document.getElementById("backMenuBtn");
 
-          // Hapus status gameOver dari localStorage
-          localStorage.removeItem("gameOver");
+        if (!restartBtn || !backMenuBtn) return;
 
-          // Restore state
-          score = 0;
-          lives = 3;
-          level = 1;
-          totalCorrect = 0;
-          finishedGame = false;
-          gameRunning = true;
-          lastQuestion = null;
+        // Fokus awal ke restart
+        restartBtn.focus();
 
-          // Rebuild game area
-          gameArea.innerHTML = `
-        <h2 id="instruction">Cari gambar yang sama</h2>
-        <div id="targetImage"></div>
-        <div id="gridContainer" class="grid"></div>
-        <div id="feedback"></div>
-      `;
+        // --- AUDIO SAAT FOKUS RESTART ---
+        restartBtn.addEventListener("focus", () => {
+          playAudio("audio/match_audio/restart.mp3");
+        });
 
-          // Rebind local references
-          targetImage = document.getElementById("targetImage");
-          gridContainer = document.getElementById("gridContainer");
-          feedbackDisplay = document.getElementById("feedback");
+        // --- AUDIO SAAT FOKUS BACK ---
+        backMenuBtn.addEventListener("focus", () => {
+          playAudio("audio/match_audio/kembali.mp3");
+        });
 
-          // Update tampilan dan load ronde baru
-          updateDisplay();
-          loadRound(false);
-
-          setTimeout(
-            () => speak("Permainan diulang. Fokus ke pilihan gambar."),
-            300
-          );
-        }
-
-        // keyboard choice shortcuts (1..n)
-        document.addEventListener("keydown", (e) => {
-          if (!gameRunning) return;
-          const choices = document.querySelectorAll(".choice");
-          const { choicesKeys } = lastQuestion || {};
-          if (
-            choicesKeys &&
-            e.key >= "1" &&
-            e.key <= String(choicesKeys.length)
-          ) {
-            const index = parseInt(e.key) - 1;
-            if (choices[index]) choices[index].click();
-            else speak("Pilihan tidak tersedia");
+        // Navigasi panah antara dua tombol
+        restartBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            backMenuBtn.focus();
           }
         });
 
-        // stop audio on refresh
-        window.addEventListener("beforeunload", () => {
-          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        backMenuBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            restartBtn.focus();
+          }
         });
+
+        // Kunci fokus agar tidak kabur
+        document.addEventListener("focusin", (e) => {
+          if (finishedGame) {
+            if (e.target !== restartBtn && e.target !== backMenuBtn) {
+              restartBtn.focus();
+            }
+          }
+        });
+      }
+
+      // ====restart =====
+      function restartGame() {
+        stopAllSound();
+
+        const finishScreen = document.getElementById("finishScreen");
+
+        finishScreen.style.display = "none"; // sembunyikan tampilan tamat
+        gameArea.style.display = "block"; // tampilkan kembali game
+
+        score = 0;
+        level = 1;
+        lives = 3;
+        totalCorrect = 0;
+        finishedGame = false;
+        gameRunning = true;
+
+        updateDisplay();
+
+        targetImage.innerHTML = "";
+        gridContainer.innerHTML = "";
+        feedbackDisplay.textContent = "";
+        feedbackDisplay.style.display = "none";
+
+        loadRound(false);
+      }
+
+      // ================== FINISH SCREEN ==================
+      function showFinishScreen(win = true) {
+        gameArea.style.display = "none";
+        const finishScreen = document.getElementById("finishScreen");
+        finishScreen.style.display = "block";
+
+        finishScreen.innerHTML = `
+    <div style="text-align:center; padding:20px;">
+      <h2>${win ? "🎉 Selamat!" : "💀 Game Over"}</h2>
+      <p>${
+        win
+          ? "Anda telah menyelesaikan level tertinggi"
+          : "Nyawa habis, coba lagi ya!"
+      }</p>
+
+      <button id="restartBtnFinish"
+        style="margin-top:20px; padding:12px 20px; font-size:18px;
+        border-radius:12px; background:#fb923c; color:white; border:none;">
+        🔄 Restart Game
+      </button>
+
+      <button id="backMenuBtn"
+        style="margin-top:20px; padding:12px 20px; font-size:18px;
+        border-radius:12px; background:#6b7280; color:white; border:none;">
+        ⬅️ Kembali ke Menu Awal
+      </button>
+    </div>
+  `;
+
+        const restartBtn = document.getElementById("restartBtnFinish");
+        const backMenuBtn = document.getElementById("backMenuBtn");
+
+        restartBtn.onclick = () => restartGame();
+        backMenuBtn.onclick = () =>
+          (window.location.href = "menu.html?mode=audio");
+
+        setFinishFocus();
+
+        async function finishAudio() {
+          if (isAudioMode()) {
+            if (win) await playAudio("audio/match_audio/selamat.mp3");
+            else await playAudio("audio/match_audio/gagal.mp3");
+          }
+
+          setTimeout(() => restartBtn.focus(), 150);
+        }
+
+        finishAudio();
+      }
+
+      // ================== START BUTTON ==================
+      window.addEventListener("load", async () => {
+        await playAudio("audio/match_audio/awal.mp3");
+        startBtn.focus();
+        await playAudio("audio/match_audio/mulai.mp3");
       });
+      startBtn.addEventListener("click", async () => {
+        startBtn.style.display = "none";
+        gameArea.style.display = "block";
+        refreshGameElements();
+        startGame();
+      });
+
+      // ================== BACK BUTTON ==================
+      document.getElementById("btnBack").addEventListener("click", () => {
+        const mode = localStorage.getItem("gameMode") || "audio";
+        window.location.href = `menu.html?mode=${mode}`;
+      });
+
+      // ================== LOAD ==================
       window.addEventListener("load", () => {
         window.scrollTo({ top: 0, behavior: "instant" });
       });
-      function scrollToAfterHeader() {
-        const target = document.getElementById("instruction");
-        if (!target) return;
-
-        const y = target.getBoundingClientRect().top + window.scrollY - 20;
-
-        window.scrollTo({
-          top: y,
-          behavior: "smooth",
-        });
-      } // end DOMContentLoaded `
+      window.addEventListener("beforeunload", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
     </script>
   </body>
 </html>

@@ -335,7 +335,7 @@
         </div>
 
         <div id="gameArea">
-          <h2 id="instruction">Cari gambar yang sama</h2>
+          <h2 id="instruction">Cari gambar dengan harga yang sama</h2>
           <div id="targetImage"></div>
           <div id="gridContainer" class="grid"></div>
         </div>
@@ -373,24 +373,32 @@
       function isVisualMode() {
         return localStorage.getItem("gameMode") === "visual";
       }
-
       function stopSpeak() {
         if ("speechSynthesis" in window) {
           window.speechSynthesis.cancel();
         }
+        isSpeaking = false;
       }
+
+      let isSpeaking = false;
 
       function speak(text, onEnd = null) {
         if (!("speechSynthesis" in window)) return;
+        if (!allowVoice) return; // kalau voice dimatikan, stop
+
+        stopSpeak(); // ✅ HENTIKAN SUARA SEBELUMNYA
 
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = "id-ID";
         msg.rate = 0.9;
         msg.pitch = 1;
 
-        if (onEnd) {
-          msg.onend = onEnd;
-        }
+        isSpeaking = true;
+
+        msg.onend = () => {
+          isSpeaking = false;
+          if (onEnd) onEnd();
+        };
 
         window.speechSynthesis.speak(msg);
       }
@@ -495,30 +503,86 @@
       const feedbackDisplay = document.getElementById("feedback");
       const restartBtn = document.getElementById("restartBtn");
 
+      // =========audio global ================
+      let currentAudio = null;
+
+      function playAudio(src) {
+        return new Promise((resolve) => {
+          // stop audio sebelumnya
+          if (window.currentAudio) {
+            window.currentAudio.pause();
+            window.currentAudio.currentTime = 0;
+          }
+
+          const audio = new Audio(src);
+          window.currentAudio = audio;
+          audio.volume = 1;
+
+          audio.onended = () => {
+            resolve(); // lanjut ke audio berikutnya
+          };
+
+          audio.onerror = () => {
+            resolve(); // kalau error, tetap lanjut
+          };
+
+          audio.play().catch(() => resolve());
+        });
+      }
+
+      function speak(text, onEnd = null) {
+        // Hentikan audio file dulu
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+        }
+
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "id-ID";
+
+        if (onEnd) {
+          utter.onend = onEnd;
+        }
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      function stopAllSound() {
+        window.speechSynthesis.cancel();
+
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
+        }
+      }
+
       // ================== START ==================
 
-      startBtn.addEventListener("focus", () => {
-        if (isVisualMode()) {
-          speak("Tombol mulai permainan. Tekan enter untuk memulai");
-        }
-      });
+      startBtn.addEventListener("click", async () => {
+        stopAllSound();
+        stopSpeak();
+        allowVoice = true;
 
-      startBtn.addEventListener("click", () => {
         startBtn.style.display = "none";
         gameArea.style.display = "block";
         startGame();
 
-        // ✅ Tunggu sedikit biar layout muncul dulu
         setTimeout(() => {
           scrollToAfterHeader();
         }, 200);
 
         if (isVisualMode()) {
-          setTimeout(() => {
-            speak(
-              "Permainan dimulai. Pilih gambar yang sesuai dengan harga yang diminta."
-            );
-          }, 500);
+          (async () => {
+            // 1. Audio: "Mulai"
+            await playAudio("audio/match_visual/mulai.mp3");
+
+            // 2. Audio: "Cari barang dengan harga"
+            await playAudio("audio/match_audio/cari_barang.mp3");
+
+            // 3. TTS: angka rupiahnya
+            speak(`${lastQuestion.correctKey} rupiah`);
+          })();
         }
       });
 
@@ -551,7 +615,7 @@
       let currentChoices = [];
       let currentAnswer = "";
 
-      function loadRound(repeat = false) {
+      async function loadRound(repeat = false) {
         if (!gameRunning || finishedGame) return;
 
         stopSpeak();
@@ -571,14 +635,12 @@
           choicesKeys.sort(() => Math.random() - 0.5);
 
           lastQuestion = { correctKey, choicesKeys };
+          currentChoices = choicesKeys; // ✅ untuk keyboard
         }
 
         const { correctKey, choicesKeys } = lastQuestion;
 
-        targetImage.innerHTML = `
-          <img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />
-        `;
-
+        targetImage.innerHTML = `<img src="${moneyImages[correctKey]}" alt="uang ${correctKey}" />`;
         gridContainer.innerHTML = "";
 
         choicesKeys.forEach((key) => {
@@ -586,24 +648,22 @@
           div.className = "choice";
           const items = itemImages[key];
           const randomItem = items[Math.floor(Math.random() * items.length)];
-
           div.innerHTML = `
-  <img src="${randomItem.src}" alt="${randomItem.label}">
-  <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
-    Rp ${Number(key).toLocaleString()}
-  </p>
-`;
-
+      <img src="${randomItem.src}" alt="${randomItem.label}">
+      <p style="margin-top:8px; font-weight:bold; font-size:16px; color:#ff7b00;">
+        Rp ${Number(key).toLocaleString()}
+      </p>
+    `;
           div.addEventListener("click", () =>
             handleChoice(div, key, correctKey)
           );
-
           gridContainer.appendChild(div);
         });
 
-        // Voice soal (hanya kalau bukan mode selesai)
+        // ✅ TTS dengan await agar soal berikutnya terdengar
         if (isVisualMode() && allowVoice && !finishedGame) {
-          speak(`Cari barang dengan harga ${correctKey} rupiah`);
+          await playAudio("audio/match_audio/cari_barang.mp3");
+          speak(`${correctKey} rupiah`);
         }
       }
 
@@ -620,22 +680,32 @@
           feedbackDisplay.textContent = "✅ Benar!";
           feedbackDisplay.className = "correct";
 
-          if (isVisualMode()) {
-            speak("Benar");
-          }
-
           score += 1;
           totalCorrect++;
-
           checkLevelUp();
 
-          // Kalau game belum selesai → soal baru
-          if (!finishedGame) {
-            setTimeout(() => {
-              feedbackDisplay.textContent = "";
-              feedbackDisplay.className = "";
-              loadRound(false); // soal baru
-            }, 1200);
+          if (isVisualMode()) {
+            stopSpeak();
+
+            (async () => {
+              await playAudio("audio/match_audio/benar.mp3");
+
+              // setelah audio selesai
+              if (!finishedGame) {
+                feedbackDisplay.textContent = "";
+                feedbackDisplay.className = "";
+                loadRound(false);
+              }
+            })();
+          } else {
+            // mode non-visual (tanpa audio)
+            if (!finishedGame) {
+              setTimeout(() => {
+                feedbackDisplay.textContent = "";
+                feedbackDisplay.className = "";
+                loadRound(false);
+              }, 800);
+            }
           }
         } else {
           div.classList.add("wrong");
@@ -643,7 +713,8 @@
           feedbackDisplay.className = "wrong";
 
           if (isVisualMode()) {
-            speak("Salah");
+            stopSpeak();
+            playAudio("audio/match_audio/salah.mp3");
           }
           // ✅ Kurangi nyawa jika salah
           lives--;
@@ -679,48 +750,52 @@
         }
         updateDisplay();
       }
-      function showFinishScreen(win = true) {
+      async function showFinishScreen(win = true) {
+        stopAllSound(); // hentikan audio sebelumnya
+        gameRunning = false;
+
         if (win) {
           gameArea.innerHTML = `
-            <div style="text-align:center; padding:20px;">
-              <h2>🎉 Selamat!</h2>
-              <p>Anda telah menyelesaikan level tertinggi</p>
-              <button id="restartBtn" style="
-                margin-top:15px;
-                padding:12px 24px;
-                font-size:18px;
-                border-radius:12px;
-                background:#ea580c;
-                color:white;
-                border:none;
-              ">Restart Game</button>
-            </div>
-          `;
+      <div style="text-align:center; padding:20px;">
+        <h2>🎉 Selamat!</h2>
+        <p>Anda telah menyelesaikan level tertinggi</p>
+        <button id="restartBtn" style="
+          margin-top:15px;
+          padding:12px 24px;
+          font-size:18px;
+          border-radius:12px;
+          background:#ea580c;
+          color:white;
+          border:none;
+        ">Restart Game</button>
+      </div>
+    `;
+
           if (isVisualMode()) {
-            speak(
-              "Selamat. Kamu telah menyelesaikan permainan. Tekan tombol restart untuk main lagi."
-            );
+            // ⚡ langsung await, jangan pakai IIFE
+            await playAudio("audio/match_visual/selamat.mp3");
+            await playAudio("audio/match_visual/restart.mp3");
           }
         } else {
           gameArea.innerHTML = `
-            <div style="text-align:center; padding:20px;">
-              <h2>💀 Game Over</h2>
-              <p>Nyawa habis, coba lagi ya!</p>
-              <button id="restartBtn" style="
-                margin-top:15px;
-                padding:12px 24px;
-                font-size:18px;
-                border-radius:12px;
-                background:#ea580c;
-                color:white;
-                border:none;
-              ">Restart Game</button>
-            </div>
-          `;
+      <div style="text-align:center; padding:20px;">
+        <h2>💀 Game Over</h2>
+        <p>Nyawa habis, coba lagi ya!</p>
+        <button id="restartBtn" style="
+          margin-top:15px;
+          padding:12px 24px;
+          font-size:18px;
+          border-radius:12px;
+          background:#ea580c;
+          color:white;
+          border:none;
+        ">Restart Game</button>
+      </div>
+    `;
+
           if (isVisualMode()) {
-            speak(
-              "Permainan berakhir. Tekan tombol restart untuk mencoba lagi. Atau tekan tombol kembali untuk ke menu awal game"
-            );
+            await playAudio("audio/match_visual/gagal.mp3");
+            await playAudio("audio/match_visual/restart.mp3");
           }
         }
 

@@ -644,13 +644,52 @@
 
       const btnProceedPayment = document.getElementById("btnProceedPayment");
 
+      async function playMoneyAudioSequence(introSrc, ttsText, enterSrc) {
+        stopCurrentMoneyAudio();
+
+        if (introSrc) {
+          currentMoneyAudio = new Audio(introSrc);
+          await new Promise((resolve) => {
+            currentMoneyAudio.onended = resolve;
+            currentMoneyAudio.play().catch(resolve); // fallback jika error
+          });
+          currentMoneyAudio = null;
+        }
+
+        if (ttsText) {
+          await speakTextAsync(ttsText);
+        }
+
+        if (enterSrc) {
+          currentMoneyAudio = new Audio(enterSrc);
+          await new Promise((resolve) => {
+            currentMoneyAudio.onended = resolve;
+            currentMoneyAudio.play().catch(resolve);
+          });
+          currentMoneyAudio = null;
+        }
+      }
+      let currentMoneyAudio = null;
+
+      function stopCurrentMoneyAudio() {
+        // hentikan audio sebelumnya
+        if (currentMoneyAudio) {
+          currentMoneyAudio.pause();
+          currentMoneyAudio.currentTime = 0;
+          currentMoneyAudio = null;
+        }
+        // hentikan TTS jika sedang berjalan
+        window.speechSynthesis.cancel();
+      }
+
+      // variabel global untuk audio sementara tombol uang
       btnProceedPayment.addEventListener("click", () => {
         moneyButtonsContainer.classList.remove("hidden");
         moneyButtonsContainer.innerHTML = ""; // Kosongkan dulu
 
         // 🔹 Tambahkan ini
         let totalPrice = getTotalKeranjang(); // total semua item
-        let totalPaid = 0;
+        totalPaid = 0;
         denominations.forEach((value) => {
           const btn = document.createElement("button");
           const data = heroData[value];
@@ -659,74 +698,42 @@
           btn.classList.add("money-btn");
 
           btn.addEventListener("click", async () => {
-            const thisValue = value; // nominal uang yang dipilih
-            totalPaid += thisValue;
-            const thisRemaining = totalPrice - totalPaid;
+            stopCurrentMoneyAudio();
+            totalPaid += value;
+            const remaining = totalPrice - totalPaid;
+            const change = Math.abs(remaining);
 
-            if (thisRemaining > 0) {
-              // 🔹 Kamu memasukkan + TTS nominal + Sisa bayar
-              const audioMasuk = new Audio(
-                "audio/kasir_audio/kamu_memasukkan.mp3"
+            if (remaining > 0) {
+              await playMoneyAudioSequence(
+                "audio/kasir_audio/kamu_memasukkan.mp3",
+                formatRupiah(value),
+                "audio/kasir_audio/sisa_membayar.mp3"
               );
-              audioMasuk.play();
-              audioMasuk.onended = async () => {
-                await speakTextAsync(formatRupiah(thisValue));
-                const audioSisa = new Audio(
-                  "audio/kasir_audio/sisa_membayar.mp3"
-                );
-                audioSisa.play();
-                audioSisa.onended = () =>
-                  speakTextAsync(formatRupiah(thisRemaining));
-              };
+              await speakTextAsync(formatRupiah(remaining));
             } else {
-              // 🔹 Uang cukup / kembalian
-              const change = Math.abs(thisRemaining); // pakai thisRemaining, bukan remaining
-
-              // 1️⃣ Audio: "Kamu membayar"
-              const audioIntro = new Audio("audio/kasir_audio/kamu_bayar.mp3");
-              audioIntro.play();
-              audioIntro.onended = async () => {
-                // 2️⃣ TTS total bayar
-                await speakTextAsync(formatRupiah(totalPaid));
-
-                if (change > 0) {
-                  // 3️⃣ Audio: "Kembalian"
-                  const audioKembali = new Audio(
-                    "audio/kasir_audio/kembalian.mp3"
-                  );
-                  audioKembali.play();
-                  audioKembali.onended = async () => {
-                    // 4️⃣ TTS kembalian
-                    await speakTextAsync(formatRupiah(change));
-                    // 5️⃣ Audio transaksi selesai
-                    const audioSelesai = new Audio(
-                      "audio/kasir_audio/transaksi_selesai.mp3"
-                    );
-                    audioSelesai.play();
-                    audioSelesai.onended = () => startGame();
-                  };
-                } else {
-                  // Tidak ada kembalian
-                  const audioSelesai = new Audio(
-                    "audio/kasir_audio/transaksi_selesai.mp3"
-                  );
-                  audioSelesai.play();
-                  audioSelesai.onended = () => startGame();
-                }
-              };
+              await playMoneyAudioSequence(
+                "audio/kasir_audio/kamu_bayar.mp3",
+                formatRupiah(totalPaid)
+              );
+              if (change > 0) {
+                await playMoneyAudioSequence(
+                  "audio/kasir_audio/kembalian.mp3",
+                  formatRupiah(change)
+                );
+              }
+              await playMoneyAudioSequence(
+                "audio/kasir_audio/transaksi_selesai.mp3"
+              );
+              startGame();
             }
           });
 
-          // 🔹 Fokus → audio pengantar + TTS nama uang + audio tekan Enter
           btn.addEventListener("focus", () => {
-            currentMoneyIndex = denominations.indexOf(value); // update index sesuai tombol fokus
-            const audioIntro = new Audio("audio/kasir_audio/ini.mp3");
-            audioIntro.play();
-            audioIntro.onended = async () => {
-              await speakTextAsync(data.name);
-              const audioEnter = new Audio("audio/kasir_audio/enter.mp3");
-              audioEnter.play();
-            };
+            playMoneyAudioSequence(
+              "audio/kasir_audio/ini.mp3",
+              data.name,
+              "audio/kasir_audio/enter.mp3"
+            ).catch(console.error);
           });
 
           moneyButtonsContainer.appendChild(btn);

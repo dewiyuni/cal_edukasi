@@ -278,29 +278,36 @@
       }
       /* Tombol Scroll to Top */
       #scrollTopBtn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 45px;
-        height: 45px;
-        background: #ea580c; /* warna oranye */
+        position: fixed; /* tetap di posisi layar */
+        bottom: 20px; /* jarak dari bawah */
+        right: 20px; /* jarak dari kanan */
+        width: 50px;
+        height: 50px;
+        background-color: rgb(187, 115, 28); /* warna tombol */
         color: white;
         border: none;
-        border-radius: 50%; /* bulat */
-        font-size: 22px;
-        font-weight: bold;
-        cursor: pointer;
-        display: none; /* disembunyikan dulu */
-        align-items: center;
+        border-radius: 50%; /* buat bulat */
+        display: none; /* default tersembunyi */
         justify-content: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-        z-index: 9999;
-        transition: 0.3s ease;
+        align-items: center;
+        cursor: pointer;
+        z-index: 1000; /* supaya selalu di atas */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
       }
 
-      /* Hover */
       #scrollTopBtn:hover {
-        background: #c2410c;
+        background-color: rgb(237, 148, 39); /* warna saat hover */
+        transform: translateY(-2px);
+      }
+
+      #floatingTotal {
+        position: fixed;
+        bottom: 16px;
+        left: 50%; /* posisinya di tengah layar */
+        transform: translateX(-50%); /* geser ke kiri setengah lebarnya */
+        width: 300px; /* ganti sesuai kebutuhan */
+        z-index: 9999;
       }
     </style>
   </head>
@@ -324,22 +331,27 @@
 
       <!-- Konten Utama: Display Harga & Tombol Uang -->
       <main class="p-6">
-        <div class="flex gap-2 w-full mb-3">
+        <div class="flex gap-3 w-full mb-4">
+          <!-- Tombol Pilih Jajan -->
           <button
             id="btnPlus"
-            class="action-btn btn-plus flex-[3] p-4 rounded-xl flex items-center justify-center"
+            class="action-btn btn-plus flex-[4] p-5 rounded-2xl flex items-center justify-center font-bold text-lg shadow-md hover:scale-[1.02] active:scale-[0.98] transition"
           >
             <span id="plusText">Pilih 1 jajan ✨</span>
             <div id="plusLoading" class="loading-spinner hidden ml-2"></div>
           </button>
+
+          <!-- Tombol Keranjang -->
           <button
-            id="btnNext"
-            class="action-btn btn-bayar flex-[1] p-4 rounded-xl flex items-center justify-center"
+            id="btnAddToCart"
+            class="flex-[1] bg-green-600 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-md hover:bg-green-700 hover:scale-[1.05] active:scale-[0.95] transition h-[64px]"
+            aria-label="Tambahkan ke keranjang"
+            title="Tambah ke keranjang"
           >
-            <span>Bayar</span>
-            <div id="plusLoading" class="loading-spinner hidden ml-2"></div>
+            🛒
           </button>
         </div>
+
         <!-- Display Nama Barang & Harga & Quantity -->
         <div
           class="bg-gray-100 p-4 rounded-lg mb-4 border-2 border-dashed border-gray-400"
@@ -401,10 +413,38 @@
             Lanjut ke Bayar
           </button>
         </div>
+        <div id="cartDisplay" class="bg-white p-3 rounded-lg mb-4 border">
+          <p
+            class="font-bold mb-2 text-lg text-gray-700 flex items-center gap-2"
+          >
+            Keranjang 🛒
+          </p>
+          <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+                  <th class="p-3">Barang</th>
+                  <th class="p-3 text-center">Qty</th>
+                  <th class="p-3 text-right">Harga</th>
+                  <th class="p-3 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="cartList"></tbody>
+            </table>
+          </div>
 
+          <button
+            id="btnNext"
+            class="action-btn btn-bayar w-full p-4 mb-3 mt-3 rounded-xl flex items-center justify-center"
+          >
+            <span>Bayar</span>
+            <div id="plusLoading" class="loading-spinner hidden ml-2"></div>
+          </button>
+          <button id="scrollTopBtn">↑</button>
+        </div>
         <!-- Display Uang Pembayaran (Uang yang dimasukkan) -->
         <div class="bg-display-blue p-4 rounded-lg mb-6 shadow-xl">
-          <p class="text-xl font-bold text-white mb-2" id="sectionUang">
+          <p class="text-xl font-bold text-black mb-2" id="sectionUang">
             Total Uang Dibayar:
           </p>
           <div
@@ -465,6 +505,13 @@
           </div>
         </div>
       </main>
+    </div>
+    <!-- Popup Total Harga -->
+    <div
+      id="floatingTotal"
+      class="fixed bottom-4 left-4 right-4 bg-green-600 text-white p-4 rounded-2xl shadow-xl text-center font-bold text-lg hidden z-50"
+    >
+      Total: <span id="floatingTotalText">Rp 0</span>
     </div>
 
     <script type="module">
@@ -658,7 +705,7 @@
           const btn = document.createElement("button");
           const data = heroData[value];
           btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/>
-                           <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
+                                     <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
           btn.classList.add("money-btn");
           btn.style.display = "flex";
           btn.style.flexDirection = "column";
@@ -889,43 +936,40 @@
           behavior: "smooth",
         });
       }
+      function scrollToAfterBayar() {
+        const header = document.getElementById("btnNext");
+        if (!header) return;
 
-      // --- TTS FEEDBACK (pakai browser speechSynthesis) ---
-      function playVerbalFeedback(
-        message,
-        voiceName = "Google Bahasa Indonesia"
-      ) {
-        if (!message) return;
+        const headerBottom = header.offsetTop + header.offsetHeight;
 
-        // Hentikan jika ada suara lama
-        window.speechSynthesis.cancel();
-
-        btnPlayAudio.disabled = true;
-        playAudioText.textContent = "Memutar...";
-        audioLoading.classList.remove("hidden");
-
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "id-ID";
-
-        // Pilih voice jika tersedia
-        const voices = window.speechSynthesis.getVoices();
-        const selectedVoice = voices.find((v) => v.name.includes(voiceName));
-        if (selectedVoice) utterance.voice = selectedVoice;
-
-        utterance.onend = () => {
-          btnPlayAudio.disabled = false;
-          playAudioText.textContent = "Kasir Bicara";
-          audioLoading.classList.add("hidden");
-        };
-
-        utterance.onerror = () => {
-          btnPlayAudio.disabled = false;
-          playAudioText.textContent = "Gagal Bicara";
-          audioLoading.classList.add("hidden");
-        };
-
-        window.speechSynthesis.speak(utterance);
+        window.scrollTo({
+          top: headerBottom,
+          behavior: "smooth",
+        });
       }
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+      function scrollToBottom() {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+      function scrollToCart() {
+        const cart = document.getElementById("cartDisplay"); // target elemen
+        if (!cart) return;
+
+        // Scroll ke posisi atas elemen
+        window.scrollTo({
+          top: cart.offsetTop,
+          behavior: "smooth",
+        });
+      }
+
       // --- EVENT LISTENERS & UI GENERATION ---
 
       // Tombol Kuantiitas Plus
@@ -963,26 +1007,26 @@
         if (isCoin) {
           // Gambar koin, bulat
           imageHtml = `
-          <img src="${data.img}"
-               alt="Koin ${formatRupiah(value)}"
-               style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
-        `;
+                    <img src="${data.img}"
+                         alt="Koin ${formatRupiah(value)}"
+                         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 50%; object-fit: contain; background:#fff;">
+                  `;
         } else {
           // Gambar uang kertas, TANPA CROP
           imageHtml = `
-          <img src="${data.img}"
-               alt="Uang ${formatRupiah(value)}"
-               style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
-        `;
+                    <img src="${data.img}"
+                         alt="Uang ${formatRupiah(value)}"
+                         style="width: ${imgWidth}px; height: ${imgHeight}px; border-radius: 8px; object-fit: contain; background:#fff;">
+                  `;
         }
 
         // Isi tombol
         button.innerHTML = `
-        ${imageHtml}
-        <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
-          ${data.name}
-        </span>
-      `;
+                  ${imageHtml}
+                  <span style="font-size: 0.7rem; margin-top: 4px; text-align: center; display:block;">
+                    ${data.name}
+                  </span>
+                `;
 
         // Style tombol
         button.classList.add("money-btn");
@@ -1016,36 +1060,36 @@
       });
       // Tombol Minus (Kurang/Reset Pembayaran)
       btnMinus.addEventListener("click", () => {
+        // Hentikan audio lain dulu
+        stopCurrentAudio();
+
         totalPaid = 0;
         updateDisplay();
 
-        const msg = "Pembayaran diulang. Silakan masukkan uang lagi.";
+        const msg = "Pembayaran diulang. Silakan tekan tombol bayar lagi.";
+
+        // Tampilkan pesan
         messageBox.className =
           "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
         messageBox.textContent = msg;
         messageBox.classList.remove("hidden");
         btnPlayAudio.classList.remove("hidden");
 
-        // Buat utterance
-        const utter = new SpeechSynthesisUtterance(`Kasir bilang: ${msg}`);
-        utter.lang = "id-ID";
+        // Reset tampilan harga
+        paymentDisplay.textContent = "Rp 0";
+        itemPriceDisplay.textContent = "Rp 0";
 
-        // Event saat suara selesai
-        utter.onend = () => {
-          // Scroll otomatis ke tombol uang
-          const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
-          if (firstMoneyBtn) {
-            firstMoneyBtn.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-            firstMoneyBtn.focus(); // kalau mau langsung fokus juga
-          }
+        // 🔊 Audio: "Pembayaran diulang"
+        const audioReset = new Audio("audio/kasir_visual/ulang.mp3");
+        audioReset.play();
+        scrollToBottom();
+
+        // 🔊 Setelah itu: "Silakan tekan tombol bayar lagi"
+        audioReset.onended = () => {
+          const audioAgain = new Audio("audio/kasir_audio/bayar.mp3");
+          scrollToCart();
+          audioAgain.play();
         };
-
-        // Mulai suara
-        window.speechSynthesis.cancel(); // hentikan suara lama
-        window.speechSynthesis.speak(utter);
       });
 
       // Tombol Plus (Tambah/Harga Baru)
@@ -1053,16 +1097,23 @@
 
       // Tombol Sama Dengan (Hitung Kembalian)
       btnEquals.addEventListener("click", () => {
+        // Hentikan audio lain dulu
+        stopCurrentAudio();
         const change = totalPaid - itemPrice;
         const currentItemPrice = itemPrice; // simpan snapshot
         const currentTotalPaid = totalPaid; // simpan snapshot
         let feedbackMessage = "";
 
         if (currentItemPrice === 0) {
+          // ini belum ===========================================================
+          // =============================================
+          currentAudio = new Audio("audio/kasir_visual/hai.mp3");
+          currentAudio.play();
           feedbackMessage =
             'Hai! Tekan "Pilih Jajan" dulu untuk memulai transaksi.';
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-100 text-yellow-700";
+          scrollToTop();
           messageBox.innerHTML = feedbackMessage;
 
           // 🔹 Scroll otomatis ke tombol Pilih Jajan
@@ -1075,18 +1126,30 @@
             btnPilihJajan.focus(); // optional, biar keyboard user langsung bisa tekan Enter/Space
           }
         } else if (currentTotalPaid === 0) {
-          feedbackMessage =
+          // Audio peringatan
+          const audioLess = new Audio("audio/kasir_visual/blm_bayar.mp3");
+          audioLess.play();
+
+          // Pesan teks + style
+          const feedbackMessage =
             "Ups, Kamu belum membayar! Coba masukkan uang yang tepat. Semangat!";
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
           messageBox.innerHTML = feedbackMessage;
-        } else if (change < 0) {
-          feedbackMessage = `Uangmu kurang ${formatRupiah(
-            Math.abs(change)
-          )}! Coba hitung lagi.`;
           messageBox.className =
             "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
 
+          // Scroll ke bawah supaya pesan terlihat
+          scrollToAfterBayar();
+        } else if (change < 0) {
+          // Audio peringatan kurang uang
+          const audioLess = new Audio("audio/kasir_visual/kurang.mp3");
+          audioLess.play();
+
+          // Pesan feedback
+          const feedbackMessage = `Uangmu kurang ${formatRupiah(
+            Math.abs(change)
+          )}! Coba hitung lagi.`;
+
+          // Buat HTML pecahan uang
           const uangPecahan = [
             100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
           ];
@@ -1100,20 +1163,42 @@
             }
           });
           gambarHTML += "</div>";
-          messageBox.innerHTML = feedbackMessage + gambarHTML;
-        } else {
-          // Transaksi berhasil
-          feedbackMessage = `Yey! Transaksi berhasil! Total kembalianmu adalah ${formatRupiah(
-            change
-          )}.<br>Kamu hebat dalam menghitung!`;
-          messageBox.className =
-            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
 
+          // Tampilkan pesan + gambar
+          messageBox.innerHTML = feedbackMessage + gambarHTML;
+          messageBox.className =
+            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-100 text-red-700";
+          scrollToBottom();
+
+          audioLess.onended = () => {
+            // TTS untuk jumlah kekurangan
+            const ttsLess = new SpeechSynthesisUtterance(
+              `${formatRupiah(Math.abs(change))}`
+            );
+            ttsLess.lang = "id-ID";
+
+            ttsLess.onend = () => {
+              // Audio terakhir: coba hitung lagi
+              const audioRetry = new Audio(
+                "audio/kasir_visual/hitung_lagi.mp3"
+              );
+              audioRetry.play();
+
+              audioRetry.onended = () => {
+                // Scroll baru dijalankan setelah audio terakhir selesai
+                scrollToAfterBayar();
+              };
+            };
+
+            speechSynthesis.speak(ttsLess);
+          };
+        } else {
+          // 3️⃣ Transaksi berhasil (tampilkan teks + pecahan uang)
+          let sisa = change;
           const uangPecahan = [
             100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100,
           ];
-          let sisa = change;
-          let gambarHTML = "<div class='flex flex-wrap justify-center mt-3'>";
+          let gambarHTML = `<div class='flex flex-wrap justify-center mt-3'>`;
           uangPecahan.forEach((nominal) => {
             let jumlah = Math.floor(sisa / nominal);
             sisa %= nominal;
@@ -1122,65 +1207,48 @@
             }
           });
           gambarHTML += "</div>";
-          messageBox.innerHTML = feedbackMessage + gambarHTML;
+
+          messageBox.innerHTML =
+            `Yey! Transaksi berhasil! Total kembalianmu adalah ${formatRupiah(
+              change
+            )}.<br>Kamu hebat dalam menghitung!` + gambarHTML;
+          messageBox.className =
+            "mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-100 text-green-700";
+
+          // 1️⃣ Audio pertama: "Yey! Transaksi berhasil!"
+          const audio1 = new Audio("audio/kasir_visual/transaksi_berhasil.mp3");
+          audio1.play();
+
+          // 2️⃣ TTS untuk jumlah kembalian saja
+          audio1.onended = () => {
+            const ttsChange = new SpeechSynthesisUtterance(
+              ` ${formatRupiah(change)}`
+            );
+            ttsChange.lang = "id-ID";
+
+            ttsChange.onend = () => {
+              // 3️⃣ Audio terakhir: "Kamu hebat dalam menghitung!"
+              const audio2 = new Audio("audio/kasir_visual/apresiasi.mp3");
+              audio2.play();
+              audio2.onended = () => {
+                scrollToTop(); // scroll baru jalan setelah audio terakhir
+              };
+            };
+
+            speechSynthesis.speak(ttsChange);
+          };
+
+          resetCart();
+          scrollToBottom();
         }
 
         messageBox.classList.remove("hidden");
         btnPlayAudio.classList.remove("hidden");
 
-        const utter = new SpeechSynthesisUtterance(messageBox.textContent);
-        utter.lang = "id-ID";
-
-        utter.onend = () => {
-          if (currentItemPrice === 0) {
-            // Scroll ke tombol Pilih Jajan
-            const btnPilihJajan = document.getElementById("btnPilihJajan");
-            if (btnPilihJajan) {
-              btnPilihJajan.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-              btnPilihJajan.focus();
-            }
-          } else if (currentTotalPaid <= 0) {
-            // Scroll ke tombol uang
-            const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
-            if (firstMoneyBtn) {
-              firstMoneyBtn.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-              firstMoneyBtn.focus();
-            }
-          } else if (change >= 0) {
-            // Scroll ke menu kembalian / messageBox
-            messageBox.scrollIntoView({ behavior: "smooth", block: "center" });
-
-            // Reset transaksi setelah scroll
-            itemPrice = 0;
-            basePrice = 0;
-            itemQuantity = 0;
-            totalPaid = 0;
-            itemPriceDisplay.textContent = formatRupiah(0);
-            if (paymentDisplay) paymentDisplay.textContent = formatRupiah(0);
-            itemNameDisplay.textContent = "Tekan 'Pilih Jajan'";
-            itemGambarDisplay.textContent = " ";
-            updateDisplay();
-          } else if (change < 0) {
-            // Uang kurang → scroll ke tombol uang
-            const firstMoneyBtn = moneyButtonsContainer.querySelector("button");
-            if (firstMoneyBtn) {
-              firstMoneyBtn.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-              firstMoneyBtn.focus();
-            }
-          }
-        };
+        // hentikan TTS lain
+        window.speechSynthesis.cancel();
 
         window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
       });
       // Tombol Play Audio terpisah
       btnPlayAudio.addEventListener("click", () => {
@@ -1236,21 +1304,188 @@
           behavior: "smooth",
         });
       });
+
       window.addEventListener("load", () => {
         window.scrollTo({ top: 0, behavior: "instant" });
       });
       const btnNext = document.getElementById("btnNext");
 
       btnNext.addEventListener("click", () => {
-        const target = document.getElementById("sectionUang");
-        if (!target) return;
+        let total = 0;
 
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
+        cart.forEach((item) => {
+          total += item.price * item.qty;
         });
+
+        itemPrice = total;
+        itemPriceDisplay.textContent = `Rp ${total.toLocaleString("id-ID")}`;
+        scrollToAfterBayar();
       });
+
+      // ============== keranjang ==========================
+      const btnAddToCart = document.getElementById("btnAddToCart");
+      const cartList = document.getElementById("cartList");
+
+      let cart = [];
+      /* isi cart:[
+                  { name: "Permen", price: 2000, qty: 2 },
+                  { name: "Coklat", price: 5000, qty: 1 }]
+                */
+
+      function renderCart() {
+        const cartList = document.getElementById("cartList");
+        cartList.innerHTML = "";
+
+        cart.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.className = "border-b last:border-0 hover:bg-gray-50";
+
+          tr.innerHTML = `
+            <td class="p-3 font-medium text-gray-800">${item.name}</td>
+            <td class="p-3 text-center font-semibold">${item.qty}</td>
+            <td class="p-3 text-right">
+              Rp ${item.price.toLocaleString("id-ID")}
+            </td>
+            <td class="p-3 text-right font-bold text-green-600">
+              Rp ${(item.price * item.qty).toLocaleString("id-ID")}
+            </td>
+          `;
+
+          cartList.appendChild(tr);
+        });
+
+        updateCartTotal();
+      }
+      btnAddToCart.addEventListener("click", () => {
+        if (
+          !itemNameDisplay.textContent ||
+          basePrice === 0 ||
+          itemQuantity === 0
+        ) {
+          alert("Pilih item dan jumlah dulu ya 😊");
+          return;
+        }
+
+        const itemName = itemNameDisplay.textContent.trim();
+
+        const existingItem = cart.find((item) => item.name === itemName);
+
+        if (existingItem) {
+          // ✅ Tambah qty (akumulasi)
+          existingItem.qty += itemQuantity;
+        } else {
+          cart.push({
+            name: itemName,
+            price: basePrice,
+            qty: itemQuantity,
+          });
+          scrollToCart();
+        }
+
+        renderCart();
+
+        // 🔁 Reset quantity biar tidak ketumpuk
+        itemNameDisplay.textContent = "Pilih Jajanan Baru";
+        itemPriceDisplay.textContent = "Rp 0";
+        quantityDisplay.textContent = "0";
+        itemGambarDisplay.textContent = "";
+        itemQuantity = 0; // ✅ penting ini
+        basePrice = 0;
+        itemPrice = 0;
+      });
+
+      function resetCart() {
+        cart = [];
+
+        // Kosongkan UI keranjang
+        const cartList = document.getElementById("cartList");
+        cartList.innerHTML = "";
+
+        // Reset quantity & item
+        itemQuantity = 0;
+        basePrice = 0;
+        itemPrice = 0;
+        totalPaid = 0;
+
+        // Reset tampilan
+        quantityDisplay.textContent = "0";
+        itemNameDisplay.textContent = 'Tekan "Pilih Jajan"';
+        itemPriceDisplay.textContent = "Rp 0";
+        paymentDisplay.textContent = "Rp 0";
+
+        // Reset gambar
+        const imgBox = document.getElementById("itemGambarDisplay");
+        imgBox.innerHTML = "";
+
+        // Disable tombol qty
+        btnQuantityPlus.disabled = true;
+        btnQuantityMinus.disabled = true;
+      }
+      document.getElementById("btnNext").addEventListener("click", () => {
+        if (totalPaid >= itemPrice) {
+          resetCart();
+        }
+      });
+      // pop total harga
+      const totalSection = document.getElementById("cartTotalDisplay");
+      const floatingTotal = document.getElementById("floatingTotal");
+      const floatingTotalText = document.getElementById("floatingTotalText");
+
+      window.addEventListener("scroll", () => {
+        const rect = totalSection.getBoundingClientRect();
+
+        // Kalau bagian total aslinya sudah tidak kelihatan
+        if (rect.bottom < 0) {
+          floatingTotal.classList.remove("hidden");
+        } else {
+          floatingTotal.classList.add("hidden");
+        }
+      });
+      // ===== POPUP TOTAL HARGA SAAT TIDAK TERLIHAT =====
+      const itemPriceEl = document.getElementById("itemPriceDisplay");
+
+      // Update teks popup
+      function updateFloatingTotal() {
+        floatingTotalText.textContent = itemPriceDisplay.textContent;
+      }
+
+      // Cek apakah total asli masih terlihat di layar
+      function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        return (
+          rect.top >= 0 &&
+          rect.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight)
+        );
+      }
+
+      // Show / hide popup saat scroll
+      window.addEventListener("scroll", () => {
+        if (!isElementInViewport(itemPriceEl) && itemPrice > 0) {
+          floatingTotal.classList.remove("hidden");
+          updateFloatingTotal();
+        } else {
+          floatingTotal.classList.add("hidden");
+        }
+      });
+
+      // Juga update saat harga berubah
+      function updateTotalPriceDisplay() {
+        itemPriceDisplay.textContent = `Rp ${itemPrice.toLocaleString(
+          "id-ID"
+        )}`;
+        updateFloatingTotal();
+      }
+
+      // stop audio
+      let currentAudio = null;
+      function stopCurrentAudio() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
+        }
+      }
     </script>
-    <button id="scrollTopBtn">↑</button>
   </body>
 </html>
