@@ -884,7 +884,13 @@
           const btn = document.createElement("button");
           const data = heroData[value];
           btn.classList.add("money-btn");
-          btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/><span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
+
+          btn.tabIndex = -1; // <-- TAB TIDAK BISA MASUK
+
+          btn.innerHTML = `
+    <img src="${data.img}" alt="${data.name}"/>
+    <span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>
+  `;
 
           // when user clicks a money button -> play sequence, stop others
           btn.addEventListener("click", async () => {
@@ -927,7 +933,7 @@
 
           moneyButtonsContainer.appendChild(btn);
         });
-
+        currentMoneyIndex = 0;
         // fokus ke tombol pertama
         const first = moneyButtonsContainer.querySelector("button");
         if (first) first.focus();
