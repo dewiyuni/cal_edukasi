@@ -418,56 +418,16 @@
       }
 
       /* Helper khusus money button: intro -> TTS -> enter */
-      async function playMoneyAudioSequence(introSrc, ttsText, enterSrc) {
-        // hentikan audio money/tidak supaya sequence bisa mulai clean
-        if (currentMoneyAudio) {
-          try {
-            currentMoneyAudio.pause();
-            currentMoneyAudio.currentTime = 0;
-          } catch (e) {}
-          currentMoneyAudio = null;
-        }
-        stopSpeak();
+      async function playMoneyAudioSequence(a1, text, a2, signal) {
+        if (signal.aborted) return;
 
-        if (introSrc) {
-          currentMoneyAudio = new Audio(introSrc);
-          await new Promise((res) => {
-            currentMoneyAudio.onended = () => {
-              currentMoneyAudio = null;
-              res();
-            };
-            currentMoneyAudio.onerror = () => {
-              currentMoneyAudio = null;
-              res();
-            };
-            currentMoneyAudio.play().catch(() => {
-              currentMoneyAudio = null;
-              res();
-            });
-          });
-        }
+        await playAudioAsync(a1);
+        if (signal.aborted) return;
 
-        if (ttsText) {
-          await speakTextAsync(ttsText);
-        }
+        await speakTextAsync(text);
+        if (signal.aborted) return;
 
-        if (enterSrc) {
-          currentMoneyAudio = new Audio(enterSrc);
-          await new Promise((res) => {
-            currentMoneyAudio.onended = () => {
-              currentMoneyAudio = null;
-              res();
-            };
-            currentMoneyAudio.onerror = () => {
-              currentMoneyAudio = null;
-              res();
-            };
-            currentMoneyAudio.play().catch(() => {
-              currentMoneyAudio = null;
-              res();
-            });
-          });
-        }
+        await playAudioAsync(a2);
       }
 
       /* -------------- UI + GAME DATA (dipertahankan dari file mu) -------------- */
@@ -834,7 +794,6 @@
         if (e.key !== "+" && e.key !== "=" && e.key !== "-") return;
 
         // hentikan TTS / audio yang mungkin aktif
-        stopAllSound();
         audioJumlah.pause();
         audioJumlah.currentTime = 0;
         audioTab.pause();
@@ -869,10 +828,11 @@
 
       /* -------------- PAYMENT / MONEY BUTTONS -------------- */
       const btnProceedPayment = document.getElementById("btnProceedPayment");
-
+      let moneyFocusController = null;
       btnProceedPayment.addEventListener("click", () => {
         // stop other audio so money-buttons audio starts clean
         stopAllSound();
+        window.speechSynthesis.cancel();
 
         moneyButtonsContainer.classList.remove("hidden");
         moneyButtonsContainer.innerHTML = "";
@@ -923,12 +883,26 @@
 
           // fokus pada tombol -> gunakan helper async agar dapat dibatalkan
           btn.addEventListener("focus", () => {
-            // jangan await di sini, cukup jalankan async sequence
+            // HENTIKAN SEMUA SUARA YANG SEDANG JALAN
+            stopAllSound();
+            window.speechSynthesis.cancel();
+
+            // HENTIKAN SEQUENCE FOCUS YANG LAMA
+            if (moneyFocusController) {
+              moneyFocusController.abort();
+            }
+
+            // BUAT CONTROLLER BARU UNTUK SEQUENCE BARU
+            moneyFocusController = new AbortController();
+            const signal = moneyFocusController.signal;
+
+            // JALANKAN AUDIO FOKUS
             playMoneyAudioSequence(
               "audio/kasir_audio/ini.mp3",
               data.name,
-              "audio/kasir_audio/enter.mp3"
-            ).catch(console.error);
+              "audio/kasir_audio/enter.mp3",
+              signal
+            ).catch(() => {});
           });
 
           moneyButtonsContainer.appendChild(btn);
@@ -979,13 +953,14 @@
       const audioBayar = new Audio("audio/kasir_audio/bayar.mp3");
 
       btnAddToCart.addEventListener("focus", () => {
-        stopAllSound(); // pastikan bersih
+        stopAllSound();
+        window.speechSynthesis.cancel();
         audioKeranjang.currentTime = 0;
         audioKeranjang.play().catch(() => {});
       });
       btnProceedPayment.addEventListener("focus", () => {
-        stopAllSound(); // pastikan bersih
-        // 🔽 scroll otomatis ke tombol bayar
+        stopAllSound();
+        window.speechSynthesis.cancel(); // 🔽 scroll otomatis ke tombol bayar
         btnProceedPayment.scrollIntoView({
           behavior: "smooth",
           block: "center",
