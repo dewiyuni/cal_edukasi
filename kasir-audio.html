@@ -800,11 +800,11 @@
       /* -------------- QUANTITY AUDIO HANDLING (tetap sama konsep) -------------- */
       const audioJumlah = new Audio("audio/kasir_audio/jumlah.mp3");
       const audioTab = new Audio("audio/kasir_audio/instruksi2.mp3");
+
       document.addEventListener("keydown", (e) => {
         if (!menuAktif) return;
         if (e.key !== "+" && e.key !== "=" && e.key !== "-") return;
 
-        // ❌ cek jika fokus di tombol Add to Cart atau tombol bayar / money buttons
         const active = document.activeElement;
         if (
           active === btnAddToCart ||
@@ -812,37 +812,42 @@
           active === keranjangSection ||
           active.closest("#moneyButtons")
         ) {
-          return; // jangan lakukan apa-apa
+          return; // jangan lakukan apa-apa saat fokus di AddToCart, bayar, keranjang, atau tombol uang
         }
-        // 🔥 hentikan SEMUA AUDIO yang sedang jalan
+
+        // 🔥 hentikan semua audio/TTS yang sedang jalan
         stopAllSound();
         window.speechSynthesis.cancel();
-        // hentikan TTS / audio yang mungkin aktif
         audioJumlah.pause();
         audioJumlah.currentTime = 0;
         audioTab.pause();
         audioTab.currentTime = 0;
 
+        // helper TTS untuk jumlah
         const playNumberTTS = (num, callback) => {
           const utter = new SpeechSynthesisUtterance(`${num}`);
           utter.lang = "id-ID";
           utter.onend = callback;
           window.speechSynthesis.speak(utter);
         };
+
+        // jalankan audio jumlah + TTS + instruksi
         const handleQuantityChange = () => {
           audioJumlah.play();
-          setTimeout(() => {
+          audioJumlah.onended = () => {
             playNumberTTS(itemQuantity, () => {
               audioTab.play();
             });
-          }, 500);
+          };
         };
 
+        // update quantity
         if (e.key === "+" || e.key === "=") {
           if (itemQuantity < 99) itemQuantity++;
           recalc();
           handleQuantityChange();
         }
+
         if (e.key === "-") {
           if (itemQuantity > 1) itemQuantity--;
           recalc();
@@ -1013,13 +1018,19 @@
           popup.classList.remove("hidden");
           setTimeout(() => popup.classList.add("hidden"), 2000);
 
-          // mainkan audio alert
-          const audioAlert = new Audio("audio/kasir_visual/hai.mp3");
-          audioAlert.play().catch(() => {});
+          // Audio pertama
+          const audioHai = new Audio("audio/kasir_visual/hai.mp3");
+          audioHai.play().catch(() => {});
 
-          // Fokus kembali ke tombol pilih menu setelah audio selesai
-          audioAlert.addEventListener("ended", () => {
-            btnPlus.focus(); // ganti ke tombol + atau tombol menu
+          // Setelah audio pertama selesai, mainkan audio kedua
+          audioHai.addEventListener("ended", () => {
+            const audioEnter = new Audio("audio/kasir_audio/enter.mp3");
+            audioEnter.play().catch(() => {});
+
+            // Fokus kembali ke tombol pilih menu setelah audio selesai
+            audioEnter.addEventListener("ended", () => {
+              btnPlus.focus();
+            });
           });
 
           return;
@@ -1190,9 +1201,20 @@
         }
 
         // Dari tampilan keranjang → ArrowLeft pindah ke Pilih Jajan
+        // Dari tampilan keranjang → ArrowLeft pindah ke Pilih Jajan
         if (active === keranjangSection && e.key === "ArrowLeft") {
           e.preventDefault();
           btnPlus.focus();
+
+          // Audio pertama
+          const audioHai = new Audio("audio/kasir_visual/hai.mp3");
+          audioHai.play().catch(() => {});
+
+          // Setelah selesai, audio kedua
+          audioHai.addEventListener("ended", () => {
+            const audioEnter = new Audio("audio/kasir_audio/enter.mp3");
+            audioEnter.play().catch(() => {});
+          });
         }
       });
     </script>
