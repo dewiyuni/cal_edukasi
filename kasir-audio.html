@@ -588,17 +588,185 @@
         updateDisplay();
       }
 
-      /* -------------- MENU AUDIO (bisa dihentikan oleh stopAllSound) -------------- */
-      async function playMenuAudio(name, price) {
-        try {
-          // jangan auto-hentikan di sini — caller bisa hentikan bila perlu
-          await playAudioAsync("audio/kasir_audio/menu_baru.mp3");
-          await speakTextAsync(`${name}. Harganya ${formatRupiah(price)}.`);
-          await playAudioAsync("audio/kasir_audio/instruksi1.mp3");
-          await playAudioAsync("audio/kasir_audio/instruksi2.mp3");
-        } catch (err) {
-          console.error("Error playMenuAudio:", err);
+      /* --------------------------------------------------------------------------
+   MENU AUDIO — berhenti hanya saat TAB pindah fokus
+   -------------------------------------------------------------------------- */
+
+      let menuAudioAbortController = null;
+
+      let tabPressed = false;
+      let mouseDown = false;
+      let enterPressed = false;
+
+      /* --- Detect MOUSE --- */
+      document.addEventListener("mousedown", () => (mouseDown = true));
+      document.addEventListener("mouseup", () => (mouseDown = false));
+
+      /* --- Detect TAB --- */
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Tab") tabPressed = true;
+      });
+      document.addEventListener("keyup", (e) => {
+        if (e.key === "Tab") tabPressed = false;
+      });
+
+      /* --- Detect ENTER --- */
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") enterPressed = true;
+      });
+      document.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") enterPressed = false;
+      });
+
+      /* --- STOP audio hanya jika pindah fokus karena TAB --- */
+      document.addEventListener("focusout", (e) => {
+        // 1. Kalau klik, jangan stop
+        if (mouseDown) return;
+
+        // 2. Kalau Enter, jangan stop
+        if (enterPressed) return;
+
+        // 3. Hanya berhenti kalau TAB ditekan
+        if (!tabPressed) return;
+
+        // 4. Pastikan ada fokus tujuan
+        const next = e.relatedTarget;
+        if (!next) return;
+
+        setTimeout(() => {
+          stopMenuAudio();
+        }, 30);
+      });
+
+      /* --- Fungsi STOP --- */
+      function stopMenuAudio() {
+        if (menuAudioAbortController) {
+          menuAudioAbortController.abort();
         }
+        window.speechSynthesis.cancel();
+        stopAllSound();
+      }
+
+      /* --- MAIN: Mulai audio menu --- */
+      async function playMenuAudio(name, price) {
+        // Stop chain lama
+        if (menuAudioAbortController) {
+          menuAudioAbortController.abort();
+        }
+
+        // Controller baru
+        menuAudioAbortController = new AbortController();
+        const { signal } = menuAudioAbortController;
+
+        // Bersihkan audio lama
+        window.speechSynthesis.cancel();
+        stopAllSound();
+
+        try {
+          await playMenuAudioTask(name, price, signal);
+        } catch (err) {
+          if (err.message !== "ABORTED") {
+            console.error("Menu audio error:", err);
+          }
+        }
+      }
+
+      /* cancel-aware playAudio + speak (gunakan signal) */
+      function playAudioAsyncMenu(src, signal) {
+        return new Promise((resolve) => {
+          // buat audio dan simpan ke currentAudio agar stopAllSound juga bisa mempengaruhi
+          currentAudio = new Audio(src);
+          const audio = currentAudio;
+
+          const cleanup = () => {
+            audio.removeEventListener("ended", onEnd);
+            audio.removeEventListener("error", onEnd);
+            if (signal) signal.removeEventListener("abort", onAbort);
+            // clear reference only if it's still this audio
+            if (currentAudio === audio) currentAudio = null;
+          };
+
+          const onEnd = () => {
+            cleanup();
+            resolve();
+          };
+
+          const onAbort = () => {
+            try {
+              audio.pause();
+              audio.currentTime = 0;
+            } catch (e) {}
+            cleanup();
+            resolve();
+          };
+
+          audio.addEventListener("ended", onEnd);
+          audio.addEventListener("error", onEnd);
+
+          if (signal) signal.addEventListener("abort", onAbort);
+
+          // play (ignore errors)
+          audio.play().catch(() => {
+            cleanup();
+            resolve();
+          });
+        });
+      }
+
+      function speakTextAsyncMenu(text, signal) {
+        return new Promise((resolve) => {
+          if (!text) return resolve();
+
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = "id-ID";
+
+          const cleanup = () => {
+            utter.onend = null;
+            utter.onerror = null;
+            if (signal) signal.removeEventListener("abort", onAbort);
+          };
+
+          const onEnd = () => {
+            cleanup();
+            resolve();
+          };
+
+          const onAbort = () => {
+            try {
+              window.speechSynthesis.cancel();
+            } catch (e) {}
+            cleanup();
+            resolve();
+          };
+
+          utter.onend = onEnd;
+          utter.onerror = onEnd;
+          if (signal) signal.addEventListener("abort", onAbort);
+
+          window.speechSynthesis.speak(utter);
+        });
+      }
+
+      /* playMenuAudioTask: periksa abort sebelum tiap step, dan teruskan signal ke helper */
+      async function playMenuAudioTask(name, price, signal) {
+        const checkAbort = () => {
+          if (signal && signal.aborted) throw new Error("ABORTED");
+        };
+
+        checkAbort();
+        await playAudioAsyncMenu("audio/kasir_audio/menu_baru.mp3", signal);
+
+        checkAbort();
+        await speakTextAsyncMenu(
+          `${name}. Harganya ${formatRupiah(price)}.`,
+          signal
+        );
+
+        checkAbort();
+        await playAudioAsyncMenu("audio/kasir_audio/instruksi1.mp3", signal);
+
+        checkAbort();
+        await playAudioAsyncMenu("audio/kasir_audio/instruksi2.mp3", signal);
       }
 
       /* -------------- LOAD MENU LOOP -------------- */
@@ -716,6 +884,7 @@
           const btn = document.createElement("button");
           const data = heroData[value];
           btn.classList.add("money-btn");
+          btn.tabIndex = -1;
           btn.innerHTML = `<img src="${data.img}" alt="${data.name}"/><span style="font-size:0.7rem;display:block;text-align:center;">${data.name}</span>`;
 
           // when user clicks a money button -> play sequence, stop others
